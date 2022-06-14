@@ -13,16 +13,21 @@
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" />
     </ItemGroup>
 
-    <Target Name="DownloadMavenArtifacts" BeforeTargets="Build" Outputs="" Condition=" '$(TargetFramework)' == '' ">
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=$(MavenRepoUrl) -Dartifact=org.apache.maven.resolver:maven-resolver-api:1.8.1 -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" />
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=$(MavenRepoUrl) -Dartifact=org.apache.maven.resolver:maven-resolver-util:1.8.1 -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" />
+    <ItemGroup>
+        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-api:1.8.1" JarName="maven-resolver-api-1.8.1.jar" AssemblyName="maven-resolver-api" />
+        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-util:1.8.1" JarName="maven-resolver-util-1.8.1.jar" AssemblyName="maven-resolver-util" />
+    </ItemGroup>
+
+    <Target Name="DownloadMavenArtifacts" BeforeTargets="Build" Outputs="@(MavenArtifactToDownload->'$(IntermediateOutputPath)maven\%(Jar)')">
+        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=$(MavenRepoUrl) -Dartifact=@(MavenArtifactToDownload) -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" Condition=" '%(MavenArtifactToDownload.Identity)' != '' " />
     </Target>
 
     <Target Name="GetJavaReferenceFromMaven" BeforeTargets="GetJavaReferenceItemsFromJavaReferences" Condition=" '$(TargetFramework)' != '' ">
         <Message Text="IntermediateOutputPath: $(IntermediateOutputPath)..\maven\*.jar" />
         <ItemGroup>
-            <JavaReference Include="$(IntermediateOutputPath)..\maven\**\*.jar">
-                
+            <JavaReference Include="@(MavenArtifactToDownload->'$(IntermediateOutputPath)..\maven\%(JarName)')">
+                <AssemblyName>%(AssemblyName)</AssemblyName>
+                <AssemblyVersion>1.8.1.0</AssemblyVersion>
             </JavaReference>
         </ItemGroup>        
     </Target>

@@ -14,21 +14,21 @@ namespace IKVM.Sdk.Maven.Tasks
 
         public override bool Execute()
         {
-            RepositorySystem system = Booter.newRepositorySystem(Booter.selectFactory(args));
+            //RepositorySystem system = Booter.newRepositorySystem(Booter.selectFactory(args));
 
-            RepositorySystemSession session = Booter.newRepositorySystemSession(system);
+            //RepositorySystemSession session = Booter.newRepositorySystemSession(system);
 
-            Artifact artifact = new DefaultArtifact("org.apache.maven.resolver:maven-resolver-impl:1.3.3");
+            //Artifact artifact = new DefaultArtifact("org.apache.maven.resolver:maven-resolver-impl:1.3.3");
 
-            DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE);
+            //DependencyFilter classpathFlter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE);
 
-            CollectRequest collectRequest = new CollectRequest();
-            collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
-            collectRequest.setRepositories(Booter.newRepositories(system, session));
+            //CollectRequest collectRequest = new CollectRequest();
+            //collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
+            //collectRequest.setRepositories(Booter.newRepositories(system, session));
 
-            DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
+            //DependencyRequest dependencyRequest = new DependencyRequest(collectRequest, classpathFlter);
 
-            java.util.List artifactResults = system.resolveDependencies(session, dependencyRequest).getArtifactResults();
+            //java.util.List artifactResults = system.resolveDependencies(session, dependencyRequest).getArtifactResults();
 
             return false;
         }
