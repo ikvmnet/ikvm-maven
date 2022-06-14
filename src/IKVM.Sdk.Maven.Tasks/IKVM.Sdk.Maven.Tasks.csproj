@@ -29,7 +29,7 @@
                 <AssemblyName>%(AssemblyName)</AssemblyName>
                 <AssemblyVersion>1.8.1.0</AssemblyVersion>
             </JavaReference>
-        </ItemGroup>        
+        </ItemGroup>
     </Target>
 
 </Project>
