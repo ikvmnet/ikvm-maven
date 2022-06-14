@@ -1,0 +1,43 @@
+<Project>
+    <PropertyGroup>
+        <LangVersion Condition=" '$(LangVersion)' == '' ">10.0</LangVersion>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <ImplicitUsings>disable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Authors Include="Jeroen Frijters" />
+        <Authors Include="Windward Studios" />
+        <Authors Include="Jerome Haltom" />
+        <Authors Include="Shad Storhaug" />
+    </ItemGroup>
+
+    <PropertyGroup Label="Copyright Info">
+        <ProductName>IKVM.Sdk.Maven</ProductName>
+        <Authors>@(Authors, ',')</Authors>
+        <CurrentYear Condition=" '$(CurrentYear)' == '' ">$([System.DateTime]::UtcNow.Year.ToString())</CurrentYear>
+        <Copyright>Copyright © $(CurrentYear) @(Authors, ', ')</Copyright>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Version Info">
+        <DefaultMajorVersion>8</DefaultMajorVersion>
+        <Version Condition=" '$(Version)' == '' ">$(DefaultMajorVersion).0.0-dev</Version>
+        <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(DefaultMajorVersion).0.0.0</AssemblyVersion>
+        <FileVersion Condition=" '$(FileVersion)' == '' ">$(DefaultMajorVersion).0.0.0</FileVersion>
+        <InformationalVersion Condition=" '$(InformationalVersion)' == '' ">$(DefaultMajorVersion).0.0.0</InformationalVersion>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Package Info">
+        <RepositoryUrl Condition=" '$(RepositoryUrl)' == '' ">https://github.com/ikvm-revived/ikvm-sdk-maven.git</RepositoryUrl>
+        <RepositoryType Condition=" '$(RepositoryType)' == '' ">git</RepositoryType>
+        <PackageProjectUrl  Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/ikvm-revived/ikvm-sdk-maven</PackageProjectUrl>
+        <PackageVersion Condition=" '$(PackageVersion)' == '' ">$(Version)</PackageVersion>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <PropertyGroup Label="Debug Info">
+        <IncludeSymbols>true</IncludeSymbols>
+        <EmbedAllSources>true</EmbedAllSources>
+    </PropertyGroup>
+
+</Project>

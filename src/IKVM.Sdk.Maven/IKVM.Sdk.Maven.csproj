@@ -1,0 +1,44 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <PackageId>IKVM.Sdk.Maven</PackageId>
+        <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+        <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Description>Java SE 8 Virtual Machine for .NET (Maven SDK)</Description>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="IKVM.Sdk.Maven.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Content Include="lib\**\*" PackagePath="lib\%(RecursiveDir)%(Filename)%(Extension)" />
+        <Content Include="buildTransitive\**\*" PackagePath="buildTransitive\%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\LICENSE.md" Pack="true" PackagePath="." />
+        <None Include="README.md" Pack="true" PackagePath="." />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="IKVM.Sdk" Version="8.2.0-prerelease0895" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PublishProjectReference Include="..\IKVM.Sdk.Maven.Tasks\IKVM.Sdk.Maven.Tasks.csproj" Condition=" '$(TargetFramework)' == '' ">
+            <SetTargetFramework>TargetFramework=net461</SetTargetFramework>
+            <PublishPackagePath>tasks\net461</PublishPackagePath>
+            <PublishProperties>SelfContained=false</PublishProperties>
+        </PublishProjectReference>
+        <PublishProjectReference Include="..\IKVM.Sdk.Maven.Tasks\IKVM.Sdk.Maven.Tasks.csproj" Condition=" '$(TargetFramework)' == '' ">
+            <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+            <PublishPackagePath>tasks\netcoreapp3.1</PublishPackagePath>
+            <PublishProperties>SelfContained=false</PublishProperties>
+        </PublishProjectReference>
+    </ItemGroup>
+
+</Project>
