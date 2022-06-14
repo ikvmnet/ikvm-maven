@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+        <MavenRepoUrl>http://repo1.maven.org/maven2/</MavenRepoUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,9 +13,9 @@
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" />
     </ItemGroup>
 
-    <Target Name="DownloadMavenArtifacts" BeforeTargets="Build" Condition=" '$(TargetFramework)' == '' ">
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=http://repo1.maven.org/maven2/ -Dartifact=org.apache.maven.resolver:maven-resolver-api:1.8.1 -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" />
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=http://repo1.maven.org/maven2/ -Dartifact=org.apache.maven.resolver:maven-resolver-util:1.8.1 -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" />
+    <Target Name="DownloadMavenArtifacts" BeforeTargets="Build" Outputs="" Condition=" '$(TargetFramework)' == '' ">
+        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=$(MavenRepoUrl) -Dartifact=org.apache.maven.resolver:maven-resolver-api:1.8.1 -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" />
+        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=$(MavenRepoUrl) -Dartifact=org.apache.maven.resolver:maven-resolver-util:1.8.1 -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" />
     </Target>
 
     <Target Name="GetJavaReferenceFromMaven" BeforeTargets="GetJavaReferenceItemsFromJavaReferences" Condition=" '$(TargetFramework)' != '' ">

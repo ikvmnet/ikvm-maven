@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-using Microsoft.Build.Utilities;
+﻿using Microsoft.Build.Utilities;
 
 using org.eclipse.aether;
 using org.eclipse.aether.artifact;
