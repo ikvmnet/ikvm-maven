@@ -14,8 +14,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-api:1.8.1" JarName="maven-resolver-api-1.8.1.jar" AssemblyName="maven-resolver-api" />
-        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-util:1.8.1" JarName="maven-resolver-util-1.8.1.jar" AssemblyName="maven-resolver-util" />
+        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-api:1.8.1">
+            <JarName>maven-resolver-api-1.8.1.jar</JarName>
+            <AssemblyName>maven-resolver-api</AssemblyName>
+        </MavenArtifactToDownload>
+        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-util:1.8.1">
+            <JarName>maven-resolver-util-1.8.1.jar</JarName>
+            <AssemblyName>maven-resolver-util</AssemblyName>
+        </MavenArtifactToDownload>
     </ItemGroup>
 
     <Target Name="DownloadMavenArtifacts" BeforeTargets="Build" Outputs="@(MavenArtifactToDownload->'$(IntermediateOutputPath)maven\%(Jar)')">
@@ -23,7 +29,6 @@
     </Target>
 
     <Target Name="GetJavaReferenceFromMaven" BeforeTargets="GetJavaReferenceItemsFromJavaReferences" Condition=" '$(TargetFramework)' != '' ">
-        <Message Text="IntermediateOutputPath: $(IntermediateOutputPath)..\maven\*.jar" />
         <ItemGroup>
             <JavaReference Include="@(MavenArtifactToDownload->'$(IntermediateOutputPath)..\maven\%(JarName)')">
                 <AssemblyName>%(AssemblyName)</AssemblyName>
