@@ -14,6 +14,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-impl:1.8.1">
+            <JarName>maven-resolver-impl-1.8.1.jar</JarName>
+            <AssemblyName>maven-resolver-impl</AssemblyName>
+        </MavenArtifactToDownload>
         <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-api:1.8.1">
             <JarName>maven-resolver-api-1.8.1.jar</JarName>
             <AssemblyName>maven-resolver-api</AssemblyName>
@@ -21,6 +25,10 @@
         <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-util:1.8.1">
             <JarName>maven-resolver-util-1.8.1.jar</JarName>
             <AssemblyName>maven-resolver-util</AssemblyName>
+        </MavenArtifactToDownload>
+        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-transport-http:1.8.1">
+            <JarName>maven-resolver-transport-http-1.8.1.jar</JarName>
+            <AssemblyName>maven-resolver-transport-http</AssemblyName>
         </MavenArtifactToDownload>
     </ItemGroup>
 
