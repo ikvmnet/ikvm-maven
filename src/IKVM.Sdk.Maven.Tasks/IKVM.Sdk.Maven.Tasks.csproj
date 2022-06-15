@@ -13,34 +13,16 @@
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" />
     </ItemGroup>
 
-    <ItemGroup>
-        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-impl:1.8.1">
-            <JarName>maven-resolver-impl-1.8.1.jar</JarName>
-            <AssemblyName>maven-resolver-impl</AssemblyName>
-        </MavenArtifactToDownload>
-        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-api:1.8.1">
-            <JarName>maven-resolver-api-1.8.1.jar</JarName>
-            <AssemblyName>maven-resolver-api</AssemblyName>
-        </MavenArtifactToDownload>
-        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-util:1.8.1">
-            <JarName>maven-resolver-util-1.8.1.jar</JarName>
-            <AssemblyName>maven-resolver-util</AssemblyName>
-        </MavenArtifactToDownload>
-        <MavenArtifactToDownload Include="org.apache.maven.resolver:maven-resolver-transport-http:1.8.1">
-            <JarName>maven-resolver-transport-http-1.8.1.jar</JarName>
-            <AssemblyName>maven-resolver-transport-http</AssemblyName>
-        </MavenArtifactToDownload>
-    </ItemGroup>
-
-    <Target Name="DownloadMavenArtifacts" BeforeTargets="Build" Outputs="@(MavenArtifactToDownload->'$(IntermediateOutputPath)maven\%(Jar)')">
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy -DremoteRepositories=$(MavenRepoUrl) -Dartifact=@(MavenArtifactToDownload) -Dtransitive=true -DoutputDirectory=$(IntermediateOutputPath)maven" Condition=" '%(MavenArtifactToDownload.Identity)' != '' " />
+    <Target Name="DownloadMavenArtifacts" BeforeTargets="DispatchToInnerBuilds" Condition=" '$(TargetFramework)' == '' ">
+        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f IKVM.Sdk.Maven.Tasks.pom -DoutputDirectory=$(IntermediateOutputPath)maven" />
     </Target>
 
     <Target Name="GetJavaReferenceFromMaven" BeforeTargets="GetJavaReferenceItemsFromJavaReferences" Condition=" '$(TargetFramework)' != '' ">
         <ItemGroup>
-            <JavaReference Include="@(MavenArtifactToDownload->'$(IntermediateOutputPath)..\maven\%(JarName)')">
-                <AssemblyName>%(AssemblyName)</AssemblyName>
+            <JavaReference Include="maven">
+                <AssemblyName>maven</AssemblyName>
                 <AssemblyVersion>1.8.1.0</AssemblyVersion>
+                <Compile>$(IntermediateOutputPath)..\maven\*.jar</Compile>
             </JavaReference>
         </ItemGroup>
     </Target>
