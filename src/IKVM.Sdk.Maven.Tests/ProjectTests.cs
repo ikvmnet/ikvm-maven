@@ -66,6 +66,7 @@ namespace IKVM.Sdk.Maven.Tests
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Build");
+            options.TargetsToBuild.Add("Pack");
             var results = analyzer.Build(options);
             results.OverallSuccess.Should().Be(true);
 

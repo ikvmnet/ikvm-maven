@@ -92,7 +92,7 @@
     <!-- Installs the resolved MavenReferenceItem into their respective paths. -->
     <Target Name="_InstallMavenReferences" DependsOnTargets="GetMavenIkvmReferenceItems">
         <MavenReferenceItemInstall Items="@(MavenReferenceItem)">
-            
+
         </MavenReferenceItemInstall>
     </Target>
 
@@ -124,5 +124,20 @@
             $(CompileIkvmReferencesDependsOn);
         </CompileIkvmReferencesDependsOn>
     </PropertyGroup>
+
+    <!-- Outputs the project model file to the intermediate directory. -->
+    <Target Name="BuildMavenProjectModelPackageFile" Outputs="$(IntermediateOutputPath)$(PackageId).pom">
+        <WriteLinesToFile File="$(IntermediateOutputPath)$(PackageId).pom" Lines="test" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    </Target>
+
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GetMavenProjectModelPackageFile</TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
+
+    <Target Name="GetMavenProjectModelPackageFile" DependsOnTargets="BuildMavenProjectModelPackageFile">
+        <ItemGroup>
+            <TfmSpecificPackageFile Include="$(IntermediateOutputPath)$(PackageId).pom" PackagePath="maven\$(TargetFramework)" />
+        </ItemGroup>
+    </Target>
 
 </Project>
