@@ -117,7 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Error.MavenCircularReference" xml:space="preserve">
-    <value>IKVMSDK0001: The IkvmReference {0} contains a circular reference.</value>
+  <data name="Error.MavenInvalidArtifactId" xml:space="preserve">
+    <value>MAVEN0003: Invalid Maven artifact ID value '{0}'.</value>
+  </data>
+  <data name="Error.MavenInvalidCoordinates" xml:space="preserve">
+    <value>MAVEN0001: Invalid Maven coordinate value '{0}'.</value>
+  </data>
+  <data name="Error.MavenInvalidGroupId" xml:space="preserve">
+    <value>MAVEN0002: Invalid Maven group ID value '{0}'.</value>
+  </data>
+  <data name="Error.MavenInvalidVersion" xml:space="preserve">
+    <value>MAVEN0004: Invalid Maven version value '{0}'.</value>
+  </data>
+  <data name="Error.MavenMissingArtifactId" xml:space="preserve">
+    <value>MAVEN0006: Missing Maven artifact ID.</value>
+  </data>
+  <data name="Error.MavenMissingGroupId" xml:space="preserve">
+    <value>MAVEN0005: Missing Maven group ID.</value>
+  </data>
+  <data name="Error.MavenMissingVersion" xml:space="preserve">
+    <value>MAVEN0007: Missing Maven version.</value>
   </data>
 </root>

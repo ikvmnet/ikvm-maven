@@ -35,14 +35,9 @@
     <!-- Populates the MavenReferenceItem set with required metadata. -->
     <Target Name="GetMavenReferenceItemsMetadata" DependsOnTargets="GetMavenReferenceItemsFromMavenReferences;GetMavenReferenceItemsFromProjectReferences;GetMavenReferenceItemsFromPackageReferences" Condition=" '@(MavenReferenceItem)' != '' ">
         <!-- Probes for default metadata from the reference item. -->
-        <IkvmMavenReferenceItemAssignMetadata Items="@(MavenReferenceItem)">
+        <MavenReferenceItemAssignMetadata Items="@(MavenReferenceItem)">
             <Output TaskParameter="Items" ItemName="_MavenReferenceItemWithMetadata" />
-        </IkvmMavenReferenceItemAssignMetadata>
-
-        <!-- Validates the metadata before continuing. -->
-        <IkvmMavenReferenceItemValidate Items="@(_MavenReferenceItemWithMetadata)" >
-
-        </IkvmMavenReferenceItemValidate>
+        </MavenReferenceItemAssignMetadata>
 
         <!-- Assign newly discovered items. -->
         <ItemGroup>

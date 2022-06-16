@@ -32,11 +32,29 @@ namespace IKVM.Sdk.Maven.Tasks
         public string ItemSpec { get; set; }
 
         /// <summary>
+        /// Group ID of the maven reference.
+        /// </summary>
+        public string GroupId { get; set; }
+
+        /// <summary>
+        /// Artifact ID of the maven reference.
+        /// </summary>
+        public string ArtifactId { get; set; }
+
+        /// <summary>
+        /// Version of the maven reference.
+        /// </summary>
+        public string Version { get; set; }
+
+        /// <summary>
         /// Writes the metadata to the item.
         /// </summary>
         public void Save()
         {
             Item.ItemSpec = ItemSpec;
+            Item.SetMetadata(MavenReferenceItemMetadata.GroupId, GroupId);
+            Item.SetMetadata(MavenReferenceItemMetadata.ArtifactId, ArtifactId);
+            Item.SetMetadata(MavenReferenceItemMetadata.Version, Version);
         }
 
     }

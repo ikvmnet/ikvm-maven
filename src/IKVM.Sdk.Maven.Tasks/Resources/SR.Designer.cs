@@ -61,11 +61,65 @@ namespace IKVM.Sdk.Maven.Tasks.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to IKVMSDK0001: The IkvmReference {0} contains a circular reference..
+        ///   Looks up a localized string similar to MAVEN0003: Invalid Maven artifact ID value &apos;{0}&apos;..
         /// </summary>
-        internal static string Error_MavenCircularReference {
+        internal static string Error_MavenInvalidArtifactId {
             get {
-                return ResourceManager.GetString("Error.MavenCircularReference", resourceCulture);
+                return ResourceManager.GetString("Error.MavenInvalidArtifactId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0001: Invalid Maven coordinate value &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_MavenInvalidCoordinates {
+            get {
+                return ResourceManager.GetString("Error.MavenInvalidCoordinates", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0002: Invalid Maven group ID value &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_MavenInvalidGroupId {
+            get {
+                return ResourceManager.GetString("Error.MavenInvalidGroupId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0004: Invalid Maven version value &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_MavenInvalidVersion {
+            get {
+                return ResourceManager.GetString("Error.MavenInvalidVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0006: Missing Maven artifact ID..
+        /// </summary>
+        internal static string Error_MavenMissingArtifactId {
+            get {
+                return ResourceManager.GetString("Error.MavenMissingArtifactId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0005: Missing Maven group ID..
+        /// </summary>
+        internal static string Error_MavenMissingGroupId {
+            get {
+                return ResourceManager.GetString("Error.MavenMissingGroupId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0007: Missing Maven version..
+        /// </summary>
+        internal static string Error_MavenMissingVersion {
+            get {
+                return ResourceManager.GetString("Error.MavenMissingVersion", resourceCulture);
             }
         }
     }
