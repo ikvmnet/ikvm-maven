@@ -1,16 +1,12 @@
 ﻿<Project>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
-    <Target Name="GetMavenReferenceItemsFromPackageReferences">
-        <ItemGroup>
-            <!-- TODO Ask package references for MavenReferences -->
-            <!-- Check in the nuget package closure we have for descriptions of Maven references. -->
-        </ItemGroup>
+    <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
+        <Message Text="PackageReference: @(PackageReference)" />
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences">
-        <Message Text="_MSBuildProjectReferenceExistent: @(_MSBuildProjectReferenceExistent)" />
         <MSBuild
             Projects="@(_MSBuildProjectReferenceExistent)"
             Targets="GetMavenReferenceItems"
@@ -24,7 +20,7 @@
         </MSBuild>
         <ItemGroup>
             <MavenReferenceItem Include="@(_ResolvedMavenReferenceItemFromProjectReferences)" >
-
+                
             </MavenReferenceItem>
         </ItemGroup>
     </Target>
@@ -126,8 +122,10 @@
     </PropertyGroup>
 
     <!-- Outputs the project model file to the intermediate directory. -->
-    <Target Name="BuildMavenProjectModelPackageFile" Outputs="$(IntermediateOutputPath)$(PackageId).pom">
-        <WriteLinesToFile File="$(IntermediateOutputPath)$(PackageId).pom" Lines="test" Overwrite="true" WriteOnlyWhenDifferent="true" />
+    <Target Name="BuildMavenProjectModelPackageFile">
+        <MavenWriteProjectObjectModelFile GroupId="ikvm.nuget" ArtifactId="$(PackageId)" Version="$(PackageVersion)" PackageFile="$(IntermediateOutputPath)$(PackageId).pom">
+            
+        </MavenWriteProjectObjectModelFile>
     </Target>
 
     <PropertyGroup>
