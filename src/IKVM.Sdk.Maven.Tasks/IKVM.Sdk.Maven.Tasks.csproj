@@ -16,7 +16,7 @@
         <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven.pom -DoutputDirectory=$(IntermediateOutputPath)maven" />
     </Target>
 
-    <Target Name="GetIkvmReferenceFromMaven" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences" Condition=" '$(TargetFramework)' != '' ">
+    <Target Name="GetIkvmReferenceFromMaven" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences;DownloadMavenArtifacts" Condition=" '$(TargetFramework)' != '' ">
         <ItemGroup>
             <IkvmReference Include="ikvm-maven">
                 <AssemblyName>ikvm-maven</AssemblyName>
