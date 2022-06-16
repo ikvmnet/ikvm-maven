@@ -134,9 +134,16 @@
         </ItemGroup>
     </Target>
 
+    <!-- Default Maven packaging variables. -->
+    <PropertyGroup>
+        <MavenGroupdId Condition=" '$(MavenGroupId)' == '' ">ikvm.nuget</MavenGroupdId>
+        <MavenArtifactId Condition=" '$(MavenArtifactId)' == '' ">$(PackageId)</MavenArtifactId>
+        <MavenVersion Condition=" '$(MavenVersion)' == '' ">$(PackageVersion)</MavenVersion>
+    </PropertyGroup>
+
     <!-- Outputs the project model file to the intermediate directory. -->
     <Target Name="_BuildMavenProjectModelPackageFile">
-        <MavenWriteProjectObjectModelFile GroupId="ikvm.nuget" ArtifactId="$(PackageId)" Version="$(PackageVersion)" References="@(MavenReferenceItemsForProjectModel)" PackageFile="$(IntermediateOutputPath)$(PackageId).pom">
+        <MavenWriteProjectObjectModelFile GroupId="$(MavenGroupdId)" ArtifactId="$(MavenArtifactId)" Version="$(MavenVersion)" References="@(MavenReferenceItemsForProjectModel)" PackageFile="$(IntermediateOutputPath)$(PackageId).pom">
             
         </MavenWriteProjectObjectModelFile>
     </Target>
