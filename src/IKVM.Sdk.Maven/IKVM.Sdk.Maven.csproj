@@ -21,11 +21,11 @@
 
     <ItemGroup>
         <None Include="..\..\LICENSE.md" Pack="true" PackagePath="." />
-        <None Include="README.md" Pack="true" PackagePath="." />
+        <None Include="..\..\README.md" Pack="true" PackagePath="." />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="IKVM.Sdk" Version="8.2.0-prerelease0895" />
+      <PackageReference Include="IKVM" Version="8.2.0-prerelease0906" />
     </ItemGroup>
 
     <ItemGroup>

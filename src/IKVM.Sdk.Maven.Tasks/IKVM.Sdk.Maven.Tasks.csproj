@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
-        <MavenRepoUrl>http://repo1.maven.org/maven2/</MavenRepoUrl>
     </PropertyGroup>
 
     <ItemGroup>
@@ -9,21 +8,21 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM.Sdk" Version="8.2.0-prerelease0895" />
+        <PackageReference Include="IKVM" Version="8.2.0-prerelease0906" />
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" />
     </ItemGroup>
 
     <Target Name="DownloadMavenArtifacts" BeforeTargets="DispatchToInnerBuilds" Condition=" '$(TargetFramework)' == '' ">
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f IKVM.Sdk.Maven.Tasks.pom -DoutputDirectory=$(IntermediateOutputPath)maven" />
+        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven.pom -DoutputDirectory=$(IntermediateOutputPath)maven" />
     </Target>
 
-    <Target Name="GetJavaReferenceFromMaven" BeforeTargets="GetJavaReferenceItemsFromJavaReferences" Condition=" '$(TargetFramework)' != '' ">
+    <Target Name="GetIkvmReferenceFromMaven" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences" Condition=" '$(TargetFramework)' != '' ">
         <ItemGroup>
-            <JavaReference Include="maven">
-                <AssemblyName>maven</AssemblyName>
+            <IkvmReference Include="ikvm-maven">
+                <AssemblyName>ikvm-maven</AssemblyName>
                 <AssemblyVersion>1.8.1.0</AssemblyVersion>
                 <Compile>$(IntermediateOutputPath)..\maven\*.jar</Compile>
-            </JavaReference>
+            </IkvmReference>
         </ItemGroup>
     </Target>
 

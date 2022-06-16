@@ -1,0 +1,22 @@
+﻿<Project>
+    <PropertyGroup>
+        <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
+        <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
+    </PropertyGroup>
+
+    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
+
+    <PropertyGroup>
+        <TargetFrameworks>net461;net472;net48;netcoreapp3.1</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM.Sdk.Maven" Version="$(PackageVersion)" />
+    </ItemGroup>
+
+    <ItemGroup>
+
+    </ItemGroup>
+
+    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+</Project>

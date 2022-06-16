@@ -6,8 +6,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Authors Include="Jeroen Frijters" />
-        <Authors Include="Windward Studios" />
         <Authors Include="Jerome Haltom" />
         <Authors Include="Shad Storhaug" />
     </ItemGroup>

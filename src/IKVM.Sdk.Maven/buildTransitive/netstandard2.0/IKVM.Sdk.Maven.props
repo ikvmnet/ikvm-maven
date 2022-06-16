@@ -5,9 +5,9 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <TaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</TaskFolder>
-        <TaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net461</TaskFolder>
-        <TaskAssembly>$(IkvmSdkMavenDir)tasks\$(TaskFolder)\IKVM.Sdk.Maven.Tasks.dll</TaskAssembly>
+        <IkvmSdkMavenTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</IkvmSdkMavenTaskFolder>
+        <IkvmSdkMavenTaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net461</IkvmSdkMavenTaskFolder>
+        <IkvmSdkMavenTaskAssembly>$(IkvmSdkMavenDir)tasks\$(IkvmSdkMavenTaskFolder)\IKVM.Sdk.Maven.Tasks.dll</IkvmSdkMavenTaskAssembly>
     </PropertyGroup>
     
     <ItemDefinitionGroup>
