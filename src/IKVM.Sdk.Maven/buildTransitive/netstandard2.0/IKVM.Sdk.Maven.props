@@ -9,6 +9,9 @@
         <IkvmSdkMavenTaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net461</IkvmSdkMavenTaskFolder>
         <IkvmSdkMavenTaskAssembly>$(IkvmSdkMavenDir)tasks\$(IkvmSdkMavenTaskFolder)\IKVM.Sdk.Maven.Tasks.dll</IkvmSdkMavenTaskAssembly>
     </PropertyGroup>
+
+    <UsingTask TaskName="MavenReferenceItemAssignMetadata" AssemblyFile="$(IkvmTaskAssembly)" />
+    <UsingTask TaskName="MavenReferenceItemValidate" AssemblyFile="$(IkvmTaskAssembly)" />
     
     <ItemDefinitionGroup>
         <MavenReference>

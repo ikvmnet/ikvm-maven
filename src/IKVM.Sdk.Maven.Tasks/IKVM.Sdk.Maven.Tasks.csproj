@@ -8,7 +8,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.2.0-prerelease0906" />
+        <PackageReference Include="IKVM" Version="8.2.0-prerelease0911" />
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" />
     </ItemGroup>
 
@@ -25,5 +25,20 @@
             </IkvmReference>
         </ItemGroup>
     </Target>
+
+    <ItemGroup>
+        <Compile Update="Resources\SR.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SR.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\SR.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>SR.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
 
 </Project>

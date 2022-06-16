@@ -25,7 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="IKVM" Version="8.2.0-prerelease0906" />
+      <PackageReference Include="IKVM" Version="8.2.0-prerelease0911" />
     </ItemGroup>
 
     <ItemGroup>

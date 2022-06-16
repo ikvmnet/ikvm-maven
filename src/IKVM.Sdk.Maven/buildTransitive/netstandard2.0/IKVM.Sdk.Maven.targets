@@ -1,5 +1,92 @@
 ﻿<Project>
-    
-    
+
+    <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
+    <Target Name="GetMavenReferenceItemsFromMavenReferences">
+        <ItemGroup>
+            <MavenReferenceItem Include="@(MavenReference)">
+
+            </MavenReferenceItem>
+        </ItemGroup>
+    </Target>
+
+    <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
+    <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences">
+        <MSBuild
+            Projects="@(_MSBuildProjectReferenceExistent)"
+            Targets="GetMavenReferenceItems"
+            SkipNonexistentTargets="true"
+            BuildInParallel="$(BuildInParallel)"
+            Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework)"
+            Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' and ('$(BuildingInsideVisualStudio)' == 'true' or '$(BuildProjectReferences)' != 'true') and '$(VisualStudioVersion)' != '10.0' and '@(_MSBuildProjectReferenceExistent)' != ''"
+            ContinueOnError="!$(BuildingProject)"
+            RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)">
+            <Output TaskParameter="TargetOutputs" ItemName="_ResolvedMavenReferenceItems" />
+        </MSBuild>
+    </Target>
+
+    <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
+    <Target Name="GetMavenReferenceItemsFromPackageReferences">
+        <ItemGroup>
+            <!-- TODO Ask package references for MavenReferences -->
+            <!-- Check in the nuget package closure we have for descriptions of Maven references. -->
+        </ItemGroup>
+    </Target>
+
+    <!-- Populates the MavenReferenceItem set with required metadata. -->
+    <Target Name="GetMavenReferenceItemsMetadata" DependsOnTargets="GetMavenReferenceItemsFromMavenReferences;GetMavenReferenceItemsFromProjectReferences;GetMavenReferenceItemsFromPackageReferences" Condition=" '@(MavenReferenceItem)' != '' ">
+        <!-- Probes for default metadata from the reference item. -->
+        <IkvmMavenReferenceItemAssignMetadata Items="@(MavenReferenceItem)">
+            <Output TaskParameter="Items" ItemName="_MavenReferenceItemWithMetadata" />
+        </IkvmMavenReferenceItemAssignMetadata>
+
+        <!-- Validates the metadata before continuing. -->
+        <IkvmMavenReferenceItemValidate Items="@(_MavenReferenceItemWithMetadata)" >
+
+        </IkvmMavenReferenceItemValidate>
+
+        <!-- Assign newly discovered items. -->
+        <ItemGroup>
+            <MavenReferenceItem Remove="@(MavenReferenceItem)"/>
+            <MavenReferenceItem Include="@(_MavenReferenceItemWithMetadata)" />
+        </ItemGroup>
+    </Target>
+
+    <PropertyGroup>
+        <GetMavenReferenceItemsDependsOn>
+            $(GetMavenReferenceItemsDependsOn);
+            GetMavenReferenceItemsFromMavenReferences;
+            GetMavenReferenceItemsFromPackageReferences;
+            GetMavenReferenceItemsMetadata;
+        </GetMavenReferenceItemsDependsOn>
+    </PropertyGroup>
+
+    <!-- Assembles the set of IkvmReferenceItems from various sources. -->
+    <Target Name="GetMavenReferenceItems" DependsOnTargets="$(GetMavenReferenceItemsDependsOn)" Returns="@(MavenReferenceItem)">
+
+    </Target>
+
+    <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems">
+        <ItemGroup>
+            <IkvmReferenceItem Include="@(MavenReferenceItem->'CachePath')" />
+        </ItemGroup>
+    </Target>
+
+    <PropertyGroup>
+        <GetMavenIkvmReferenceItemsDependsOn>
+            $(GetMavenIkvmReferenceItemsDependsOn);
+            _GetMavenIkvmReferenceItems;
+        </GetMavenIkvmReferenceItemsDependsOn>
+    </PropertyGroup>
+
+    <Target Name="GetMavenIkvmReferenceItems" DependsOnTargets="$(GetMavenIkvmReferenceItemsDependsOn)">
+        
+    </Target>
+
+    <PropertyGroup>
+        <GetIkvmReferenceItemsDependsOn>
+            GetMavenIkvmReferenceItems;
+            $(GetIkvmReferenceItemsDependsOn)
+        </GetIkvmReferenceItemsDependsOn>
+    </PropertyGroup>
 
 </Project>
