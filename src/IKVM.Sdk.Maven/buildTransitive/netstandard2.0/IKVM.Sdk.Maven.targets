@@ -2,7 +2,11 @@
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
-        <Message Text="PackageReference: @(PackageReference)" />
+        <ItemGroup>
+            <MavenReferenceItem Include="">
+                <ReferenceSource>PackageReference</ReferenceSource>
+            </MavenReferenceItem>
+        </ItemGroup>
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
@@ -19,8 +23,8 @@
             <Output TaskParameter="TargetOutputs" ItemName="_ResolvedMavenReferenceItemFromProjectReferences" />
         </MSBuild>
         <ItemGroup>
-            <MavenReferenceItem Include="@(_ResolvedMavenReferenceItemFromProjectReferences)" >
-                
+            <MavenReferenceItem Include="@(_ResolvedMavenReferenceItemFromProjectReferences)">
+                <ReferenceSource>ProjectReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
     </Target>
@@ -29,7 +33,7 @@
     <Target Name="GetMavenReferenceItemsFromMavenReferences" Condition=" '@(MavenReference)' != '' ">
         <ItemGroup>
             <MavenReferenceItem Include="@(MavenReference)">
-
+                <ReferenceSource>MavenReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
     </Target>
@@ -121,11 +125,31 @@
         </CompileIkvmReferencesDependsOn>
     </PropertyGroup>
 
+    <!-- Gets the MavenReferenceItems that will be emitted to the generated package. -->
+    <Target Name="GetMavenReferenceItemsForProjectModelFromMavenReferences" DependsOnTargets="GetMavenReferenceItems">
+        <ItemGroup>
+            <MavenReferenceItemsForProjectModel Include="@(MavenReferenceItem->WithMetadataValue('ReferenceSource', 'MavenReference'))" />
+        </ItemGroup>
+    </Target>
+
     <!-- Outputs the project model file to the intermediate directory. -->
-    <Target Name="BuildMavenProjectModelPackageFile">
-        <MavenWriteProjectObjectModelFile GroupId="ikvm.nuget" ArtifactId="$(PackageId)" Version="$(PackageVersion)" PackageFile="$(IntermediateOutputPath)$(PackageId).pom">
+    <Target Name="_BuildMavenProjectModelPackageFile">
+        <MavenWriteProjectObjectModelFile GroupId="ikvm.nuget" ArtifactId="$(PackageId)" Version="$(PackageVersion)" References="@(MavenReferenceItemsForProjectModel)" PackageFile="$(IntermediateOutputPath)$(PackageId).pom">
             
         </MavenWriteProjectObjectModelFile>
+    </Target>
+
+    <PropertyGroup>
+        <BuildMavenProjectModelPackageFileDependsOn>
+            $(BuildMavenProjectModelPackageFile);
+            GetMavenReferenceItemsForProjectModelFromMavenReferences;
+            _BuildMavenProjectModelPackageFile;
+        </BuildMavenProjectModelPackageFileDependsOn>
+    </PropertyGroup>
+
+    <!-- Outputs the project model file to the intermediate directory. -->
+    <Target Name="BuildMavenProjectModelPackageFile" DependsOnTargets="$(BuildMavenProjectModelPackageFileDependsOn)">
+        
     </Target>
 
     <PropertyGroup>
