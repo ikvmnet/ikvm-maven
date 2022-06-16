@@ -1,16 +1,15 @@
 ﻿<Project>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
-    <Target Name="GetMavenReferenceItemsFromMavenReferences">
+    <Target Name="GetMavenReferenceItemsFromPackageReferences">
         <ItemGroup>
-            <MavenReferenceItem Include="@(MavenReference)">
-
-            </MavenReferenceItem>
+            <!-- TODO Ask package references for MavenReferences -->
+            <!-- Check in the nuget package closure we have for descriptions of Maven references. -->
         </ItemGroup>
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
-    <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences">
+    <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences" Condition=" '@(_MSBuildProjectReferenceExistent)' != '' ">
         <MSBuild
             Projects="@(_MSBuildProjectReferenceExistent)"
             Targets="GetMavenReferenceItems"
@@ -25,10 +24,11 @@
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
-    <Target Name="GetMavenReferenceItemsFromPackageReferences">
+    <Target Name="GetMavenReferenceItemsFromMavenReferences" Condition=" '@(MavenReference)' != '' ">
         <ItemGroup>
-            <!-- TODO Ask package references for MavenReferences -->
-            <!-- Check in the nuget package closure we have for descriptions of Maven references. -->
+            <MavenReferenceItem Include="@(MavenReference)">
+
+            </MavenReferenceItem>
         </ItemGroup>
     </Target>
 
@@ -46,24 +46,27 @@
         </ItemGroup>
     </Target>
 
+    <!-- PackageReferences come first, ProjectReferences come second, local MavenReferences come last. -->
     <PropertyGroup>
         <GetMavenReferenceItemsDependsOn>
             $(GetMavenReferenceItemsDependsOn);
-            GetMavenReferenceItemsFromMavenReferences;
             GetMavenReferenceItemsFromPackageReferences;
+            GetMavenReferenceItemsFromProjectReferences;
+            GetMavenReferenceItemsFromMavenReferences;
             GetMavenReferenceItemsMetadata;
         </GetMavenReferenceItemsDependsOn>
     </PropertyGroup>
 
     <!-- Assembles the set of IkvmReferenceItems from various sources. -->
     <Target Name="GetMavenReferenceItems" DependsOnTargets="$(GetMavenReferenceItemsDependsOn)" Returns="@(MavenReferenceItem)">
-
+        <Message Text="MavenReferenceItem: @(MavenReferenceItem)" />
     </Target>
 
-    <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems">
-        <ItemGroup>
-            <IkvmReferenceItem Include="@(MavenReferenceItem->'CachePath')" />
-        </ItemGroup>
+    <!-- Resolves the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
+    <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
+        <MavenReferenceItemResolve Items="@(MavenReferenceItem)">
+            <Output TaskParameter="ResolvedItems" ItemName="IkvmReferenceItem" />
+        </MavenReferenceItemResolve>
     </Target>
 
     <PropertyGroup>
@@ -73,15 +76,43 @@
         </GetMavenIkvmReferenceItemsDependsOn>
     </PropertyGroup>
 
+    <!-- Resolves the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="GetMavenIkvmReferenceItems" DependsOnTargets="$(GetMavenIkvmReferenceItemsDependsOn)">
+
+    </Target>
+    
+    <!-- Installs the resolved MavenReferenceItem into their respective paths. -->
+    <Target Name="_InstallMavenReferences" DependsOnTargets="GetMavenIkvmReferenceItems">
+        <Message Text="Install @(MavenReferenceItem)..." />
+    </Target>
+    
+    <PropertyGroup>
+        <InstallMavenReferencesDependsOn>
+            $(InstallMavenReferences);
+            GetMavenIkvmReferenceItems;
+            _InstallMavenReferences;
+        </InstallMavenReferencesDependsOn>
+    </PropertyGroup>
+    
+    <!-- Installs the resolved MavenReferenceItem into their respective paths. -->
+    <Target Name="InstallMavenReferences" DependsOnTargets="$(InstallMavenReferencesDependsOn)">
         
     </Target>
 
+    <!-- Attach our target before GetIkvmReferenceItems. -->
     <PropertyGroup>
         <GetIkvmReferenceItemsDependsOn>
             GetMavenIkvmReferenceItems;
-            $(GetIkvmReferenceItemsDependsOn)
+            $(GetIkvmReferenceItemsDependsOn);
         </GetIkvmReferenceItemsDependsOn>
+    </PropertyGroup>
+
+    <!-- Attach our target before CompileIkvmReferences. -->
+    <PropertyGroup>
+        <CompileIkvmReferencesDependsOn>
+            InstallMavenReferences;
+            $(CompileIkvmReferencesDependsOn);
+        </CompileIkvmReferencesDependsOn>
     </PropertyGroup>
 
 </Project>
