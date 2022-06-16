@@ -10,7 +10,7 @@
         </ItemGroup>
     </Target>
 
-    <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
+    <!-- Obtains MavenReferenceItem items from child projects. -->
     <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences">
         <MSBuild
             Projects="@(_MSBuildProjectReferenceExistent)"
@@ -25,6 +25,7 @@
         </MSBuild>
         <ItemGroup>
             <MavenReferenceItem Include="@(_ResolvedMavenReferenceItemFromProjectReferences)">
+                <OriginalReferenceSource>%(ReferenceSource)</OriginalReferenceSource>
                 <ReferenceSource>ProjectReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
