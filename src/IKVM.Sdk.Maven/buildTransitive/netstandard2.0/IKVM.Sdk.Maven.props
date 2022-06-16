@@ -12,6 +12,7 @@
 
     <UsingTask TaskName="MavenReferenceItemAssignMetadata" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
     <UsingTask TaskName="MavenReferenceItemResolve" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
+    <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
     
     <ItemDefinitionGroup>
         <MavenReference>

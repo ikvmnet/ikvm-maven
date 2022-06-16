@@ -9,7 +9,8 @@
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
-    <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences" Condition=" '@(_MSBuildProjectReferenceExistent)' != '' ">
+    <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences">
+        <Message Text="_MSBuildProjectReferenceExistent: @(_MSBuildProjectReferenceExistent)" />
         <MSBuild
             Projects="@(_MSBuildProjectReferenceExistent)"
             Targets="GetMavenReferenceItems"
@@ -19,8 +20,13 @@
             Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' and ('$(BuildingInsideVisualStudio)' == 'true' or '$(BuildProjectReferences)' != 'true') and '$(VisualStudioVersion)' != '10.0' and '@(_MSBuildProjectReferenceExistent)' != ''"
             ContinueOnError="!$(BuildingProject)"
             RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)">
-            <Output TaskParameter="TargetOutputs" ItemName="_ResolvedMavenReferenceItems" />
+            <Output TaskParameter="TargetOutputs" ItemName="_ResolvedMavenReferenceItemFromProjectReferences" />
         </MSBuild>
+        <ItemGroup>
+            <MavenReferenceItem Include="@(_ResolvedMavenReferenceItemFromProjectReferences)" >
+
+            </MavenReferenceItem>
+        </ItemGroup>
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
@@ -33,7 +39,7 @@
     </Target>
 
     <!-- Populates the MavenReferenceItem set with required metadata. -->
-    <Target Name="GetMavenReferenceItemsMetadata" DependsOnTargets="GetMavenReferenceItemsFromMavenReferences;GetMavenReferenceItemsFromProjectReferences;GetMavenReferenceItemsFromPackageReferences" Condition=" '@(MavenReferenceItem)' != '' ">
+    <Target Name="GetMavenReferenceItemsMetadata" DependsOnTargets="GetMavenReferenceItemsFromPackageReferences;GetMavenReferenceItemsFromProjectReferences;GetMavenReferenceItemsFromMavenReferences;" Condition=" '@(MavenReferenceItem)' != '' ">
         <!-- Probes for default metadata from the reference item. -->
         <MavenReferenceItemAssignMetadata Items="@(MavenReferenceItem)">
             <Output TaskParameter="Items" ItemName="_MavenReferenceItemWithMetadata" />
@@ -51,6 +57,7 @@
         <GetMavenReferenceItemsDependsOn>
             $(GetMavenReferenceItemsDependsOn);
             GetMavenReferenceItemsFromPackageReferences;
+            PrepareProjectReferences;
             GetMavenReferenceItemsFromProjectReferences;
             GetMavenReferenceItemsFromMavenReferences;
             GetMavenReferenceItemsMetadata;
@@ -72,6 +79,7 @@
     <PropertyGroup>
         <GetMavenIkvmReferenceItemsDependsOn>
             $(GetMavenIkvmReferenceItemsDependsOn);
+            GetMavenReferenceItems;
             _GetMavenIkvmReferenceItems;
         </GetMavenIkvmReferenceItemsDependsOn>
     </PropertyGroup>
@@ -80,12 +88,14 @@
     <Target Name="GetMavenIkvmReferenceItems" DependsOnTargets="$(GetMavenIkvmReferenceItemsDependsOn)">
 
     </Target>
-    
+
     <!-- Installs the resolved MavenReferenceItem into their respective paths. -->
     <Target Name="_InstallMavenReferences" DependsOnTargets="GetMavenIkvmReferenceItems">
-        <Message Text="Install @(MavenReferenceItem)..." />
+        <MavenReferenceItemInstall Items="@(MavenReferenceItem)">
+            
+        </MavenReferenceItemInstall>
     </Target>
-    
+
     <PropertyGroup>
         <InstallMavenReferencesDependsOn>
             $(InstallMavenReferences);
@@ -93,10 +103,10 @@
             _InstallMavenReferences;
         </InstallMavenReferencesDependsOn>
     </PropertyGroup>
-    
+
     <!-- Installs the resolved MavenReferenceItem into their respective paths. -->
     <Target Name="InstallMavenReferences" DependsOnTargets="$(InstallMavenReferencesDependsOn)">
-        
+
     </Target>
 
     <!-- Attach our target before GetIkvmReferenceItems. -->

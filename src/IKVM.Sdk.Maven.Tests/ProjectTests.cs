@@ -71,6 +71,8 @@ namespace IKVM.Sdk.Maven.Tests
 
             foreach (var r in results.Results)
                 Console.WriteLine(r);
+
+            throw new Exception();
         }
 
     }

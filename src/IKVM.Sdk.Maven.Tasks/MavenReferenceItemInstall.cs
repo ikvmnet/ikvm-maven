@@ -14,15 +14,15 @@ namespace IKVM.Sdk.Maven.Tasks
 {
 
     /// <summary>
-    /// For each <see cref="MavenReferenceItem"/>, resolves the full set of IkvmReferenceItem's that should be generated.
+    /// For each <see cref="MavenReferenceItem"/>, ensures that the appropriate items are installed locally.
     /// </summary>
-    public class MavenReferenceItemResolve : Task
+    public class MavenReferenceItemInstall : Task
     {
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        public MavenReferenceItemResolve() :
+        public MavenReferenceItemInstall() :
             base(SR.ResourceManager, "MAVEN:")
         {
 
@@ -36,12 +36,6 @@ namespace IKVM.Sdk.Maven.Tasks
         public ITaskItem[] Items { get; set; }
 
         /// <summary>
-        /// Set of IkvmReferenceItem to emit.
-        /// </summary>
-        [Output]
-        public ITaskItem[] ResolvedItems { get; set; }
-
-        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <returns></returns>
@@ -50,12 +44,10 @@ namespace IKVM.Sdk.Maven.Tasks
             try
             {
                 var items = MavenReferenceItemUtil.Import(Items);
-                var resolvedItems = new List<ITaskItem>();
 
                 foreach (var item in items)
-                    resolvedItems.Add(GetResolvedItem(item));
+                    InstallItem(item);
 
-                ResolvedItems = resolvedItems.ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -65,11 +57,9 @@ namespace IKVM.Sdk.Maven.Tasks
             }
         }
 
-        TaskItem GetResolvedItem(MavenReferenceItem item)
+        void InstallItem(MavenReferenceItem item)
         {
-            var i = new TaskItem(item.GroupId);
-            i.SetMetadata("Compile", item.ItemSpec);
-            return i;
+            // do the thing
         }
 
     }
