@@ -3,7 +3,8 @@
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
         <ItemGroup>
-            <MavenReferenceItem Include="">
+            <!-- Best option is probably going to be to dig through project.assets.json for the relevant resources and packages. -->
+            <MavenReferenceItem Include="TODO">
                 <ReferenceSource>PackageReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
