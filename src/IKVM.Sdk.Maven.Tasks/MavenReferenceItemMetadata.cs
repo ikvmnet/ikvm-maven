@@ -10,6 +10,9 @@
         public static readonly string GroupId = "GroupId";
         public static readonly string ArtifactId = "ArtifactId";
         public static readonly string Version = "Version";
+        public static readonly string Dependencies = "Dependencies";
+        public static readonly string Compile = "Compile";
+        public static readonly string Sources = "Sources";
 
     }
 

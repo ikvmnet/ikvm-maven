@@ -4,9 +4,6 @@ using IKVM.Sdk.Maven.Tasks.Resources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-using org.apache.maven.model;
-using org.apache.maven.project;
-
 namespace IKVM.Sdk.Maven.Tasks
 {
 

@@ -3,27 +3,48 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 
 using java.io;
+using java.lang;
 using java.text;
 using java.util;
+
 using org.eclipse.aether.transfer;
-using java.lang;
 
 using Math = System.Math;
 
 namespace IKVM.Sdk.Maven.Tasks
 {
+
     /// <summary>
     /// A transfer listener that logs uploads/downloads to <see cref="Trace"/>.
     /// </summary>
-    internal class IkvmMavenTransferListener : AbstractTransferListener
+    class MavenTransferListener : AbstractTransferListener
     {
-        private readonly ConcurrentDictionary<TransferResource, Long> downloads = new ConcurrentDictionary<TransferResource, Long>();
 
-        private int lastLength;
-
-        public IkvmMavenTransferListener()
+        class TracePrintStream : PrintStream
         {
-            Trace.AutoFlush = true;
+
+            public TracePrintStream() :
+                base(new ByteArrayOutputStream())
+            {
+
+            }
+
+            public override void println(object x)
+            {
+                Trace.WriteLine(x);
+            }
+
+        }
+
+       readonly ConcurrentDictionary<TransferResource, Long> downloads = new();
+       int lastLength;
+
+        /// <summary>
+        /// Initializes a new instance.
+        /// </summary>
+        public MavenTransferListener()
+        {
+
         }
 
         public override void transferInitiated(TransferEvent transferEvent)
@@ -58,7 +79,7 @@ namespace IKVM.Sdk.Maven.Tasks
             Trace.Write(buffer);
         }
 
-        private string GetStatus(long complete, long total)
+        string GetStatus(long complete, long total)
         {
             if (total >= 1024)
             {
@@ -154,16 +175,6 @@ namespace IKVM.Sdk.Maven.Tasks
                 throw new ArgumentNullException(nameof(transferEvent));
         }
 
-        private class TracePrintStream : PrintStream
-        {
-            public TracePrintStream() : base(new ByteArrayOutputStream())
-            {
-            }
-
-            public override void println(object x)
-            {
-                Trace.WriteLine(x);
-            }
-        }
     }
+
 }

@@ -1,5 +1,8 @@
-﻿using Microsoft.Build.Framework;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Microsoft.Build.Framework;
 
 namespace IKVM.Sdk.Maven.Tasks
 {
@@ -13,7 +16,7 @@ namespace IKVM.Sdk.Maven.Tasks
         /// Initializes a new instance.
         /// </summary>
         /// <param name="item"></param>
-        /// <exception cref="System.ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
         public MavenReferenceItem(ITaskItem item)
         {
             Item = item ?? throw new ArgumentNullException(nameof(item));
@@ -25,9 +28,9 @@ namespace IKVM.Sdk.Maven.Tasks
         public ITaskItem Item { get; }
 
         /// <summary>
-        /// The Maven artifact ID. Required.
+        /// The identity of the item.
         /// </summary>
-        public string ArtifactId { get; set; }
+        public string ItemSpec { get; set; }
 
         /// <summary>
         /// The Maven group ID. Required.
@@ -35,19 +38,56 @@ namespace IKVM.Sdk.Maven.Tasks
         public string GroupId { get; set; }
 
         /// <summary>
-        /// The extension of the artifact to download.
+        /// The Maven artifact ID. Required.
         /// </summary>
-        public string Extension { get; set; } // TODO: Make enum?
+        public string ArtifactId { get; set; }
 
         /// <summary>
-        /// The version of the Maven artifact. Optional.
+        /// The version of the Maven reference. Optional.
         /// </summary>
         public string Version { get; set; }
 
         /// <summary>
-        /// The Maven classifier (i.e. "sources"), which is appended to the end of the coords to make it unique.
-        /// Using this is required if the artifact was created with a classifier.
+        /// Gets the dependencies of this maven reference.
         /// </summary>
-        public string Classifier { get; set; }
+        public List<MavenReferenceItem> Dependencies { get; set; } = new List<MavenReferenceItem>();
+
+        /// <summary>
+        /// Gets the path to the compile items.
+        /// </summary>
+        public List<string> Compile { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Gets the path to the sources items.
+        /// </summary>
+        public List<string> Sources { get; set; } = new List<string>();
+
+        /// <summary>
+        /// Writes the metadata to the item.
+        /// </summary>
+        public void Save()
+        {
+            Item.ItemSpec = ItemSpec;
+            Item.SetMetadata(MavenReferenceItemMetadata.GroupId, GroupId);
+            Item.SetMetadata(MavenReferenceItemMetadata.ArtifactId, ArtifactId);
+            Item.SetMetadata(MavenReferenceItemMetadata.Version, Version);
+            Item.SetMetadata(MavenReferenceItemMetadata.Dependencies, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Dependencies.Select(i => i.ItemSpec)));
+            Item.SetMetadata(MavenReferenceItemMetadata.Compile, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Compile));
+            Item.SetMetadata(MavenReferenceItemMetadata.Sources, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Sources));
+        }
+
+        /// <summary>
+        /// Returns a string representation of this instance.
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            if (string.IsNullOrWhiteSpace(Version) == false)
+                return $"{GroupId}:{ArtifactId}:{Version}";
+            else
+                return $"{GroupId}:{ArtifactId}";
+        }
+
     }
+
 }

@@ -41,10 +41,8 @@ namespace IKVM.Sdk.Maven.Tasks
                 throw new ArgumentException($"'{nameof(groupId)}' cannot be null or whitespace.", nameof(groupId));
             if (string.IsNullOrWhiteSpace(artifactId))
                 throw new ArgumentException($"'{nameof(artifactId)}' cannot be null or whitespace.", nameof(artifactId));
-            if (string.IsNullOrWhiteSpace(version))
-                throw new ArgumentException($"'{nameof(version)}' cannot be null or whitespace.", nameof(version));
 
-            return new DefaultArtifact(groupId, artifactId, "", version);
+            return new DefaultArtifact(groupId, artifactId, "", version ?? "");
         }
 
     }
