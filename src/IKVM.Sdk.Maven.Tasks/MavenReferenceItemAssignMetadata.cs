@@ -43,10 +43,6 @@ namespace IKVM.Sdk.Maven.Tasks
                 foreach (var item in items)
                     AssignMetadata(item);
 
-                // save each back to the original task item
-                foreach (var item in items)
-                    item.Save();
-
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -71,36 +67,39 @@ namespace IKVM.Sdk.Maven.Tasks
                     if (string.IsNullOrWhiteSpace(item.GroupId))
                         item.GroupId = a.getGroupId();
                     else if (item.GroupId != a.getGroupId())
-                        throw new MavenTaskMessageException("Error.MavenInvalidGroupId");
+                        throw new MavenTaskMessageException("Error.MavenInvalidGroupId", item.ItemSpec);
 
                     if (string.IsNullOrWhiteSpace(item.ArtifactId))
                         item.ArtifactId = a.getArtifactId();
                     else if (item.ArtifactId != a.getArtifactId())
-                        throw new MavenTaskMessageException("Error.MavenInvalidArtifactId");
+                        throw new MavenTaskMessageException("Error.MavenInvalidArtifactId", item.ItemSpec);
 
                     if (string.IsNullOrWhiteSpace(item.Version))
                         item.Version = a.getVersion();
                     else if (item.Version != a.getVersion())
-                        throw new MavenTaskMessageException("Error.MavenInvalidVersion");
+                        throw new MavenTaskMessageException("Error.MavenInvalidVersion", item.ItemSpec);
                 }
             }
 
             if (string.IsNullOrWhiteSpace(item.GroupId))
-                throw new MavenTaskMessageException("Error.MavenMissingGroupId");
+                throw new MavenTaskMessageException("Error.MavenMissingGroupId", item.ItemSpec);
             
             if (string.IsNullOrWhiteSpace(item.ArtifactId))
-                throw new MavenTaskMessageException("Error.MavenMissingArtifactId");
+                throw new MavenTaskMessageException("Error.MavenMissingArtifactId", item.ItemSpec);
 
             if (string.IsNullOrWhiteSpace(item.Version))
-                throw new MavenTaskMessageException("Error.MavenMissingVersion");
+                throw new MavenTaskMessageException("Error.MavenMissingVersion", item.ItemSpec);
 
             // check that we can construct an artifact out of the coordinates
             var artifact = MavenTaskUtil.TryCreateArtifact(item.GroupId, item.ArtifactId, item.Version);
             if (artifact == null)
-                throw new MavenTaskMessageException("Error.MavenInvalidCoordinates");
+                throw new MavenTaskMessageException("Error.MavenInvalidCoordinates", item.ItemSpec);
 
             // replace itemspec with normalized values
             item.ItemSpec = $"{artifact.getGroupId()}:{artifact.getArtifactId()}:{artifact.getVersion()}";
+
+            // save item
+            item.Save();
         }
 
     }

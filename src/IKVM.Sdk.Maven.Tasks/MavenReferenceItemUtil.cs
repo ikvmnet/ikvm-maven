@@ -21,7 +21,13 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         public static string NormalizeItemSpec(string itemSpec)
         {
+            if (string.IsNullOrWhiteSpace(itemSpec))
+                throw new ArgumentException($"'{nameof(itemSpec)}' cannot be null or whitespace.", nameof(itemSpec));
+
             var a = MavenTaskUtil.TryParseArtifact(itemSpec);
+            if (a == null)
+                return itemSpec;
+
             var b = new StringBuilder();
             if (string.IsNullOrWhiteSpace(a.getGroupId()) == false)
                 b.Append(a.getGroupId());
@@ -39,6 +45,11 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         public static string GetItemSpec(string groupId, string artifactId, string version)
         {
+            if (string.IsNullOrWhiteSpace(groupId))
+                throw new ArgumentException($"'{nameof(groupId)}' cannot be null or whitespace.", nameof(groupId));
+            if (string.IsNullOrWhiteSpace(artifactId))
+                throw new ArgumentException($"'{nameof(artifactId)}' cannot be null or whitespace.", nameof(artifactId));
+
             var a = MavenTaskUtil.TryCreateArtifact(groupId, artifactId, version);
             var b = new StringBuilder();
             if (string.IsNullOrWhiteSpace(a.getGroupId()) == false)

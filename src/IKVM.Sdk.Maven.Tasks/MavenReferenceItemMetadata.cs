@@ -12,6 +12,7 @@
         public static readonly string Version = "Version";
         public static readonly string Dependencies = "Dependencies";
         public static readonly string Compile = "Compile";
+        public static readonly string Runtime = "Runtime";
         public static readonly string Sources = "Sources";
 
     }

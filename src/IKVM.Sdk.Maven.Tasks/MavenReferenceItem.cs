@@ -58,6 +58,11 @@ namespace IKVM.Sdk.Maven.Tasks
         public List<string> Compile { get; set; } = new List<string>();
 
         /// <summary>
+        /// Gets the path to the runtime items.
+        /// </summary>
+        public List<string> Runtime { get; set; } = new List<string>();
+
+        /// <summary>
         /// Gets the path to the sources items.
         /// </summary>
         public List<string> Sources { get; set; } = new List<string>();
@@ -73,6 +78,7 @@ namespace IKVM.Sdk.Maven.Tasks
             Item.SetMetadata(MavenReferenceItemMetadata.Version, Version);
             Item.SetMetadata(MavenReferenceItemMetadata.Dependencies, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Dependencies.Select(i => i.ItemSpec)));
             Item.SetMetadata(MavenReferenceItemMetadata.Compile, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Compile));
+            Item.SetMetadata(MavenReferenceItemMetadata.Runtime, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Runtime));
             Item.SetMetadata(MavenReferenceItemMetadata.Sources, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Sources));
         }
 

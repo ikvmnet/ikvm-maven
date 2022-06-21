@@ -3,10 +3,10 @@
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
         <ItemGroup>
-            <!-- Best option is probably going to be to dig through project.assets.json for the relevant resources and packages. -->
+            <!-- Best option is probably going to be to dig through project.assets.json for the relevant resources and packages. --><!--
             <MavenReferenceItem Include="TODO">
                 <ReferenceSource>PackageReference</ReferenceSource>
-            </MavenReferenceItem>
+            </MavenReferenceItem>-->
         </ItemGroup>
     </Target>
 
@@ -54,6 +54,19 @@
         </ItemGroup>
     </Target>
 
+    <!-- Resolves the MavenReferenceItem set. -->
+    <Target Name="GetMavenReferenceItemsResolved" DependsOnTargets="GetMavenReferenceItemsMetadata" Condition=" '@(MavenReferenceItem)' != '' ">
+        <MavenReferenceItemResolve Items="@(MavenReferenceItem)">
+            <Output TaskParameter="Items" ItemName="_MavenReferenceItemResolved" />
+        </MavenReferenceItemResolve>
+
+        <!-- Assign newly resolved items. -->
+        <ItemGroup>
+            <MavenReferenceItem Remove="@(MavenReferenceItem)"/>
+            <MavenReferenceItem Include="@(_MavenReferenceItemResolved)" />
+        </ItemGroup>
+    </Target>
+
     <!-- PackageReferences come first, ProjectReferences come second, local MavenReferences come last. -->
     <PropertyGroup>
         <GetMavenReferenceItemsDependsOn>
@@ -63,6 +76,7 @@
             GetMavenReferenceItemsFromProjectReferences;
             GetMavenReferenceItemsFromMavenReferences;
             GetMavenReferenceItemsMetadata;
+            GetMavenReferenceItemsResolved;
         </GetMavenReferenceItemsDependsOn>
     </PropertyGroup>
 
@@ -71,11 +85,14 @@
         <Message Text="MavenReferenceItem: @(MavenReferenceItem)" />
     </Target>
 
-    <!-- Resolves the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
+    <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
-        <MavenReferenceItemResolve Items="@(MavenReferenceItem)">
-            <Output TaskParameter="ResolvedItems" ItemName="IkvmReferenceItem" />
-        </MavenReferenceItemResolve>
+        <ItemGroup>
+            <IkvmReferenceItem Include="@(MavenReferenceItem)">
+                <Compile>%(Compile);%(Runtime)</Compile>
+                <Sources>%(Sources)</Sources>
+            </IkvmReferenceItem>
+        </ItemGroup>
     </Target>
 
     <PropertyGroup>
@@ -100,8 +117,8 @@
 
     <PropertyGroup>
         <InstallMavenReferencesDependsOn>
-            $(InstallMavenReferences);
-            GetMavenIkvmReferenceItems;
+            $(InstallMavenReferencesDependsOn);
+            GetMavenReferenceItems;
             _InstallMavenReferences;
         </InstallMavenReferencesDependsOn>
     </PropertyGroup>
@@ -144,7 +161,7 @@
     <!-- Outputs the project model file to the intermediate directory. -->
     <Target Name="_BuildMavenProjectModelPackageFile">
         <MavenWriteProjectObjectModelFile GroupId="$(MavenGroupdId)" ArtifactId="$(MavenArtifactId)" Version="$(MavenVersion)" References="@(MavenReferenceItemsForProjectModel)" PackageFile="$(IntermediateOutputPath)$(PackageId).pom">
-            
+
         </MavenWriteProjectObjectModelFile>
     </Target>
 
@@ -158,7 +175,7 @@
 
     <!-- Outputs the project model file to the intermediate directory. -->
     <Target Name="BuildMavenProjectModelPackageFile" DependsOnTargets="$(BuildMavenProjectModelPackageFileDependsOn)">
-        
+
     </Target>
 
     <PropertyGroup>

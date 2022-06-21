@@ -5,12 +5,17 @@ using System.Linq;
 
 using IKVM.Sdk.Maven.Tasks.Resources;
 
+using javax.inject;
+
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
+using org.apache.maven.model.building;
+using org.apache.maven.repository.@internal;
 using org.eclipse.aether.artifact;
 using org.eclipse.aether.collection;
 using org.eclipse.aether.graph;
+using org.eclipse.aether.impl;
 using org.eclipse.aether.resolution;
 using org.eclipse.aether.util.artifact;
 using org.eclipse.aether.util.filter;
@@ -41,12 +46,6 @@ namespace IKVM.Sdk.Maven.Tasks
         public ITaskItem[] Items { get; set; }
 
         /// <summary>
-        /// Set of MavenReferenceItem that is the fully resolved set.
-        /// </summary>
-        [Output]
-        public ITaskItem[] ResolvedItems { get; set; }
-
-        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <returns></returns>
@@ -55,7 +54,7 @@ namespace IKVM.Sdk.Maven.Tasks
             try
             {
                 var items = MavenReferenceItemUtil.Import(Items);
-                ResolvedItems = ResolveItems(items).Select(i => i.Item).ToArray();
+                Items = ResolveItems(items).Select(i => i.Item).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -72,6 +71,21 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         List<MavenReferenceItem> ResolveItems(MavenReferenceItem[] items)
         {
+            try
+            {
+                var c = (java.lang.Class)typeof(org.apache.maven.model.plugin.DefaultReportingConverter);
+                var p = c.getPackage();
+                if (p == null)
+                    throw new Exception();
+
+                new org.apache.maven.model.plugin.DefaultReportingConverter();
+            }
+            catch (Exception z)
+            {
+                Log.LogErrorFromException(z, true, true, null);
+                throw;
+            }
+
             if (items is null)
                 throw new ArgumentNullException(nameof(items));
 
