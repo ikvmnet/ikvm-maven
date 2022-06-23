@@ -71,21 +71,6 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         List<MavenReferenceItem> ResolveItems(MavenReferenceItem[] items)
         {
-            try
-            {
-                var c = (java.lang.Class)typeof(org.apache.maven.model.plugin.DefaultReportingConverter);
-                var p = c.getPackage();
-                if (p == null)
-                    throw new Exception();
-
-                new org.apache.maven.model.plugin.DefaultReportingConverter();
-            }
-            catch (Exception z)
-            {
-                Log.LogErrorFromException(z, true, true, null);
-                throw;
-            }
-
             if (items is null)
                 throw new ArgumentNullException(nameof(items));
 
@@ -135,7 +120,8 @@ namespace IKVM.Sdk.Maven.Tasks
 
             // obtain or create an existing item
             var itemSpec = $"{artifact.getGroupId()}:{artifact.getArtifactId()}:{artifact.getVersion()}";
-            if (output.TryGetValue(itemSpec, out var item) == false)
+            var itemSpecShort = $"{artifact.getGroupId()}:{artifact.getArtifactId()}";
+            if (output.TryGetValue(itemSpec, out var item) == false && output.TryGetValue(itemSpecShort, out item) == false)
                 output[itemSpec] = item = new MavenReferenceItem(new TaskItem(itemSpec)) { ItemSpec = itemSpec };
 
             // configure the basic data

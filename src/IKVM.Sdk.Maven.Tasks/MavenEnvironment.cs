@@ -47,153 +47,6 @@ namespace IKVM.Sdk.Maven.Tasks
     class IkvmMavenEnvironment
     {
 
-        [Named]
-        [Singleton]
-        public class DefaultArtifactDescriptorReader2 : java.lang.Object, ArtifactDescriptorReader, Service
-        {
-            private RemoteRepositoryManager remoteRepositoryManager;
-
-            private VersionResolver versionResolver;
-
-            private VersionRangeResolver versionRangeResolver;
-
-            private ArtifactResolver artifactResolver;
-
-            private RepositoryEventDispatcher repositoryEventDispatcher;
-
-            private ModelBuilder modelBuilder;
-
-            public virtual DefaultArtifactDescriptorReader2 setRemoteRepositoryManager(RemoteRepositoryManager remoteRepositoryManager)
-            {
-                this.remoteRepositoryManager = (RemoteRepositoryManager)Objects.requireNonNull(remoteRepositoryManager, "remoteRepositoryManager cannot be null");
-                return this;
-            }
-
-            public virtual DefaultArtifactDescriptorReader2 setVersionResolver(VersionResolver versionResolver)
-            {
-                this.versionResolver = (VersionResolver)Objects.requireNonNull(versionResolver, "versionResolver cannot be null");
-                return this;
-            }
-
-            public virtual DefaultArtifactDescriptorReader2 setVersionRangeResolver(VersionRangeResolver versionRangeResolver)
-            {
-                this.versionRangeResolver = (VersionRangeResolver)Objects.requireNonNull(versionRangeResolver, "versionRangeResolver cannot be null");
-                return this;
-            }
-
-            public virtual DefaultArtifactDescriptorReader2 setArtifactResolver(ArtifactResolver artifactResolver)
-            {
-                this.artifactResolver = (ArtifactResolver)Objects.requireNonNull(artifactResolver, "artifactResolver cannot be null");
-                return this;
-            }
-
-            public virtual DefaultArtifactDescriptorReader2 setModelBuilder(ModelBuilder modelBuilder)
-            {
-                this.modelBuilder = (ModelBuilder)Objects.requireNonNull(modelBuilder, "modelBuilder cannot be null");
-                return this;
-            }
-
-            public virtual DefaultArtifactDescriptorReader2 setRepositoryEventDispatcher(RepositoryEventDispatcher repositoryEventDispatcher)
-            {
-                this.repositoryEventDispatcher = (RepositoryEventDispatcher)Objects.requireNonNull(repositoryEventDispatcher, "repositoryEventDispatcher cannot be null");
-                return this;
-            }
-
-            private Model loadPom(RepositorySystemSession P_0, ArtifactDescriptorRequest P_1, ArtifactDescriptorResult P_2)
-            {
-                throw new NotSupportedException();
-            }
-
-            private void invalidDescriptor(RepositorySystemSession P_0, RequestTrace P_1, Artifact P_2, java.lang.Exception P_3)
-            {
-                throw new NotSupportedException();
-            }
-
-            private int getPolicy(RepositorySystemSession P_0, Artifact P_1, ArtifactDescriptorRequest P_2)
-            {
-                ArtifactDescriptorPolicy artifactDescriptorPolicy = P_0.getArtifactDescriptorPolicy();
-                if (artifactDescriptorPolicy == null)
-                {
-                    return 0;
-                }
-
-                int policy = artifactDescriptorPolicy.getPolicy(P_0, new ArtifactDescriptorPolicyRequest(P_1, P_2.getRequestContext()));
-                return policy;
-            }
-
-            private void missingDescriptor(RepositorySystemSession P_0, RequestTrace P_1, Artifact P_2, java.lang.Exception P_3)
-            {
-                throw new NotSupportedException();
-            }
-
-            private Properties toProperties(Map P_0)
-            {
-                Properties properties = new Properties();
-                properties.putAll(P_0);
-                return properties;
-            }
-
-            private Relocation getRelocation(Model P_0)
-            {
-                Relocation result = null;
-                DistributionManagement distributionManagement = P_0.getDistributionManagement();
-                if (distributionManagement != null)
-                {
-                    result = distributionManagement.getRelocation();
-                }
-
-                return result;
-            }
-
-            public DefaultArtifactDescriptorReader2()
-            {
-            }
-
-            public DefaultArtifactDescriptorReader2(RemoteRepositoryManager P_0, VersionResolver P_1, VersionRangeResolver P_2, ArtifactResolver P_3, ModelBuilder P_4, RepositoryEventDispatcher P_5)
-            {
-                setRemoteRepositoryManager(P_0);
-                setVersionResolver(P_1);
-                setVersionRangeResolver(P_2);
-                setArtifactResolver(P_3);
-                setModelBuilder(P_4);
-                setRepositoryEventDispatcher(P_5);
-            }
-
-            public virtual void initService(ServiceLocator locator)
-            {
-                setRemoteRepositoryManager((RemoteRepositoryManager)locator.getService(ClassLiteral<RemoteRepositoryManager>.Value));
-                setVersionResolver((VersionResolver)locator.getService(ClassLiteral<VersionResolver>.Value));
-                setVersionRangeResolver((VersionRangeResolver)locator.getService(ClassLiteral<VersionRangeResolver>.Value));
-                setArtifactResolver((ArtifactResolver)locator.getService(ClassLiteral<ArtifactResolver>.Value));
-                modelBuilder = (ModelBuilder)locator.getService(ClassLiteral<ModelBuilder>.Value);
-                if (modelBuilder == null)
-                {
-                    setModelBuilder(new DefaultModelBuilderFactory().newInstance());
-                }
-
-                setRepositoryEventDispatcher((RepositoryEventDispatcher)locator.getService(ClassLiteral<RepositoryEventDispatcher>.Value));
-            }
-
-            public virtual ArtifactDescriptorResult readArtifactDescriptor(RepositorySystemSession session, ArtifactDescriptorRequest request)
-            {
-                ArtifactDescriptorResult artifactDescriptorResult = new ArtifactDescriptorResult(request);
-                Model model = loadPom(session, request, artifactDescriptorResult);
-                if (model != null)
-                {
-                    Map configProperties = session.getConfigProperties();
-                    ArtifactDescriptorReaderDelegate artifactDescriptorReaderDelegate = (ArtifactDescriptorReaderDelegate)configProperties.get(ClassLiteral<ArtifactDescriptorReaderDelegate>.Value.getName());
-                    if (artifactDescriptorReaderDelegate == null)
-                    {
-                        artifactDescriptorReaderDelegate = new ArtifactDescriptorReaderDelegate();
-                    }
-
-                    artifactDescriptorReaderDelegate.populateResult(session, artifactDescriptorResult, model);
-                }
-
-                return artifactDescriptorResult;
-            }
-        }
-
         /// <summary>
         /// Default internal security dispatcher.
         /// </summary>
@@ -268,11 +121,18 @@ namespace IKVM.Sdk.Maven.Tasks
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
 
-            repositoryPath = DefaultRepositoryPath;
-            settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
-            repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
-            repositorySystemSession = CreateRepositorySystemSession() ?? throw new NullReferenceException("Null result creating RepositorySystemSession.");
-            repositories = CreateRepositories() ?? throw new NullReferenceException("Null result creating Repositories.");
+            try
+            {
+                repositoryPath = DefaultRepositoryPath;
+                settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
+                repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
+                repositorySystemSession = CreateRepositorySystemSession() ?? throw new NullReferenceException("Null result creating RepositorySystemSession.");
+                repositories = CreateRepositories() ?? throw new NullReferenceException("Null result creating Repositories.");
+            }
+            catch (System.Exception e)
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -332,32 +192,10 @@ namespace IKVM.Sdk.Maven.Tasks
         RepositorySystem CreateRepositorySystem()
         {
             var locator = MavenRepositorySystemUtils.newServiceLocator();
-            //locator.addService(typeof(ArtifactDescriptorReader), typeof(DefaultArtifactDescriptorReader2));
             locator.addService(typeof(RepositoryConnectorFactory), typeof(BasicRepositoryConnectorFactory));
             locator.addService(typeof(TransporterFactory), typeof(FileTransporterFactory));
             locator.addService(typeof(TransporterFactory), typeof(HttpTransporterFactory));
             locator.setErrorHandler(new ErrorHandler(log));
-            var c = (RemoteRepositoryManager)locator.getService(typeof(RemoteRepositoryManager));
-            if (c == null)
-                throw new System.Exception();
-            var d = (VersionResolver)locator.getService(typeof(VersionResolver));
-            if (d == null)
-                throw new System.Exception();
-            var e = (VersionRangeResolver)locator.getService(typeof(VersionRangeResolver));
-            if (e == null)
-                throw new System.Exception();
-            var b = (ArtifactResolver)locator.getService(typeof(ArtifactResolver));
-            if (b == null)
-                throw new System.Exception();
-            var a = (ArtifactDescriptorReader)locator.getService(typeof(ArtifactDescriptorReader));
-            if (a == null)
-                throw new System.Exception();
-            var f = (ModelBuilder)locator.getService(typeof(ModelBuilder));
-            if (f == null)
-                throw new System.Exception();
-            var g = (RepositoryEventDispatcher)locator.getService(typeof(RepositoryEventDispatcher));
-            if (g == null)
-                throw new System.Exception();
             return (RepositorySystem)locator.getService(typeof(RepositorySystem));
         }
 
