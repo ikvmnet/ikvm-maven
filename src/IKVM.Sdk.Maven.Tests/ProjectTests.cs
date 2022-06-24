@@ -75,7 +75,11 @@ namespace IKVM.Sdk.Maven.Tests
             // allow NuGet to locate packages in existing global packages folder if set
             // else fallback to standard location
             if (Environment.GetEnvironmentVariable("NUGET_PACKAGES") is string nugetPackagesDir)
+            {
+                if (Directory.Exists(nugetPackagesDir) == false)
+                    Directory.CreateDirectory(nugetPackagesDir);
                 analyzer.SetGlobalProperty("RestoreAdditionalProjectFallbackFolders", nugetPackagesDir);
+            }
 
             analyzer.AddBuildLogger(new TargetLogger(TestContext));
 
