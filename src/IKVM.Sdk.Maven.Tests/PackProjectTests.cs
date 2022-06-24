@@ -51,7 +51,7 @@ namespace IKVM.Sdk.Maven.Tests
         {
             var properties = File.ReadAllLines("IKVM.Sdk.Maven.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
-            var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Sdk.Maven.Tests", "nuget", "packages");
+            var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Sdk.Maven.Tests_PackProject", "nuget", "packages");
             if (Directory.Exists(nugetPackageRoot))
                 Directory.Delete(nugetPackageRoot, true);
             Directory.CreateDirectory(nugetPackageRoot);
@@ -64,10 +64,8 @@ namespace IKVM.Sdk.Maven.Tests
 
             // allow NuGet to locate packages in existing global packages folder if set
             // else fallback to standard location
-            if (Environment.GetEnvironmentVariable("NUGET_PACKAGES") is string nugetPackagesDir && Directory.Exists(nugetPackagesDir))
+            if (Environment.GetEnvironmentVariable("NUGET_PACKAGES") is string nugetPackagesDir)
                 analyzer.SetGlobalProperty("RestoreAdditionalProjectFallbackFolders", nugetPackagesDir);
-            else
-                analyzer.SetGlobalProperty("RestoreAdditionalProjectFallbackFolders", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages"));
 
             analyzer.AddBuildLogger(new TargetLogger(TestContext));
 
