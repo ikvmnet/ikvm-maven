@@ -12,16 +12,16 @@
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" />
     </ItemGroup>
 
-    <Target Name="DownloadMavenArtifacts" BeforeTargets="DispatchToInnerBuilds" Condition=" '$(TargetFramework)' == '' ">
+    <Target Name="DownloadMavenArtifacts">
         <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven.pom -DoutputDirectory=$(IntermediateOutputPath)maven" />
     </Target>
 
-    <Target Name="GetIkvmReferenceFromMaven" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences;DownloadMavenArtifacts" Condition=" '$(TargetFramework)' != '' ">
+    <Target Name="GetIkvmReferenceFromMaven" DependsOnTargets="DownloadMavenArtifacts" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences">
         <ItemGroup>
             <IkvmReference Include="ikvm-maven">
                 <AssemblyName>ikvm-maven</AssemblyName>
                 <AssemblyVersion>1.8.1.0</AssemblyVersion>
-                <Compile>$(IntermediateOutputPath)..\maven\*.jar</Compile>
+                <Compile>$(IntermediateOutputPath)\maven\*.jar</Compile>
             </IkvmReference>
         </ItemGroup>
     </Target>
