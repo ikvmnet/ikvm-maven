@@ -30,6 +30,7 @@
                 <ReferenceSource>ProjectReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
+        <Message Text="_ResolvedMavenReferenceItemFromProjectReferences: @(_ResolvedMavenReferenceItemFromProjectReferences)" />
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->

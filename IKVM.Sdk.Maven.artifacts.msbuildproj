@@ -20,18 +20,6 @@
         </TargetsForPublish>
         <TargetsForPublish Include="$(SolutionFile)">
             <Targets>IKVM_Sdk_Maven_Tests:Publish</Targets>
-            <Properties>$(TestProperties);TargetFramework=net461;PublishDir=$(ArtifactStagingDirectory)\tests\net461</Properties>
-        </TargetsForPublish>
-        <TargetsForPublish Include="$(SolutionFile)">
-            <Targets>IKVM_Sdk_Maven_Tests:Publish</Targets>
-            <Properties>$(TestProperties);TargetFramework=netcoreapp3.1;PublishDir=$(ArtifactStagingDirectory)\tests\netcoreapp3.1</Properties>
-        </TargetsForPublish>
-        <TargetsForPublish Include="$(SolutionFile)">
-            <Targets>IKVM_Sdk_Maven_Tests:Publish</Targets>
-            <Properties>$(TestProperties);TargetFramework=net5.0;PublishDir=$(ArtifactStagingDirectory)\tests\net5.0</Properties>
-        </TargetsForPublish>
-        <TargetsForPublish Include="$(SolutionFile)">
-            <Targets>IKVM_Sdk_Maven_Tests:Publish</Targets>
             <Properties>$(TestProperties);TargetFramework=net6.0;PublishDir=$(ArtifactStagingDirectory)\tests\net6.0</Properties>
         </TargetsForPublish>
     </ItemGroup>
