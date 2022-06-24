@@ -30,12 +30,6 @@
         <RepositoryType Condition=" '$(RepositoryType)' == '' ">git</RepositoryType>
         <PackageProjectUrl  Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/ikvm-revived/ikvm-sdk-maven</PackageProjectUrl>
         <PackageVersion Condition=" '$(PackageVersion)' == '' ">$(Version)</PackageVersion>
-        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    </PropertyGroup>
-
-    <PropertyGroup Label="Debug Info">
-        <IncludeSymbols>true</IncludeSymbols>
-        <EmbedAllSources>true</EmbedAllSources>
     </PropertyGroup>
 
 </Project>
