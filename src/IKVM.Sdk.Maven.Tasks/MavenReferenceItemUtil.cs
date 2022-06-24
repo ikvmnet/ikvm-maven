@@ -42,36 +42,6 @@ namespace IKVM.Sdk.Maven.Tasks
         }
 
         /// <summary>
-        /// Returns a normalized version of a <see cref="MavenReferenceItem"/> itemspec.
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="artifactId"></param>
-        /// <param name="classifier"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentException"></exception>
-        public static string GetItemSpec(string groupId, string artifactId, string classifier, string version)
-        {
-            if (string.IsNullOrWhiteSpace(groupId))
-                throw new ArgumentException($"'{nameof(groupId)}' cannot be null or whitespace.", nameof(groupId));
-            if (string.IsNullOrWhiteSpace(artifactId))
-                throw new ArgumentException($"'{nameof(artifactId)}' cannot be null or whitespace.", nameof(artifactId));
-
-            var a = MavenTaskUtil.TryCreateArtifact(groupId, artifactId, classifier, version);
-            var b = new StringBuilder();
-            if (string.IsNullOrWhiteSpace(a.getGroupId()) == false)
-                b.Append(a.getGroupId());
-            if (string.IsNullOrWhiteSpace(a.getArtifactId()) == false)
-                b.Append(':').Append(a.getArtifactId());
-            if (string.IsNullOrWhiteSpace(a.getClassifier()) == false)
-                b.Append(':').Append(a.getClassifier());
-            if (string.IsNullOrWhiteSpace(a.getVersion()) == false)
-                b.Append(':').Append(a.getVersion());
-
-            return b.ToString();
-        }
-
-        /// <summary>
         /// Attempts to import a set of <see cref="MavenReferenceItem"/> instances from the given <see cref="ITaskItem"/> instances.
         /// </summary>
         /// <param name="items"></param>

@@ -144,14 +144,19 @@
 
     <!-- Default Maven packaging variables. -->
     <PropertyGroup>
-        <MavenGroupdId Condition=" '$(MavenGroupId)' == '' ">ikvm.nuget</MavenGroupdId>
-        <MavenArtifactId Condition=" '$(MavenArtifactId)' == '' ">$(PackageId)</MavenArtifactId>
-        <MavenVersion Condition=" '$(MavenVersion)' == '' ">$(PackageVersion)</MavenVersion>
+        <MavenProjectGroupdId Condition=" '$(MavenProjectGroupdId)' == '' ">ikvm.nuget</MavenProjectGroupdId>
+        <MavenProjectArtifactId Condition=" '$(MavenProjectArtifactId)' == '' ">$(PackageId)</MavenProjectArtifactId>
+        <MavenProjectArtifactId Condition=" '$(MavenProjectArtifactId)' == '' ">$(AssemblyName)</MavenProjectArtifactId>
+        <MavenProjectArtifactId Condition=" '$(MavenProjectArtifactId)' == '' ">$(ProjectName)</MavenProjectArtifactId>
+        <MavenProjectVersion Condition=" '$(MavenProjectVersion)' == '' ">$(PackageVersion)</MavenProjectVersion>
+        <MavenProjectVersion Condition=" '$(MavenProjectVersion)' == '' ">$(Version)</MavenProjectVersion>
+        <MavenProjectVersion Condition=" '$(MavenProjectVersion)' == '' ">$(AssemblyVersion)</MavenProjectVersion>
+        <MavenProjectVersion Condition=" '$(MavenProjectVersion)' == '' ">0</MavenProjectVersion>
     </PropertyGroup>
 
     <!-- Outputs the project model file to the intermediate directory. -->
     <Target Name="_BuildMavenProjectModelPackageFile">
-        <MavenWriteProjectObjectModelFile GroupId="$(MavenGroupdId)" ArtifactId="$(MavenArtifactId)" Version="$(MavenVersion)" References="@(MavenReferenceItemsForProjectModel)" PackageFile="$(IntermediateOutputPath)$(PackageId).pom">
+        <MavenWriteProjectObjectModelFile GroupId="$(MavenProjectGroupdId)" ArtifactId="$(MavenProjectArtifactId)" Version="$(MavenProjectVersion)" References="@(MavenReferenceItemsForProjectModel)" ProjectFile="$(IntermediateOutputPath)$(PackageId).pom">
 
         </MavenWriteProjectObjectModelFile>
     </Target>

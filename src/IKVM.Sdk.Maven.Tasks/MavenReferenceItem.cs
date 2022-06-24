@@ -106,10 +106,7 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         public override string ToString()
         {
-            if (string.IsNullOrWhiteSpace(Version) == false)
-                return $"{GroupId}:{ArtifactId}:{Version}";
-            else
-                return $"{GroupId}:{ArtifactId}";
+            return $"{GroupId}:{ArtifactId}";
         }
 
     }

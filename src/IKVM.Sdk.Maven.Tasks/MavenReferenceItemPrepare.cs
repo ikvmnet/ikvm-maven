@@ -1,5 +1,4 @@
-﻿
-using IKVM.Sdk.Maven.Tasks.Resources;
+﻿using IKVM.Sdk.Maven.Tasks.Resources;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -97,11 +96,6 @@ namespace IKVM.Sdk.Maven.Tasks
             if (string.IsNullOrWhiteSpace(item.Version))
                 throw new MavenTaskMessageException("Error.MavenMissingVersion", item.ItemSpec);
 
-            // check that we can construct an artifact out of the coordinates
-            var artifact = MavenTaskUtil.TryCreateArtifact(item.GroupId, item.ArtifactId, item.Classifier, item.Version);
-            if (artifact == null)
-                throw new MavenTaskMessageException("Error.MavenInvalidCoordinates", item.ItemSpec);
-
             // add default scopes
             if (item.Scopes.Count == 0)
             {
@@ -113,9 +107,6 @@ namespace IKVM.Sdk.Maven.Tasks
             if (item.Scopes != null)
                 foreach (var scope in item.Scopes)
                     ValidateScope(item, scope);
-
-            // replace itemspec with normalized values
-            item.ItemSpec = MavenReferenceItemUtil.GetItemSpec(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getVersion());
 
             // save item
             item.Save();

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 using IKVM.Sdk.Maven.Tasks.Resources;
 
@@ -184,7 +185,7 @@ namespace IKVM.Sdk.Maven.Tasks
             if (outputItem == null)
             {
                 // generate a new IkvmReferenceItem, prefixed so it doesn't conflict with others
-                var outputItemSpec = "maven$" + MavenReferenceItemUtil.GetItemSpec(groupId, artifactId, classifier, version);
+                var outputItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
                 output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec });
             }
 
@@ -233,6 +234,34 @@ namespace IKVM.Sdk.Maven.Tasks
             // persist modified item
             outputItem.Save();
             return outputItem;
+        }
+
+        /// <summary>
+        /// Returns a normalized version of a <see cref="MavenReferenceItem"/> itemspec.
+        /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="artifactId"></param>
+        /// <param name="classifier"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        string GetIkvmItemSpec(string groupId, string artifactId, string classifier, string version)
+        {
+            if (string.IsNullOrWhiteSpace(groupId))
+                throw new ArgumentException($"'{nameof(groupId)}' cannot be null or whitespace.", nameof(groupId));
+            if (string.IsNullOrWhiteSpace(artifactId))
+                throw new ArgumentException($"'{nameof(artifactId)}' cannot be null or whitespace.", nameof(artifactId));
+            if (string.IsNullOrWhiteSpace(version))
+                throw new ArgumentException($"'{nameof(version)}' cannot be null or whitespace.", nameof(version));
+
+            var b = new StringBuilder();
+            b.Append(groupId);
+            b.Append(':').Append(artifactId);
+            if (string.IsNullOrWhiteSpace(classifier) == false)
+                b.Append(':').Append(classifier);
+            b.Append(':').Append(version);
+
+            return b.ToString();
         }
 
         /// <summary>

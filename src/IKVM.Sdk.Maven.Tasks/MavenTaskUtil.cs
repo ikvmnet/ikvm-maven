@@ -28,24 +28,6 @@ namespace IKVM.Sdk.Maven.Tasks
             }
         }
 
-        /// <summary>
-        /// Attempts to create a Maven artifact from the given coordinate values.
-        /// </summary>
-        /// <param name="groupId"></param>
-        /// <param name="artifactId"></param>
-        /// <param name="classifier"></param>
-        /// <param name="version"></param>
-        /// <returns></returns>
-        public static Artifact TryCreateArtifact(string groupId, string artifactId, string classifier, string version)
-        {
-            if (string.IsNullOrWhiteSpace(groupId))
-                throw new ArgumentException($"'{nameof(groupId)}' cannot be null or whitespace.", nameof(groupId));
-            if (string.IsNullOrWhiteSpace(artifactId))
-                throw new ArgumentException($"'{nameof(artifactId)}' cannot be null or whitespace.", nameof(artifactId));
-
-            return new DefaultArtifact(groupId, artifactId, classifier ?? "", "", version ?? "");
-        }
-
     }
 
 }
