@@ -43,6 +43,11 @@ namespace IKVM.Sdk.Maven.Tasks
         public string ArtifactId { get; set; }
 
         /// <summary>
+        /// The Maven classifier. Optional.
+        /// </summary>
+        public string Classifier { get; set; }
+
+        /// <summary>
         /// The version of the Maven reference. Optional.
         /// </summary>
         public string Version { get; set; }
@@ -53,19 +58,29 @@ namespace IKVM.Sdk.Maven.Tasks
         public List<MavenReferenceItem> Dependencies { get; set; } = new List<MavenReferenceItem>();
 
         /// <summary>
-        /// Gets the path to the compile items.
+        /// Gets the scopes requested by the dependency.
         /// </summary>
-        public List<string> Compile { get; set; } = new List<string>();
+        public List<string> Scopes { get; set; } = new List<string>();
 
         /// <summary>
-        /// Gets the path to the runtime items.
+        /// Is the dependency optional?
         /// </summary>
-        public List<string> Runtime { get; set; } = new List<string>();
+        public bool IncludeOptional { get; set; } = false;
 
         /// <summary>
-        /// Gets the path to the sources items.
+        /// Force the assembly name to the given value.
         /// </summary>
-        public List<string> Sources { get; set; } = new List<string>();
+        public string AssemblyName { get; set; }
+
+        /// <summary>
+        /// Force the assembly version to the given value.
+        /// </summary>
+        public string AssemblyVersion { get; set; }
+
+        /// <summary>
+        /// Generate debug information.
+        /// </summary>
+        public bool Debug { get; set; } = false;
 
         /// <summary>
         /// Writes the metadata to the item.
@@ -75,11 +90,14 @@ namespace IKVM.Sdk.Maven.Tasks
             Item.ItemSpec = ItemSpec;
             Item.SetMetadata(MavenReferenceItemMetadata.GroupId, GroupId);
             Item.SetMetadata(MavenReferenceItemMetadata.ArtifactId, ArtifactId);
+            Item.SetMetadata(MavenReferenceItemMetadata.Classifier, Classifier);
             Item.SetMetadata(MavenReferenceItemMetadata.Version, Version);
             Item.SetMetadata(MavenReferenceItemMetadata.Dependencies, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Dependencies.Select(i => i.ItemSpec)));
-            Item.SetMetadata(MavenReferenceItemMetadata.Compile, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Compile));
-            Item.SetMetadata(MavenReferenceItemMetadata.Runtime, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Runtime));
-            Item.SetMetadata(MavenReferenceItemMetadata.Sources, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Sources));
+            Item.SetMetadata(MavenReferenceItemMetadata.Scopes, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Scopes));
+            Item.SetMetadata(MavenReferenceItemMetadata.IncludeOptional, IncludeOptional ? "true" : "false");
+            Item.SetMetadata(MavenReferenceItemMetadata.AssemblyName, AssemblyName);
+            Item.SetMetadata(MavenReferenceItemMetadata.AssemblyVersion, AssemblyVersion);
+            Item.SetMetadata(MavenReferenceItemMetadata.Debug, Debug ? "true" : "false");
         }
 
         /// <summary>

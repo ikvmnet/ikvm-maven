@@ -33,6 +33,8 @@ namespace IKVM.Sdk.Maven.Tasks
                 b.Append(a.getGroupId());
             if (string.IsNullOrWhiteSpace(a.getArtifactId()) == false)
                 b.Append(':').Append(a.getArtifactId());
+            if (string.IsNullOrWhiteSpace(a.getClassifier()) == false)
+                b.Append(':').Append(a.getClassifier());
             if (string.IsNullOrWhiteSpace(a.getVersion()) == false)
                 b.Append(':').Append(a.getVersion());
 
@@ -42,20 +44,27 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <summary>
         /// Returns a normalized version of a <see cref="MavenReferenceItem"/> itemspec.
         /// </summary>
+        /// <param name="groupId"></param>
+        /// <param name="artifactId"></param>
+        /// <param name="classifier"></param>
+        /// <param name="version"></param>
         /// <returns></returns>
-        public static string GetItemSpec(string groupId, string artifactId, string version)
+        /// <exception cref="ArgumentException"></exception>
+        public static string GetItemSpec(string groupId, string artifactId, string classifier, string version)
         {
             if (string.IsNullOrWhiteSpace(groupId))
                 throw new ArgumentException($"'{nameof(groupId)}' cannot be null or whitespace.", nameof(groupId));
             if (string.IsNullOrWhiteSpace(artifactId))
                 throw new ArgumentException($"'{nameof(artifactId)}' cannot be null or whitespace.", nameof(artifactId));
 
-            var a = MavenTaskUtil.TryCreateArtifact(groupId, artifactId, version);
+            var a = MavenTaskUtil.TryCreateArtifact(groupId, artifactId, classifier, version);
             var b = new StringBuilder();
             if (string.IsNullOrWhiteSpace(a.getGroupId()) == false)
                 b.Append(a.getGroupId());
             if (string.IsNullOrWhiteSpace(a.getArtifactId()) == false)
                 b.Append(':').Append(a.getArtifactId());
+            if (string.IsNullOrWhiteSpace(a.getClassifier()) == false)
+                b.Append(':').Append(a.getClassifier());
             if (string.IsNullOrWhiteSpace(a.getVersion()) == false)
                 b.Append(':').Append(a.getVersion());
 
@@ -83,10 +92,14 @@ namespace IKVM.Sdk.Maven.Tasks
                 item.ItemSpec = NormalizeItemSpec(item.Item.ItemSpec);
                 item.GroupId = item.Item.GetMetadata(MavenReferenceItemMetadata.GroupId);
                 item.ArtifactId = item.Item.GetMetadata(MavenReferenceItemMetadata.ArtifactId);
+                item.Classifier = item.Item.GetMetadata(MavenReferenceItemMetadata.Classifier);
                 item.Version = item.Item.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Dependencies = ResolveDependencies(map, item, item.Item.GetMetadata(MavenReferenceItemMetadata.Dependencies));
-                item.Compile = item.Item.GetMetadata(MavenReferenceItemMetadata.Compile)?.Split(MavenReferenceItemMetadata.PropertySeperatorCharArray, StringSplitOptions.RemoveEmptyEntries).ToList();
-                item.Sources = item.Item.GetMetadata(MavenReferenceItemMetadata.Sources)?.Split(MavenReferenceItemMetadata.PropertySeperatorCharArray, StringSplitOptions.RemoveEmptyEntries).ToList();
+                item.Scopes = item.Item.GetMetadata(MavenReferenceItemMetadata.Scopes)?.Split(MavenReferenceItemMetadata.PropertySeperatorCharArray, StringSplitOptions.RemoveEmptyEntries).ToList();
+                item.IncludeOptional = item.Item.GetMetadata(MavenReferenceItemMetadata.IncludeOptional) == "true";
+                item.Debug = item.Item.GetMetadata(MavenReferenceItemMetadata.Debug) == "true";
+                item.AssemblyName = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyName);
+                item.AssemblyVersion = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyVersion);
             }
 
             // return the resulting imported references

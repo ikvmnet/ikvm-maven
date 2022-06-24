@@ -126,6 +126,9 @@
   <data name="Error.MavenInvalidGroupId" xml:space="preserve">
     <value>MAVEN0002: Invalid Maven group ID value '{0}'.</value>
   </data>
+  <data name="Error.MavenInvalidScope" xml:space="preserve">
+    <value>MAVEN0009: Invalid Maven scope '{1}' on '{0}'.</value>
+  </data>
   <data name="Error.MavenInvalidVersion" xml:space="preserve">
     <value>MAVEN0004: Invalid Maven version value '{0}'.</value>
   </data>
@@ -134,6 +137,9 @@
   </data>
   <data name="Error.MavenMissingGroupId" xml:space="preserve">
     <value>MAVEN0005: Missing Maven group ID.</value>
+  </data>
+  <data name="Error.MavenMissingScope" xml:space="preserve">
+    <value>MAVEN0008: Missing Maven scope on '{0}'.</value>
   </data>
   <data name="Error.MavenMissingVersion" xml:space="preserve">
     <value>MAVEN0007: Missing Maven version.</value>

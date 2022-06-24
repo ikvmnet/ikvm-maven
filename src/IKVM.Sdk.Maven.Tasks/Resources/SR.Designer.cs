@@ -88,6 +88,15 @@ namespace IKVM.Sdk.Maven.Tasks.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to MAVEN0009: Invalid Maven scope &apos;{1}&apos; on &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_MavenInvalidScope {
+            get {
+                return ResourceManager.GetString("Error.MavenInvalidScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to MAVEN0004: Invalid Maven version value &apos;{0}&apos;..
         /// </summary>
         internal static string Error_MavenInvalidVersion {
@@ -111,6 +120,15 @@ namespace IKVM.Sdk.Maven.Tasks.Resources {
         internal static string Error_MavenMissingGroupId {
             get {
                 return ResourceManager.GetString("Error.MavenMissingGroupId", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0008: Missing Maven scope on &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_MavenMissingScope {
+            get {
+                return ResourceManager.GetString("Error.MavenMissingScope", resourceCulture);
             }
         }
         

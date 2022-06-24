@@ -4,6 +4,8 @@ using IKVM.Sdk.Maven.Tasks.Resources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
+using org.eclipse.aether.util.artifact;
+
 namespace IKVM.Sdk.Maven.Tasks
 {
 
@@ -74,6 +76,11 @@ namespace IKVM.Sdk.Maven.Tasks
                     else if (item.ArtifactId != a.getArtifactId())
                         throw new MavenTaskMessageException("Error.MavenInvalidArtifactId", item.ItemSpec);
 
+                    if (string.IsNullOrWhiteSpace(item.Classifier))
+                        item.Classifier = a.getClassifier();
+                    else if (item.Classifier != a.getClassifier())
+                        throw new MavenTaskMessageException("Error.MavenInvalidClassifier", item.ItemSpec);
+
                     if (string.IsNullOrWhiteSpace(item.Version))
                         item.Version = a.getVersion();
                     else if (item.Version != a.getVersion())
@@ -83,7 +90,7 @@ namespace IKVM.Sdk.Maven.Tasks
 
             if (string.IsNullOrWhiteSpace(item.GroupId))
                 throw new MavenTaskMessageException("Error.MavenMissingGroupId", item.ItemSpec);
-            
+
             if (string.IsNullOrWhiteSpace(item.ArtifactId))
                 throw new MavenTaskMessageException("Error.MavenMissingArtifactId", item.ItemSpec);
 
@@ -91,15 +98,47 @@ namespace IKVM.Sdk.Maven.Tasks
                 throw new MavenTaskMessageException("Error.MavenMissingVersion", item.ItemSpec);
 
             // check that we can construct an artifact out of the coordinates
-            var artifact = MavenTaskUtil.TryCreateArtifact(item.GroupId, item.ArtifactId, item.Version);
+            var artifact = MavenTaskUtil.TryCreateArtifact(item.GroupId, item.ArtifactId, item.Classifier, item.Version);
             if (artifact == null)
                 throw new MavenTaskMessageException("Error.MavenInvalidCoordinates", item.ItemSpec);
 
+            // add default scopes
+            if (item.Scopes.Count == 0)
+            {
+                item.Scopes.Add(JavaScopes.COMPILE);
+                item.Scopes.Add(JavaScopes.RUNTIME);
+            }
+
+            // validate scopes
+            if (item.Scopes != null)
+                foreach (var scope in item.Scopes)
+                    ValidateScope(item, scope);
+
             // replace itemspec with normalized values
-            item.ItemSpec = $"{artifact.getGroupId()}:{artifact.getArtifactId()}:{artifact.getVersion()}";
+            item.ItemSpec = MavenReferenceItemUtil.GetItemSpec(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getVersion());
 
             // save item
             item.Save();
+        }
+
+        /// <summary>
+        /// Validates the scope value.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <param name="scope"></param>
+        /// <exception cref="MavenTaskMessageException"></exception>
+        void ValidateScope(MavenReferenceItem item, string scope)
+        {
+            switch (scope)
+            {
+                case JavaScopes.COMPILE:
+                case JavaScopes.RUNTIME:
+                case JavaScopes.PROVIDED:
+                case JavaScopes.TEST:
+                    break;
+                default:
+                    throw new MavenTaskMessageException("Error.MavenInvalidScope", item.ItemSpec, scope);
+            }
         }
 
     }

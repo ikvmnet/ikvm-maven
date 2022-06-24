@@ -17,7 +17,12 @@
 
     <ItemDefinitionGroup>
         <MavenReference>
-
+            <GroupId></GroupId>
+            <ArtifactId></ArtifactId>
+            <Classifier></Classifier>
+            <Version></Version>
+            <Scopes>compile;runtime</Scopes>
+            <Optional>false</Optional>
         </MavenReference>
     </ItemDefinitionGroup>
 

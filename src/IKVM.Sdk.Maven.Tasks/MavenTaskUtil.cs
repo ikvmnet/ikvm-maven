@@ -17,7 +17,7 @@ namespace IKVM.Sdk.Maven.Tasks
         {
             if (string.IsNullOrWhiteSpace(coords))
                 throw new ArgumentException($"'{nameof(coords)}' cannot be null or whitespace.", nameof(coords));
-            
+
             try
             {
                 return new DefaultArtifact(coords);
@@ -33,16 +33,17 @@ namespace IKVM.Sdk.Maven.Tasks
         /// </summary>
         /// <param name="groupId"></param>
         /// <param name="artifactId"></param>
+        /// <param name="classifier"></param>
         /// <param name="version"></param>
         /// <returns></returns>
-        public static Artifact TryCreateArtifact(string groupId, string artifactId, string version)
+        public static Artifact TryCreateArtifact(string groupId, string artifactId, string classifier, string version)
         {
             if (string.IsNullOrWhiteSpace(groupId))
                 throw new ArgumentException($"'{nameof(groupId)}' cannot be null or whitespace.", nameof(groupId));
             if (string.IsNullOrWhiteSpace(artifactId))
                 throw new ArgumentException($"'{nameof(artifactId)}' cannot be null or whitespace.", nameof(artifactId));
 
-            return new DefaultArtifact(groupId, artifactId, "", version ?? "");
+            return new DefaultArtifact(groupId, artifactId, classifier ?? "", "", version ?? "");
         }
 
     }

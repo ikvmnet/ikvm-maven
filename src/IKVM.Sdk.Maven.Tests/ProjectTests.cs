@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 using Buildalyzer;
 using Buildalyzer.Environment;
@@ -50,30 +51,65 @@ namespace IKVM.Sdk.Maven.Tests
         {
             var properties = File.ReadAllLines("IKVM.Sdk.Maven.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
-            var nugetPackageRoot = Path.Combine(Environment.CurrentDirectory, "nuget-packages");
+            var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.MSBuild.Tests", "nuget", "packages");
             if (Directory.Exists(nugetPackageRoot))
                 Directory.Delete(nugetPackageRoot, true);
             Directory.CreateDirectory(nugetPackageRoot);
 
+            // only select supported tfms
+            var tfms = new[] { "netcoreapp3.1", "net5.0", "net6.0" };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                tfms = new[] { "net461", "net472", "net48", "netcoreapp3.1", "net5.0", "net6.0" };
+
+            tfms = new[] { "net461" };
+
+            // only select supported rids
+            var rids = new[] { "win7-x64", "linux-x64" };
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+                rids = new[] { "linux-x64" };
+
+            rids = new[] { "win7-x64" };
+
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(@"Project", "Exe", "ProjectExe.csproj"));
-            analyzer.SetGlobalProperty("RestoreAdditionalProjectSources", Path.GetFullPath(@"nuget"));
-            analyzer.SetGlobalProperty("RestorePackagesPath", nugetPackageRoot + Path.DirectorySeparatorChar);
             analyzer.SetGlobalProperty("PackageVersion", properties["PackageVersion"]);
+            analyzer.SetGlobalProperty("RestoreSources", string.Join("%3B", "https://api.nuget.org/v3/index.json", Path.GetFullPath(@"nuget")));
+            analyzer.SetGlobalProperty("RestorePackagesPath", nugetPackageRoot + Path.DirectorySeparatorChar);
+
+            // allow NuGet to locate packages in existing global packages folder if set
+            // else fallback to standard location
+            if (Environment.GetEnvironmentVariable("NUGET_PACKAGES") is string nugetPackagesDir && Directory.Exists(nugetPackagesDir))
+                analyzer.SetGlobalProperty("RestoreAdditionalProjectFallbackFolders", nugetPackagesDir);
+            else
+                analyzer.SetGlobalProperty("RestoreAdditionalProjectFallbackFolders", Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".nuget", "packages"));
+
             analyzer.AddBuildLogger(new TargetLogger(TestContext));
-            var options = new EnvironmentOptions();
-            options.DesignTime = false;
-            options.TargetsToBuild.Clear();
-            options.TargetsToBuild.Add("Clean");
-            options.TargetsToBuild.Add("Build");
-            options.TargetsToBuild.Add("Pack");
-            var results = analyzer.Build(options);
-            results.OverallSuccess.Should().Be(true);
 
-            foreach (var r in results.Results)
-                Console.WriteLine(r);
+            {
+                var options = new EnvironmentOptions();
+                options.DesignTime = false;
+                options.TargetsToBuild.Clear();
+                options.TargetsToBuild.Add("Restore");
+                var results = analyzer.Build(options);
+                results.OverallSuccess.Should().Be(true);
+            }
 
-            throw new Exception();
+            foreach (var tfm in tfms)
+            {
+                foreach (var rid in rids)
+                {
+                    var options = new EnvironmentOptions();
+                    options.DesignTime = false;
+                    options.Restore = false;
+                    options.GlobalProperties.Add("TargetFramework", tfm);
+                    options.GlobalProperties.Add("RuntimeIdentifier", rid);
+                    options.TargetsToBuild.Clear();
+                    options.TargetsToBuild.Add("Build");
+                    options.TargetsToBuild.Add("Publish");
+                    var results = analyzer.Build(options);
+                    results.OverallSuccess.Should().Be(true);
+                }
+            }
         }
 
     }

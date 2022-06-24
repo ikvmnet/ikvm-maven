@@ -3,7 +3,8 @@
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
         <ItemGroup>
-            <!-- Best option is probably going to be to dig through project.assets.json for the relevant resources and packages. --><!--
+            <!-- Best option is probably going to be to dig through project.assets.json for the relevant resources and packages. -->
+            <!--
             <MavenReferenceItem Include="TODO">
                 <ReferenceSource>PackageReference</ReferenceSource>
             </MavenReferenceItem>-->
@@ -54,19 +55,6 @@
         </ItemGroup>
     </Target>
 
-    <!-- Resolves the MavenReferenceItem set. -->
-    <Target Name="GetMavenReferenceItemsResolved" DependsOnTargets="GetMavenReferenceItemsMetadata" Condition=" '@(MavenReferenceItem)' != '' ">
-        <MavenReferenceItemResolve Items="@(MavenReferenceItem)">
-            <Output TaskParameter="Items" ItemName="_MavenReferenceItemResolved" />
-        </MavenReferenceItemResolve>
-
-        <!-- Assign newly resolved items. -->
-        <ItemGroup>
-            <MavenReferenceItem Remove="@(MavenReferenceItem)"/>
-            <MavenReferenceItem Include="@(_MavenReferenceItemResolved)" />
-        </ItemGroup>
-    </Target>
-
     <!-- PackageReferences come first, ProjectReferences come second, local MavenReferences come last. -->
     <PropertyGroup>
         <GetMavenReferenceItemsDependsOn>
@@ -76,7 +64,6 @@
             GetMavenReferenceItemsFromProjectReferences;
             GetMavenReferenceItemsFromMavenReferences;
             GetMavenReferenceItemsMetadata;
-            GetMavenReferenceItemsResolved;
         </GetMavenReferenceItemsDependsOn>
     </PropertyGroup>
 
@@ -87,12 +74,15 @@
 
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
+        <MavenReferenceItemResolve Items="@(MavenReferenceItem)">
+            <Output TaskParameter="ResolvedItems" ItemName="_MavenIkvmReferenceItem"/>
+        </MavenReferenceItemResolve>
         <ItemGroup>
-            <IkvmReferenceItem Include="@(MavenReferenceItem)">
-                <Compile>%(Compile);%(Runtime)</Compile>
-                <Sources>%(Sources)</Sources>
+            <IkvmReferenceItem Include="@(_MavenIkvmReferenceItem)">
+                <ReferenceSource>MavenReference</ReferenceSource>
             </IkvmReferenceItem>
         </ItemGroup>
+        <Message Text="IkvmReferenceItem: @(IkvmReferenceItem->'%(Compile)')" />
     </Target>
 
     <PropertyGroup>
