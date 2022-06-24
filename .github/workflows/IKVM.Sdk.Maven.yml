@@ -38,6 +38,12 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
+    - name: Add NuGet Source (GitHub)
+      shell: pwsh
+      run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
+      env:
+        GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Cache NuGet
       uses: actions/cache@v3
       with:
@@ -116,7 +122,7 @@ jobs:
         name: TestResults-windows
         path: TestResults
   test-ikvm-sdk-maven-linux:
-    name: Test IKVM (Linux)
+    name: Test IKVM.Sdk.Maven (Linux)
     needs:
     - build-ikvm-sdk-maven
     runs-on: ubuntu-latest
@@ -187,7 +193,7 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
     - name: Push NuGet (GitHub)
       shell: pwsh
-      run: dotnet nuget push build/nuget/*.nupkg --source $env:GITHUB_REPOS --api-key $env:GITHUB_TOKEN --skip-duplicate --no-symbols
+      run: dotnet nuget push build/nuget/*.nupkg --source $env:GITHUB_REPOS --api-key $env:GITHUB_TOKEN --skip-duplicate
       env:
         GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -195,14 +201,14 @@ jobs:
       shell: pwsh
       run: |
         dotnet nuget add source $env:AZUREDEVOPS_REPOS --name az --username az --password $env:AZUREDEVOPS_TOKEN --store-password-in-clear-text
-        dotnet nuget push build/nuget/*.nupkg --source az --api-key az --skip-duplicate --no-symbols
+        dotnet nuget push build/nuget/*.nupkg --source az --api-key az --skip-duplicate
       env:
         AZUREDEVOPS_REPOS: https://pkgs.dev.azure.com/ikvm-revived/ikvm/_packaging/ikvm-ci/nuget/v3/index.json
         AZUREDEVOPS_TOKEN: ${{ secrets.AZUREDEVOPS_PAT }}
     - name: Push NuGet
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
       shell: pwsh
-      run: dotnet nuget push build/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate --no-symbols
+      run: dotnet nuget push build/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
       env:
         NUGET_REPOS: https://api.nuget.org/v3/index.json
         NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
