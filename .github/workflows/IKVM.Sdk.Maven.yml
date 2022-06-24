@@ -47,10 +47,16 @@ jobs:
     - name: Add msbuild to PATH
       uses: microsoft/setup-msbuild@v1.1
     - name: NuGet Restore
-      run: dotnet restore IKVM.sln
+      run: dotnet restore IKVM.Sdk.Maven.sln
     - name: Build Artifacts
       run: |
         msbuild /m:1 `
+          /p:BuildInParallel=false `
+          /p:CreateHardLinksForAdditionalFilesIfPossible=true `
+          /p:CreateHardLinksForCopyAdditionalFilesIfPossible=true `
+          /p:CreateHardLinksForCopyFilesToOutputDirectoryIfPossible=true `
+          /p:CreateHardLinksForCopyLocalIfPossible=true `
+          /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
           /p:Configuration="Release" `
           /p:Platform="Any CPU" `
@@ -67,11 +73,14 @@ jobs:
       with:
         name: nuget
         path: build/nuget
+    - name: Package Tests
+      run: tar czvf tests.tar.gz tests
+      working-directory: build
     - name: Upload Tests
       uses: actions/upload-artifact@v3
       with:
         name: tests
-        path: build/tests
+        path: build/tests.tar.gz
   test-ikvm-sdk-maven-windows:
     name: Test IKVM.Sdk.Maven (Windows)
     needs:
@@ -90,14 +99,17 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Download IKVM.Sdk.Maven Tests
+    - name: Download Tests
       uses: actions/download-artifact@v3
       with:
         name: tests
-        path: build/tests
-    - name: Run Tests
+        path: build
+    - name: Restore Tests
+      run: tar xzvf tests.tar.gz
+      working-directory: build
+    - name: Execute Tests
       shell: pwsh
-      run: gi .\build\tests\**\*.Tests.dll | group { $_.Directory.BaseName } | %{ dotnet test $_.Group --blame -v 3 --results-directory .\TestResults --logger "trx;LogFileName=$($_.Name).trx" }
+      run: gci .\build\tests\ -Recurse -Filter '*.Tests.dll' | group { $_.Directory.BaseName } | %{ dotnet test $_.Group --blame -v 3 --results-directory .\TestResults --logger "trx;LogFileName=$($_.Name).trx" }
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       with:
@@ -121,14 +133,17 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Download IKVM Tests
+    - name: Download Tests
       uses: actions/download-artifact@v3
       with:
         name: tests
-        path: build/tests
-    - name: Run Tests
+        path: build
+    - name: Restore Tests
+      run: tar xzvf tests.tar.gz
+      working-directory: build
+    - name: Execute Tests
       shell: pwsh
-      run: gi ./build/tests/**/*.Tests.dll | group { $_.Directory.BaseName } | ?{ $_.Name -ne 'net461' } | %{ dotnet test $_.Group --blame -v 3 --results-directory ./TestResults --logger "trx;LogFileName=$($_.Name).trx" }
+      run: gci ./build/tests/ -Recurse -Filter '*.Tests.dll' | group { $_.Directory.BaseName } | ?{ $_.Name -ne 'net461' } | %{ dotnet test $_.Group --blame -v 3 --results-directory ./TestResults --logger "trx;LogFileName=$($_.Name).trx" }
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       with:
