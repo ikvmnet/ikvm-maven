@@ -6,6 +6,7 @@
 
         public static string TestJava(string value)
         {
+            var n = new org.apache.maven.DefaultMaven();
             return value;
         }
 

@@ -8,6 +8,7 @@ using IKVM.Sdk.Maven.Tasks.Resources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
+using org.apache.maven.artifact.versioning;
 using org.eclipse.aether.artifact;
 using org.eclipse.aether.collection;
 using org.eclipse.aether.graph;
@@ -154,8 +155,8 @@ namespace IKVM.Sdk.Maven.Tasks
         }
 
         /// <summary>
-        /// Merges a compile artifact into the IkvmReferenceItem list.
-        /// </summary>
+        /// Merges a compile artifact into the IkvmReferenceItem.
+        /// <para></para>
         /// <param name="output"></param>
         /// <param name="artifact"></param>
         IkvmReferenceItem MergeIkvmReferenceItemFromCompileArtifact(MavenReferenceItem item, List<IkvmReferenceItem> output, Artifact artifact)
@@ -165,28 +166,34 @@ namespace IKVM.Sdk.Maven.Tasks
             if (artifact is null)
                 throw new ArgumentNullException(nameof(artifact));
 
+            // pull items out of artifact
+            var groupId = artifact.getGroupId();
+            var artifactId = artifact.getArtifactId();
+            var classifier = artifact.getClassifier();
+            var version = artifact.getVersion();
+
             // find an existing IkvmReferenceItem that matches this artifact
-            var outputItem = output.FirstOrDefault(i => i.MavenGroupId == artifact.getGroupId() && i.MavenArtifactId == artifact.getArtifactId() && i.MavenClassifier == artifact.getClassifier() && i.MavenVersion == artifact.getVersion());
+            var outputItem = output.FirstOrDefault(i => i.MavenGroupId == groupId && i.MavenArtifactId == artifactId && i.MavenClassifier == classifier && i.MavenVersion == version);
             if (outputItem == null)
-                outputItem = output.FirstOrDefault(i => i.MavenGroupId == artifact.getGroupId() && i.MavenArtifactId == artifact.getArtifactId() && i.MavenVersion == artifact.getVersion());
+                outputItem = output.FirstOrDefault(i => i.MavenGroupId == groupId && i.MavenArtifactId == artifactId && i.MavenVersion == version);
             if (outputItem == null)
-                outputItem = output.FirstOrDefault(i => i.MavenGroupId == artifact.getGroupId() && i.MavenArtifactId == artifact.getArtifactId());
+                outputItem = output.FirstOrDefault(i => i.MavenGroupId == groupId && i.MavenArtifactId == artifactId);
             if (outputItem == null)
             {
                 // generate a new IkvmReferenceItem, prefixed so it doesn't conflict with others
-                var outputItemSpec = "maven$" + MavenReferenceItemUtil.GetItemSpec(artifact.getGroupId(), artifact.getArtifactId(), artifact.getClassifier(), artifact.getVersion());
+                var outputItemSpec = "maven$" + MavenReferenceItemUtil.GetItemSpec(groupId, artifactId, classifier, version);
                 output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec });
             }
 
             // ensure output item has Maven information attached to it
-            outputItem.MavenGroupId = artifact.getGroupId();
-            outputItem.MavenArtifactId = artifact.getArtifactId();
-            outputItem.MavenClassifier = artifact.getClassifier();
-            outputItem.MavenVersion = artifact.getVersion();
+            outputItem.MavenGroupId = groupId;
+            outputItem.MavenArtifactId = artifactId;
+            outputItem.MavenClassifier = classifier;
+            outputItem.MavenVersion = version;
 
             // fallback to the Maven name and version if IKVM cannot detect otherwise
-            outputItem.FallbackAssemblyName = artifact.getArtifactId();
-            outputItem.FallbackAssemblyVersion = artifact.getVersion();
+            outputItem.FallbackAssemblyName = artifactId;
+            outputItem.FallbackAssemblyVersion = ToAssemblyVersion(version)?.ToString();
 
             // input item was matched, set new output based on input
             // user can override properties of transitive items by explicitely adding a dependency
@@ -197,11 +204,17 @@ namespace IKVM.Sdk.Maven.Tasks
 
                 // force the item's assembly name
                 if (string.IsNullOrWhiteSpace(item.AssemblyName) == false)
+                {
+                    outputItem.DisableAutoAssemblyName = false;
                     outputItem.AssemblyName = item.AssemblyName;
+                }
 
                 // force the item's assembly name
                 if (string.IsNullOrWhiteSpace(item.AssemblyVersion) == false)
+                {
+                    outputItem.DisableAutoAssemblyVersion = false;
                     outputItem.AssemblyName = item.AssemblyVersion;
+                }
             }
             else
             {
@@ -217,6 +230,24 @@ namespace IKVM.Sdk.Maven.Tasks
             // persist modified item
             outputItem.Save();
             return outputItem;
+        }
+
+        /// <summary>
+        /// Parses the given Maven version into an assembly version.
+        /// </summary>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        Version ToAssemblyVersion(string version)
+        {
+            try
+            {
+                var v = new DefaultArtifactVersion(version);
+                return new Version(v.getMajorVersion(), v.getMinorVersion());
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
     }

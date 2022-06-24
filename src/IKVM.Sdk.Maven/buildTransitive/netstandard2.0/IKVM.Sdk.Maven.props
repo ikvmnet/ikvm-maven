@@ -10,7 +10,7 @@
         <IkvmSdkMavenTaskAssembly>$(IkvmSdkMavenDir)tasks\$(IkvmSdkMavenTaskFolder)\IKVM.Sdk.Maven.Tasks.dll</IkvmSdkMavenTaskAssembly>
     </PropertyGroup>    
 
-    <UsingTask TaskName="MavenReferenceItemAssignMetadata" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
+    <UsingTask TaskName="MavenReferenceItemPrepare" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
     <UsingTask TaskName="MavenReferenceItemResolve" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
     <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
     <UsingTask TaskName="MavenWriteProjectObjectModelFile" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />

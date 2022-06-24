@@ -12,13 +12,13 @@ namespace IKVM.Sdk.Maven.Tasks
     /// <summary>
     /// For each <see cref="MavenReferenceItem"/> passed in, assigns default metadata if required.
     /// </summary>
-    public class MavenReferenceItemAssignMetadata : Task
+    public class MavenReferenceItemPrepare : Task
     {
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
-        public MavenReferenceItemAssignMetadata() :
+        public MavenReferenceItemPrepare() :
             base(SR.ResourceManager, "MAVEN:")
         {
 

@@ -23,7 +23,7 @@ namespace IKVM.Sdk.Maven.Tests.Tasks
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
-            var t = new MavenReferenceItemAssignMetadata();
+            var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
             var i1 = new TaskItem("ikvm.test:::::foo:1.0");
@@ -39,7 +39,7 @@ namespace IKVM.Sdk.Maven.Tests.Tasks
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
-            var t = new MavenReferenceItemAssignMetadata();
+            var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
             var i1 = new TaskItem("ikvm.test:::::foo:1.0");
@@ -56,7 +56,7 @@ namespace IKVM.Sdk.Maven.Tests.Tasks
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
-            var t = new MavenReferenceItemAssignMetadata();
+            var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
             var i1 = new TaskItem("ikvm.test:::::foo:1.0");
@@ -74,7 +74,7 @@ namespace IKVM.Sdk.Maven.Tests.Tasks
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
-            var t = new MavenReferenceItemAssignMetadata();
+            var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
             var i1 = new TaskItem("ikvm.test:foo:1.0");

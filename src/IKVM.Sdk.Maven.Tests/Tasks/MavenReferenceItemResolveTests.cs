@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 using FluentAssertions;
 
@@ -73,6 +74,35 @@ namespace IKVM.Sdk.Maven.Tests.Tasks
             t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
             t.ResolvedItems.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
             t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
+        }
+
+        [TestMethod]
+        public void Can_resolve_maven_references_with_major_version_only()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+
+            var i1 = new TaskItem("javax.inject:javax.inject:1");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "javax.inject");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "javax.inject");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scopes, "compile;runtime");
+
+            t.Items = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
+            t.ResolvedItems.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
+            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
+
+            var r = t.ResolvedItems.FirstOrDefault(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+            r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion).Should().Be("1.0");
         }
 
     }

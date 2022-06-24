@@ -51,7 +51,7 @@ namespace IKVM.Sdk.Maven.Tests
         {
             var properties = File.ReadAllLines("IKVM.Sdk.Maven.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
-            var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.MSBuild.Tests", "nuget", "packages");
+            var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Sdk.Maven.Tests", "nuget", "packages");
             if (Directory.Exists(nugetPackageRoot))
                 Directory.Delete(nugetPackageRoot, true);
             Directory.CreateDirectory(nugetPackageRoot);
@@ -61,14 +61,10 @@ namespace IKVM.Sdk.Maven.Tests
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
                 tfms = new[] { "net461", "net472", "net48", "netcoreapp3.1", "net5.0", "net6.0" };
 
-            tfms = new[] { "net461" };
-
             // only select supported rids
             var rids = new[] { "win7-x64", "linux-x64" };
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
                 rids = new[] { "linux-x64" };
-
-            rids = new[] { "win7-x64" };
 
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(@"Project", "Exe", "ProjectExe.csproj"));
