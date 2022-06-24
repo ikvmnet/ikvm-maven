@@ -16,7 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\IKVM.Sdk.Maven\IKVM.Sdk.Maven.csproj" />
         <ProjectReference Include="..\IKVM.Sdk.Maven.Tasks\IKVM.Sdk.Maven.Tasks.csproj" />
     </ItemGroup>
 
@@ -27,6 +26,8 @@
     <ItemGroup>
         <Compile Remove="Project\**\*" />
         <None Include="Project\**\*" CopyToOutputDirectory="PreserveNewest" />
+        <Compile Remove="PackProject\**\*" />
+        <None Include="PackProject\**\*" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
