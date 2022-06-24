@@ -17,8 +17,10 @@
         public static readonly string Compile = "Compile";
         public static readonly string Sources = "Sources";
         public static readonly string References = "References";
-        public static readonly string IkvmIdentity = "IkvmIdentity";
+        public static readonly string Private = "Private";
+        public static readonly string ReferenceOutputAssembly = "ReferenceOutputAssembly";
 
+        public static readonly string IkvmIdentity = "IkvmIdentity";
         public static readonly string MavenGroupId = "MavenGroupId";
         public static readonly string MavenArtifactId = "MavenArtifactId";
         public static readonly string MavenClassifier = "MavenClassifier";

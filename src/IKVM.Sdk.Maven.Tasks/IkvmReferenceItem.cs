@@ -84,6 +84,16 @@ namespace IKVM.Sdk.Maven.Tasks
         public List<IkvmReferenceItem> References { get; set; } = new List<IkvmReferenceItem>();
 
         /// <summary>
+        /// Whether the itme will be copied along with the build output.
+        /// </summary>
+        public bool Private { get; set; } = true;
+
+        /// <summary>
+        /// Whether a reference should be added to this item.
+        /// </summary>
+        public bool ReferenceOutputAssembly { get; set; } = true;
+
+        /// <summary>
         /// Unique IKVM identity of the reference.
         /// </summary>
         public string IkvmIdentity { get; set; }
@@ -124,6 +134,8 @@ namespace IKVM.Sdk.Maven.Tasks
             Item.SetMetadata(IkvmReferenceItemMetadata.Compile, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, Compile));
             Item.SetMetadata(IkvmReferenceItemMetadata.Sources, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, Sources));
             Item.SetMetadata(IkvmReferenceItemMetadata.References, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, References.Select(i => i.ItemSpec)));
+            Item.SetMetadata(IkvmReferenceItemMetadata.Private, Private ? "true" : "false");
+            Item.SetMetadata(IkvmReferenceItemMetadata.ReferenceOutputAssembly, ReferenceOutputAssembly ? "true" : "false");
             Item.SetMetadata(IkvmReferenceItemMetadata.IkvmIdentity, IkvmIdentity);
             Item.SetMetadata(IkvmReferenceItemMetadata.MavenGroupId, MavenGroupId);
             Item.SetMetadata(IkvmReferenceItemMetadata.MavenArtifactId, MavenArtifactId);

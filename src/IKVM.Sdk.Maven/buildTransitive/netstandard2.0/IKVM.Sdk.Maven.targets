@@ -83,7 +83,6 @@
                 <ReferenceSource>MavenReference</ReferenceSource>
             </IkvmReferenceItem>
         </ItemGroup>
-        <Message Text="IkvmReferenceItem: @(IkvmReferenceItem->'%(Compile)')" />
     </Target>
 
     <PropertyGroup>
