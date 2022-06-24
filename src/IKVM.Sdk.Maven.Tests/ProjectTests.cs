@@ -83,6 +83,7 @@ namespace IKVM.Sdk.Maven.Tests
                 var options = new EnvironmentOptions();
                 options.DesignTime = false;
                 options.TargetsToBuild.Clear();
+                options.TargetsToBuild.Add("Clean");
                 options.TargetsToBuild.Add("Restore");
                 var results = analyzer.Build(options);
                 results.OverallSuccess.Should().Be(true);

@@ -13,7 +13,6 @@
         public static readonly string Version = "Version";
         public static readonly string Dependencies = "Dependencies";
         public static readonly string Scopes = "Scopes";
-        public static readonly string IncludeOptional = "IncludeOptional";
         public static readonly string AssemblyName = "AssemblyName";
         public static readonly string AssemblyVersion = "AssemblyVersion";
         public static readonly string Debug = "Debug";

@@ -1,5 +1,31 @@
 ﻿<Project>
 
+    <UsingTask TaskName="GetMetadataTask" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+        <ParameterGroup>
+            <Items ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+            <MetadataString Output="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System" />
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                var command = new StringBuilder();
+                
+                foreach (var item in Items)
+                {
+                    command.AppendFormat("ItemName={0}\r\n", item);
+                    foreach (string parameter in item.MetadataNames)
+                        command.AppendFormat("  {0}={1}\r\n", parameter, item.GetMetadata(parameter));
+                        
+                    command.AppendFormat("\r\n");
+                }
+                
+                MetadataString = command.ToString();
+      ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
         <ItemGroup>
@@ -9,6 +35,11 @@
                 <ReferenceSource>PackageReference</ReferenceSource>
             </MavenReferenceItem>-->
         </ItemGroup>
+
+        <GetMetadataTask Items="@(PackageReference)">
+            <Output TaskParameter="MetadataString" PropertyName="MetadataString" />
+        </GetMetadataTask>
+        <Message Text="PacakgeReference: $(MetadataString)" />
     </Target>
 
     <!-- Obtains MavenReferenceItem items from child projects. -->

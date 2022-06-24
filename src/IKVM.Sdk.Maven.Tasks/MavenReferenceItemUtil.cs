@@ -66,7 +66,6 @@ namespace IKVM.Sdk.Maven.Tasks
                 item.Version = item.Item.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Dependencies = ResolveDependencies(map, item, item.Item.GetMetadata(MavenReferenceItemMetadata.Dependencies));
                 item.Scopes = item.Item.GetMetadata(MavenReferenceItemMetadata.Scopes)?.Split(MavenReferenceItemMetadata.PropertySeperatorCharArray, StringSplitOptions.RemoveEmptyEntries).ToList();
-                item.IncludeOptional = item.Item.GetMetadata(MavenReferenceItemMetadata.IncludeOptional) == "true";
                 item.Debug = item.Item.GetMetadata(MavenReferenceItemMetadata.Debug) == "true";
                 item.AssemblyName = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyName);
                 item.AssemblyVersion = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyVersion);

@@ -63,11 +63,6 @@ namespace IKVM.Sdk.Maven.Tasks
         public List<string> Scopes { get; set; } = new List<string>();
 
         /// <summary>
-        /// Is the dependency optional?
-        /// </summary>
-        public bool IncludeOptional { get; set; } = false;
-
-        /// <summary>
         /// Force the assembly name to the given value.
         /// </summary>
         public string AssemblyName { get; set; }
@@ -94,7 +89,6 @@ namespace IKVM.Sdk.Maven.Tasks
             Item.SetMetadata(MavenReferenceItemMetadata.Version, Version);
             Item.SetMetadata(MavenReferenceItemMetadata.Dependencies, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Dependencies.Select(i => i.ItemSpec)));
             Item.SetMetadata(MavenReferenceItemMetadata.Scopes, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Scopes));
-            Item.SetMetadata(MavenReferenceItemMetadata.IncludeOptional, IncludeOptional ? "true" : "false");
             Item.SetMetadata(MavenReferenceItemMetadata.AssemblyName, AssemblyName);
             Item.SetMetadata(MavenReferenceItemMetadata.AssemblyVersion, AssemblyVersion);
             Item.SetMetadata(MavenReferenceItemMetadata.Debug, Debug ? "true" : "false");

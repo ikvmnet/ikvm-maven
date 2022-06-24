@@ -90,7 +90,7 @@ namespace IKVM.Sdk.Maven.Tasks
             var dependencies = new java.util.ArrayList();
             foreach (var item in items)
                 foreach (var scope in item.Scopes)
-                    dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), scope, new java.lang.Boolean(item.IncludeOptional), new java.util.ArrayList()));
+                    dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), scope, java.lang.Boolean.FALSE, new java.util.ArrayList()));
 
             // resolve the artifacts
             var result = maven.RepositorySystem.resolveDependencies(
@@ -254,7 +254,7 @@ namespace IKVM.Sdk.Maven.Tasks
             if (string.IsNullOrWhiteSpace(version))
                 throw new ArgumentException($"'{nameof(version)}' cannot be null or whitespace.", nameof(version));
 
-            var b = new StringBuilder();
+            var b = new StringBuilder("maven$");
             b.Append(groupId);
             b.Append(':').Append(artifactId);
             if (string.IsNullOrWhiteSpace(classifier) == false)
