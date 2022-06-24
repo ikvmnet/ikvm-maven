@@ -156,9 +156,12 @@ namespace IKVM.Sdk.Maven.Tasks
 
         /// <summary>
         /// Merges a compile artifact into the IkvmReferenceItem.
-        /// <para></para>
+        /// </summary>
+        /// <param name="item"></param>
         /// <param name="output"></param>
         /// <param name="artifact"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
         IkvmReferenceItem MergeIkvmReferenceItemFromCompileArtifact(MavenReferenceItem item, List<IkvmReferenceItem> output, Artifact artifact)
         {
             if (output is null)

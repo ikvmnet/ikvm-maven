@@ -1,7 +1,7 @@
 ﻿namespace IKVM.Sdk.Maven.Tasks
 {
 
-    public static class MavenReferenceItemMetadata
+    static class MavenReferenceItemMetadata
     {
 
         public const char PropertySeperatorChar = ';';

@@ -20,7 +20,7 @@
         <ItemGroup>
             <IkvmReference Include="ikvm-maven">
                 <AssemblyName>ikvm-maven</AssemblyName>
-                <AssemblyVersion>1.8.1.0</AssemblyVersion>
+                <AssemblyVersion>$(AssemblyVersion)</AssemblyVersion>
                 <Compile>$(IntermediateOutputPath)\maven\*.jar</Compile>
             </IkvmReference>
         </ItemGroup>
