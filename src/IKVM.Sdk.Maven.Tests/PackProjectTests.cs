@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 using Buildalyzer;
 using Buildalyzer.Environment;
@@ -68,6 +67,7 @@ namespace IKVM.Sdk.Maven.Tests
             {
                 if (Directory.Exists(nugetPackagesDir) == false)
                     Directory.CreateDirectory(nugetPackagesDir);
+
                 analyzer.SetGlobalProperty("RestoreAdditionalProjectFallbackFolders", nugetPackagesDir);
             }
 

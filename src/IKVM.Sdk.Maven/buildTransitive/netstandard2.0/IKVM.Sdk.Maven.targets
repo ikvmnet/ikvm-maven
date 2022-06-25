@@ -28,18 +28,16 @@
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
+        <MavenReferenceItemImport AssetsFilePath="$(ProjectAssetsFile)" TargetFramework="$(TargetFramework)" RuntimeIdentifier="$(RuntimeIdentifier)">
+            <Output TaskParameter="Items" ItemName="_MavenReferenceItemFromPackageReferences" />
+        </MavenReferenceItemImport>
         <ItemGroup>
-            <!-- Best option is probably going to be to dig through project.assets.json for the relevant resources and packages. -->
-            <!--
-            <MavenReferenceItem Include="TODO">
+            <MavenReferenceItem Include="@(_MavenReferenceItemFromPackageReferences)">
+                <OriginalReferenceSource>%(ReferenceSource)</OriginalReferenceSource>
                 <ReferenceSource>PackageReference</ReferenceSource>
-            </MavenReferenceItem>-->
+            </MavenReferenceItem>
         </ItemGroup>
-
-        <GetMetadataTask Items="@(PackageReference)">
-            <Output TaskParameter="MetadataString" PropertyName="MetadataString" />
-        </GetMetadataTask>
-        <Message Text="PacakgeReference: $(MetadataString)" />
+        <Message Text="_MavenReferenceItemFromPackageReferences: @(_MavenReferenceItemFromPackageReferences)" />
     </Target>
 
     <!-- Obtains MavenReferenceItem items from child projects. -->
@@ -53,10 +51,10 @@
             Condition="'%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' and '@(ProjectReferenceWithConfiguration)' != '' and ('$(BuildingInsideVisualStudio)' == 'true' or '$(BuildProjectReferences)' != 'true') and '$(VisualStudioVersion)' != '10.0' and '@(_MSBuildProjectReferenceExistent)' != ''"
             ContinueOnError="!$(BuildingProject)"
             RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)">
-            <Output TaskParameter="TargetOutputs" ItemName="_ResolvedMavenReferenceItemFromProjectReferences" />
+            <Output TaskParameter="TargetOutputs" ItemName="_MavenReferenceItemFromProjectReferences" />
         </MSBuild>
         <ItemGroup>
-            <MavenReferenceItem Include="@(_ResolvedMavenReferenceItemFromProjectReferences)">
+            <MavenReferenceItem Include="@(_MavenReferenceItemFromProjectReferences)">
                 <OriginalReferenceSource>%(ReferenceSource)</OriginalReferenceSource>
                 <ReferenceSource>ProjectReference</ReferenceSource>
             </MavenReferenceItem>

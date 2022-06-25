@@ -12,6 +12,7 @@ namespace IKVM.Sdk.Maven.Tasks
     /// </summary>
     internal class MavenReferenceItem
     {
+
         /// <summary>
         /// Initializes a new instance.
         /// </summary>

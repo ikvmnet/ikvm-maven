@@ -1,5 +1,5 @@
-﻿
-using System;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -10,10 +10,13 @@ using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
 using NuGet.Common;
+using NuGet.Frameworks;
+using NuGet.Packaging;
+using NuGet.Packaging.Core;
 using NuGet.ProjectModel;
 
 using org.apache.maven.model;
-using org.apache.maven.project;
+using org.apache.maven.model.io;
 
 namespace IKVM.Sdk.Maven.Tasks
 {
@@ -84,14 +87,83 @@ namespace IKVM.Sdk.Maven.Tasks
         public string RuntimeIdentifier { get; set; }
 
         /// <summary>
+        /// <see cref="MavenReferenceItem"/> instances imported from packages.
+        /// </summary>
+        [Output]
+        public ITaskItem[] Items { get; set; }
+
+        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <returns></returns>
         public override bool Execute()
         {
+            var items = new List<MavenReferenceItem>(8);
+
             try
             {
+                var tfm = NuGetFramework.Parse(TargetFramework);
+                if (tfm == null)
+                    throw new MavenTaskException("Unable to parse TargetFramework.");
+
                 var lockFile = LoadLockFile(AssetsFilePath);
+                if (lockFile == null)
+                    throw new MavenTaskException("Unable to open assets file.");
+
+                var target = lockFile.GetTarget(TargetFramework, RuntimeIdentifier);
+                if (target == null)
+                    throw new MavenTaskException("Unable to get targets for framework.");
+
+                // only consider POMs from targets that are relevant
+                foreach (var library in target.Libraries)
+                {
+                    // must be a dependency library
+                    if (library.PackageType.Contains(PackageType.Dependency) == false)
+                        continue;
+
+                    var lib = lockFile.GetLibrary(library.Name, library.Version);
+                    if (lib == null)
+                        continue;
+
+                    // group the available POM files by TFM
+                    var groups = lib.Files
+                        .Where(i => i.StartsWith("maven/"))
+                        .Where(i => i.EndsWith($"/{library.Name}.pom"))
+                        .Select(i => new { Segments = i.Split('/'), File = i })
+                        .Where(i => i.Segments.Length == 3)
+                        .Select(i => new { Folder = i.Segments[1], File = i.File })
+                        .GroupBy(i => i.Folder)
+                        .Select(i => new FrameworkSpecificGroup(NuGetFramework.ParseFolder(i.Key), i.Select(j => j.File).ToList()))
+                        .ToList();
+
+                    // find the group of POMs for the TFM
+                    var compatibleGroup = NuGetFrameworkUtility.GetNearest(groups, tfm);
+                    if (compatibleGroup == null)
+                        continue;
+
+                    // integrate each discovered POM
+                    foreach (var pom in compatibleGroup.Items)
+                    {
+                        // read POM file
+                        var reader = new DefaultModelReader();
+                        var model = reader.read(new java.io.File(pom), null);
+
+                        // extract dependencies from model
+                        foreach (Dependency dependency in (IEnumerable)model.getDependencies())
+                        {
+                            var item = new MavenReferenceItem(new TaskItem($"{dependency.getGroupId()}:{dependency.getArtifactId()}"));
+                            item.GroupId = dependency.getGroupId();
+                            item.ArtifactId = dependency.getArtifactId();
+                            item.Classifier = dependency.getClassifier();
+                            item.Version = dependency.getVersion();
+                            item.Save();
+                            items.Add(item);
+                        }
+                    }
+                }
+
+                // output final list of new dependencies
+                Items = items.Select(i => i.Item).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -101,6 +173,12 @@ namespace IKVM.Sdk.Maven.Tasks
             }
         }
 
+        /// <summary>
+        /// Attempts to load the given lock file path.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        /// <exception cref="MavenTaskException"></exception>
         LockFile LoadLockFile(string path)
         {
             LockFile lockFile;

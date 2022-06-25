@@ -133,55 +133,55 @@ jobs:
       with:
         name: TestResults-windows
         path: TestResults
-  test-ikvm-sdk-maven-linux:
-    name: Test IKVM.Sdk.Maven (Linux)
-    needs:
-    - build-ikvm-sdk-maven
-    runs-on: ubuntu-latest
-    steps:
-    - name: Setup .NET 3.1
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 3.1.x
-    - name: Setup .NET 5.0
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 5.0.x
-    - name: Setup .NET 6.0
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: 6.0.x
-    - name: Setup NuGet
-      shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}/nuget/packages"
-    - name: Add NuGet Source (GitHub)
-      shell: pwsh
-      run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
-      env:
-        GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: Download Tests
-      uses: actions/download-artifact@v3
-      with:
-        name: tests
-        path: build
-    - name: Restore Tests
-      run: tar xzvf tests.tar.gz
-      working-directory: build
-    - name: Execute Tests
-      shell: pwsh
-      run: gci ./build/tests/ -Recurse -Filter '*.Tests.dll' | group { $_.Directory.BaseName } | ?{ $_.Name -ne 'net461' } | %{ dotnet test $_.Group --blame -v 3 --results-directory ./TestResults --logger "trx;LogFileName=$($_.Name).trx" }
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v3
-      with:
-        name: TestResults-linux
-        path: TestResults
+  #test-ikvm-sdk-maven-linux:
+  #  name: Test IKVM.Sdk.Maven (Linux)
+  #  needs:
+  #  - build-ikvm-sdk-maven
+  #  runs-on: ubuntu-latest
+  #  steps:
+  #  - name: Setup .NET 3.1
+  #    uses: actions/setup-dotnet@v2
+  #    with:
+  #      dotnet-version: 3.1.x
+  #  - name: Setup .NET 5.0
+  #    uses: actions/setup-dotnet@v2
+  #    with:
+  #      dotnet-version: 5.0.x
+  #  - name: Setup .NET 6.0
+  #    uses: actions/setup-dotnet@v2
+  #    with:
+  #      dotnet-version: 6.0.x
+  #  - name: Setup NuGet
+  #    shell: pwsh
+  #    run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}/nuget/packages"
+  #  - name: Add NuGet Source (GitHub)
+  #    shell: pwsh
+  #    run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
+  #    env:
+  #      GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+  #      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #  - name: Download Tests
+  #    uses: actions/download-artifact@v3
+  #    with:
+  #      name: tests
+  #      path: build
+  #  - name: Restore Tests
+  #    run: tar xzvf tests.tar.gz
+  #    working-directory: build
+  #  - name: Execute Tests
+  #    shell: pwsh
+  #    run: gci ./build/tests/ -Recurse -Filter '*.Tests.dll' | group { $_.Directory.BaseName } | ?{ $_.Name -ne 'net461' } | %{ dotnet test $_.Group --blame -v 3 --results-directory ./TestResults --logger "trx;LogFileName=$($_.Name).trx" }
+  #  - name: Upload Test Results
+  #    uses: actions/upload-artifact@v3
+  #    with:
+  #      name: TestResults-linux
+  #      path: TestResults
   release:
     name: Release
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     needs:
     - test-ikvm-sdk-maven-windows
-    - test-ikvm-sdk-maven-linux
+    #- test-ikvm-sdk-maven-linux
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Source
