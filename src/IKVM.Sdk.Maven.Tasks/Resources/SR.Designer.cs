@@ -140,5 +140,23 @@ namespace IKVM.Sdk.Maven.Tasks.Resources {
                 return ResourceManager.GetString("Error.MavenMissingVersion", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0010: Transfer corrupted from &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_MavenTransferCorrupted {
+            get {
+                return ResourceManager.GetString("Error.MavenTransferCorrupted", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0011: Transfer failed from &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_MavenTransferFailed {
+            get {
+                return ResourceManager.GetString("Error.MavenTransferFailed", resourceCulture);
+            }
+        }
     }
 }

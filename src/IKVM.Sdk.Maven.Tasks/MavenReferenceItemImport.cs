@@ -210,6 +210,7 @@ namespace IKVM.Sdk.Maven.Tasks
         /// Attempts to load the given lock file path.
         /// </summary>
         /// <param name="path"></param>
+        /// <param name="logger"></param>
         /// <returns></returns>
         /// <exception cref="MavenTaskException"></exception>
         internal static LockFile LoadLockFile(string path, NuGet.Common.ILogger logger)

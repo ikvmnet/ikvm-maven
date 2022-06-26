@@ -46,7 +46,7 @@ namespace IKVM.Sdk.Maven.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"DeployingInvalid artifact descriptor for {repositoryEvent.getArtifact()}: {repositoryEvent.getException().getMessage()}", MessageImportance.Normal);
+            log.LogError($"Invalid artifact descriptor for {repositoryEvent.getArtifact()}: {repositoryEvent.getException().getMessage()}");
         }
 
         public override void artifactDescriptorMissing(RepositoryEvent repositoryEvent)
@@ -54,7 +54,7 @@ namespace IKVM.Sdk.Maven.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Missing artifact descriptor for {repositoryEvent.getArtifact()}", MessageImportance.Normal);
+            log.LogError($"Missing artifact descriptor for {repositoryEvent.getArtifact()}");
         }
 
         public override void artifactInstalled(RepositoryEvent repositoryEvent)
@@ -142,7 +142,7 @@ namespace IKVM.Sdk.Maven.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Invalid metadata {repositoryEvent.getMetadata()}", MessageImportance.Normal);
+            log.LogError($"Invalid metadata {repositoryEvent.getMetadata()}");
         }
 
         public override void metadataResolved(RepositoryEvent repositoryEvent)

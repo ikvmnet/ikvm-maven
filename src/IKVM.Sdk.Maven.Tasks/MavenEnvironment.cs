@@ -91,9 +91,10 @@ namespace IKVM.Sdk.Maven.Tasks
             /// <param name="exception"></param>
             public override void serviceCreationFailed(Class type, Class impl, System.Exception exception)
             {
-                log.LogMessage("Service {0} failed with {1}.", type, impl);
-                log.LogMessage(exception.Message ?? "");
-                log.LogMessage(exception.StackTrace ?? "");
+                if (exception == null)
+                    log.LogError("Service {0} failed from {1}.", type, impl);
+                else
+                    log.LogErrorFromException(exception, true, true, null);
             }
 
         }
@@ -102,7 +103,7 @@ namespace IKVM.Sdk.Maven.Tasks
         const string SettingsSecurityXml = "settings-security.xml";
         const string CentralRepositoryUrl = "https://repo.maven.apache.org/maven2/";
         const string CentralRepositoryType = "default";
-        const string CentralRepostiroyId = "central";
+        const string CentralRepositoryId = "central";
 
         static readonly string DefaultRepositoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".m2");
 
@@ -129,7 +130,7 @@ namespace IKVM.Sdk.Maven.Tasks
                 repositorySystemSession = CreateRepositorySystemSession() ?? throw new NullReferenceException("Null result creating RepositorySystemSession.");
                 repositories = CreateRepositories() ?? throw new NullReferenceException("Null result creating Repositories.");
             }
-            catch (System.Exception e)
+            catch (System.Exception)
             {
                 throw;
             }
@@ -265,7 +266,7 @@ namespace IKVM.Sdk.Maven.Tasks
             session.setMirrorSelector(CreateMirrorSelector());
             session.setAuthenticationSelector(CreateAuthenticationSelector());
             session.setDependencyGraphTransformer(CreateDependencyGraphTransformer());
-            session.setTransferListener(new MavenTransferListener());
+            session.setTransferListener(new MavenTransferListener(log));
             session.setRepositoryListener(new MavenRepositoryListener(log));
             return session;
         }
@@ -285,7 +286,7 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         ArtifactRepository CreateCentralRepository()
         {
-            return new RemoteRepository.Builder(CentralRepostiroyId, CentralRepositoryType, CentralRepositoryUrl).build();
+            return new RemoteRepository.Builder(CentralRepositoryId, CentralRepositoryType, CentralRepositoryUrl).build();
         }
 
         /// <summary>

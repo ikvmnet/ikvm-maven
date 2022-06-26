@@ -144,4 +144,10 @@
   <data name="Error.MavenMissingVersion" xml:space="preserve">
     <value>MAVEN0007: Missing Maven version.</value>
   </data>
+  <data name="Error.MavenTransferCorrupted" xml:space="preserve">
+    <value>MAVEN0010: Transfer corrupted from '{0}'.</value>
+  </data>
+  <data name="Error.MavenTransferFailed" xml:space="preserve">
+    <value>MAVEN0011: Transfer failed from '{0}'.</value>
+  </data>
 </root>
