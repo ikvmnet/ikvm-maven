@@ -83,7 +83,6 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <summary>
         /// Runtime identifier of current build.
         /// </summary>
-        [Required]
         public string RuntimeIdentifier { get; set; }
 
         /// <summary>
