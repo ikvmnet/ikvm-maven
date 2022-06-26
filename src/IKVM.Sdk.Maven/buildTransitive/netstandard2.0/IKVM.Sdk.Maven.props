@@ -8,7 +8,7 @@
         <IkvmSdkMavenTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</IkvmSdkMavenTaskFolder>
         <IkvmSdkMavenTaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net461</IkvmSdkMavenTaskFolder>
         <IkvmSdkMavenTaskAssembly>$(IkvmSdkMavenDir)tasks\$(IkvmSdkMavenTaskFolder)\IKVM.Sdk.Maven.Tasks.dll</IkvmSdkMavenTaskAssembly>
-    </PropertyGroup>    
+    </PropertyGroup>
 
     <UsingTask TaskName="MavenReferenceItemImport" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
     <UsingTask TaskName="MavenReferenceItemPrepare" AssemblyFile="$(IkvmSdkMavenTaskAssembly)" />
