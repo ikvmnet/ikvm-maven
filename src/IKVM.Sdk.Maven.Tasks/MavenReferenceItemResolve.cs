@@ -14,6 +14,7 @@ using org.eclipse.aether.artifact;
 using org.eclipse.aether.collection;
 using org.eclipse.aether.graph;
 using org.eclipse.aether.resolution;
+using org.eclipse.aether.util.artifact;
 
 namespace IKVM.Sdk.Maven.Tasks
 {
@@ -135,7 +136,7 @@ namespace IKVM.Sdk.Maven.Tasks
                 item = items.FirstOrDefault(i => i.GroupId == artifact.getGroupId() && i.ArtifactId == artifact.getArtifactId());
 
             // apply artifact as IkvmReferenceItem
-            var outputItem = MergeIkvmReferenceItemFromCompileArtifact(item, output, artifact);
+            var outputItem = MergeIkvmReferenceItemFromCompileArtifact(item, output, node, artifact);
             if (outputItem == null)
                 throw new MavenTaskException("Null result merging compile artifact.");
 
@@ -160,10 +161,11 @@ namespace IKVM.Sdk.Maven.Tasks
         /// </summary>
         /// <param name="item"></param>
         /// <param name="output"></param>
+        /// <param name="node"></param>
         /// <param name="artifact"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        IkvmReferenceItem MergeIkvmReferenceItemFromCompileArtifact(MavenReferenceItem item, List<IkvmReferenceItem> output, Artifact artifact)
+        IkvmReferenceItem MergeIkvmReferenceItemFromCompileArtifact(MavenReferenceItem item, List<IkvmReferenceItem> output, DependencyNode node, Artifact artifact)
         {
             if (output is null)
                 throw new ArgumentNullException(nameof(output));
@@ -186,7 +188,7 @@ namespace IKVM.Sdk.Maven.Tasks
             {
                 // generate a new IkvmReferenceItem, prefixed so it doesn't conflict with others
                 var outputItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
-                output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec });
+                output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec, ReferenceOutputAssembly = false, Private = false });
             }
 
             // ensure output item has Maven information attached to it
@@ -198,6 +200,14 @@ namespace IKVM.Sdk.Maven.Tasks
             // fallback to the Maven name and version if IKVM cannot detect otherwise
             outputItem.FallbackAssemblyName = artifactId;
             outputItem.FallbackAssemblyVersion = ToAssemblyVersion(version)?.ToString();
+
+            // artifact is required during compile, ensure we reference
+            if (node.getDependency().getScope() == JavaScopes.COMPILE)
+                outputItem.ReferenceOutputAssembly = true;
+
+            // artifact is required during runtime, copy local
+            if (node.getDependency().getScope() == JavaScopes.RUNTIME)
+                outputItem.Private = true;
 
             // input item was matched, set new output based on input
             // user can override properties of transitive items by explicitely adding a dependency

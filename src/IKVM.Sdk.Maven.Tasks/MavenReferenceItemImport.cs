@@ -12,7 +12,6 @@ using Microsoft.Build.Utilities;
 using NuGet.Common;
 using NuGet.Frameworks;
 using NuGet.Packaging;
-using NuGet.Packaging.Core;
 using NuGet.ProjectModel;
 
 using org.apache.maven.model;
@@ -128,7 +127,12 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         internal static MavenReferenceItem GetMavenReferenceItem(Dependency dependency)
         {
-            var item = new MavenReferenceItem(new TaskItem($"{dependency.getGroupId()}:{dependency.getArtifactId()}"));
+            if (dependency is null)
+                throw new ArgumentNullException(nameof(dependency));
+
+            var itemSpec = $"{dependency.getGroupId()}:{dependency.getArtifactId()}";
+            var item = new MavenReferenceItem(new TaskItem(itemSpec));
+            item.ItemSpec = itemSpec;
             item.GroupId = dependency.getGroupId();
             item.ArtifactId = dependency.getArtifactId();
             item.Classifier = dependency.getClassifier();
@@ -187,22 +191,24 @@ namespace IKVM.Sdk.Maven.Tasks
                     continue;
 
                 // group the available POM files by TFM
-                var groups = lib.Files
+                var pomPathsByTfm = lib.Files
                     .Where(i => i.StartsWith("maven/") && i.EndsWith($"/{library.Name}.pom"))
                     .Select(i => new { Segments = i.Split('/'), File = i }).Where(i => i.Segments.Length == 3)
-                    .Select(i => new { Folder = i.Segments[1], File = i.File })
+                    .Select(i => new { Folder = i.Segments[1], Path = i.File.Replace('/', Path.DirectorySeparatorChar) })
                     .GroupBy(i => i.Folder)
-                    .Select(i => new FrameworkSpecificGroup(NuGetFramework.ParseFolder(i.Key), i.Select(j => j.File).ToList()))
+                    .Select(i => new FrameworkSpecificGroup(NuGetFramework.ParseFolder(i.Key), i.Select(j => j.Path).ToList()))
                     .ToList();
 
                 // find the group of POMs for the TFM
-                var compatibleGroup = NuGetFrameworkUtility.GetNearest(groups, NuGetFramework.Parse(targetFramework));
+                var compatibleGroup = NuGetFrameworkUtility.GetNearest(pomPathsByTfm, NuGetFramework.Parse(targetFramework));
                 if (compatibleGroup == null)
                     continue;
 
                 // integrate each discovered POM
                 foreach (var pom in compatibleGroup.Items)
-                    yield return pom;
+                    foreach (var pkgDir in lockFile.PackageFolders)
+                        if (Path.Combine(pkgDir.Path, lib.Path.Replace('/', Path.DirectorySeparatorChar), pom) is string pomPath && File.Exists(pomPath))
+                            yield return pomPath;
             }
         }
 

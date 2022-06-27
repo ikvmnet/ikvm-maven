@@ -84,7 +84,7 @@ namespace IKVM.Sdk.Maven.Tasks
         public List<IkvmReferenceItem> References { get; set; } = new List<IkvmReferenceItem>();
 
         /// <summary>
-        /// Whether the itme will be copied along with the build output.
+        /// Whether the item will be copied along with the build output.
         /// </summary>
         public bool Private { get; set; } = true;
 

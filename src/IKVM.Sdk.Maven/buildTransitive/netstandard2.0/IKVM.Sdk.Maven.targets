@@ -7,7 +7,6 @@
         </MavenReferenceItemImport>
         <ItemGroup>
             <MavenReferenceItem Include="@(_MavenReferenceItemFromPackageReferences)">
-                <OriginalReferenceSource>%(ReferenceSource)</OriginalReferenceSource>
                 <ReferenceSource>PackageReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
@@ -29,7 +28,7 @@
         </MSBuild>
         <ItemGroup>
             <MavenReferenceItem Include="@(_MavenReferenceItemFromProjectReferences)">
-                <OriginalReferenceSource>%(ReferenceSource)</OriginalReferenceSource>
+                <OriginalReferenceSource>%(_MavenReferenceItemFromProjectReferences.ReferenceSource)</OriginalReferenceSource>
                 <ReferenceSource>ProjectReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
