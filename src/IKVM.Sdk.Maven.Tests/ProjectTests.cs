@@ -49,7 +49,7 @@ namespace IKVM.Sdk.Maven.Tests
         [TestMethod]
         public void Can_build_test_project()
         {
-            var properties = File.ReadAllLines("IKVM.Sdk.Maven.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
+            var properties = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "IKVM.Sdk.Maven.Tests.properties")).Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
             var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Sdk.Maven.Tests_Project", "nuget", "packages");
             if (Directory.Exists(nugetPackageRoot))
@@ -67,9 +67,9 @@ namespace IKVM.Sdk.Maven.Tests
                 rids = new[] { "linux-x64" };
 
             var manager = new AnalyzerManager();
-            var analyzer = manager.GetProject(Path.Combine(@"Project", "Exe", "ProjectExe.csproj"));
+            var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"Project", "Exe", "ProjectExe.csproj"));
             analyzer.SetGlobalProperty("PackageVersion", properties["PackageVersion"]);
-            analyzer.SetGlobalProperty("RestoreSources", string.Join("%3B", "https://api.nuget.org/v3/index.json", Path.GetFullPath(@"nuget")));
+            analyzer.SetGlobalProperty("RestoreSources", string.Join("%3B", "https://api.nuget.org/v3/index.json", Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "nuget")));
             analyzer.SetGlobalProperty("RestorePackagesPath", nugetPackageRoot + Path.DirectorySeparatorChar);
 
             // allow NuGet to locate packages in existing global packages folder if set

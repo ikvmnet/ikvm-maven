@@ -1,9 +1,4 @@
 ﻿<Project>
-    <PropertyGroup>
-        <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
-        <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
-    </PropertyGroup>
-
     <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
 
     <PropertyGroup>

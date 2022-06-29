@@ -62,11 +62,11 @@ namespace IKVM.Sdk.Maven.Tests
 
             var nugetSources = new List<string>();
             nugetSources.Add("https://api.nuget.org/v3/index.json");
-            nugetSources.Add(Path.GetFullPath("nuget"));
+            nugetSources.Add(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "nuget"));
             if (additionalPackageDir is not null)
                 nugetSources.Add(additionalPackageDir);
 
-            var properties = File.ReadAllLines("IKVM.Sdk.Maven.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
+            var properties = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "IKVM.Sdk.Maven.Tests.properties")).Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(projectFile);
             analyzer.AddBuildLogger(new TargetLogger(TestContext));
@@ -93,7 +93,7 @@ namespace IKVM.Sdk.Maven.Tests
         public void Can_generate_and_consume_nuget_package()
         {
             // build nuget package from PackProjectLib
-            var libAnalyzer = CreateAnalyzer(Path.Combine(@"PackProject", "Lib", "PackProjectLib.csproj"), null);
+            var libAnalyzer = CreateAnalyzer(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackProject", "Lib", "PackProjectLib.csproj"), null);
             var libOptions = new EnvironmentOptions();
             libOptions.DesignTime = false;
             libOptions.TargetsToBuild.Clear();
@@ -104,7 +104,7 @@ namespace IKVM.Sdk.Maven.Tests
             libResults.OverallSuccess.Should().Be(true);
 
             // build exe which references lib which references nuget package
-            var buildAnalyzer = CreateAnalyzer(Path.Combine(@"PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.GetFullPath(Path.Combine("PackProject", "Lib", "bin", "Debug")));
+            var buildAnalyzer = CreateAnalyzer(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "PackProject", "Lib", "bin", "Debug"));
             var buildOptions = new EnvironmentOptions();
             buildOptions.DesignTime = false;
             buildOptions.TargetsToBuild.Clear();
@@ -129,7 +129,7 @@ namespace IKVM.Sdk.Maven.Tests
                     TestContext.WriteLine("Publishing with TargetFramework {0} and RuntimeIdentifier {1}.", tfm, rid);
 
                     // publish exe which references lib which references nuget package
-                    var pubAnalyzer = CreateAnalyzer(Path.Combine(@"PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.GetFullPath(Path.Combine("PackProject", "Lib", "bin", "Debug")));
+                    var pubAnalyzer = CreateAnalyzer(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "PackProject", "Lib", "bin", "Debug"));
                     var pubOptions = new EnvironmentOptions();
                     pubOptions.GlobalProperties.Add("TargetFramework", tfm);
                     pubOptions.GlobalProperties.Add("RuntimeIdentifier", rid);
