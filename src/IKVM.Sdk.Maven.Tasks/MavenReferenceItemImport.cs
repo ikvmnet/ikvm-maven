@@ -171,6 +171,11 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <exception cref="MavenTaskException"></exception>
         internal static IEnumerable<string> GetProjectObjectModelFiles(LockFile lockFile, string targetFramework, string runtimeIdentifier)
         {
+            if (lockFile is null)
+                throw new ArgumentNullException(nameof(lockFile));
+            if (targetFramework is null)
+                throw new ArgumentNullException(nameof(targetFramework));
+
             // start with the target being built
             var target = lockFile.GetTarget(targetFramework, null);
             if (target == null && lockFile.PackageSpec.TargetFrameworks.All(tfi => string.IsNullOrEmpty(tfi.TargetAlias)))
