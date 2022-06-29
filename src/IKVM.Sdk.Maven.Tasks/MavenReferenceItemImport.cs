@@ -226,6 +226,11 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <exception cref="MavenTaskException"></exception>
         internal static LockFile LoadLockFile(string path, NuGet.Common.ILogger logger)
         {
+            if (path is null)
+                throw new ArgumentNullException(nameof(path));
+            if (File.Exists(path) == false)
+                throw new FileNotFoundException("Could not find assets file.", path);
+
             LockFile lockFile;
 
             try
@@ -238,7 +243,7 @@ namespace IKVM.Sdk.Maven.Tasks
             }
 
             if (lockFile == null)
-                throw new MavenTaskException("Assets file not found.");
+                throw new MavenTaskException("Could not read assets file.");
 
             return lockFile;
         }

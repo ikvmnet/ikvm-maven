@@ -137,7 +137,7 @@
     </PropertyGroup>
 
     <!-- Gets the MavenReferenceItems that will be emitted to the generated package. -->
-    <Target Name="GetMavenReferenceItemsForProjectModelFromMavenReferences" DependsOnTargets="GetMavenReferenceItems">
+    <Target Name="GetMavenReferenceItemsForProjectModelFromMavenReferences" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
         <ItemGroup>
             <MavenReferenceItemsForProjectModel Include="@(MavenReferenceItem->WithMetadataValue('ReferenceSource', 'MavenReference'))" />
         </ItemGroup>
@@ -156,7 +156,7 @@
     </PropertyGroup>
 
     <!-- Outputs the project model file to the intermediate directory. -->
-    <Target Name="_BuildMavenProjectModelPackageFile">
+    <Target Name="_BuildMavenProjectModelPackageFile" Condition=" '@(MavenReferenceItemsForProjectModel)' != '' ">
         <MavenWriteProjectObjectModelFile GroupId="$(MavenProjectGroupdId)" ArtifactId="$(MavenProjectArtifactId)" Version="$(MavenProjectVersion)" References="@(MavenReferenceItemsForProjectModel)" ProjectFile="$(IntermediateOutputPath)$(PackageId).pom">
 
         </MavenWriteProjectObjectModelFile>
@@ -181,7 +181,7 @@
 
     <Target Name="GetMavenProjectModelPackageFile" DependsOnTargets="BuildMavenProjectModelPackageFile">
         <ItemGroup>
-            <TfmSpecificPackageFile Include="$(IntermediateOutputPath)$(PackageId).pom" PackagePath="maven\$(TargetFramework)" />
+            <TfmSpecificPackageFile Include="$(IntermediateOutputPath)$(PackageId).pom" PackagePath="maven\$(TargetFramework)" Condition="Exists('$(IntermediateOutputPath)$(PackageId).pom')" />
         </ItemGroup>
     </Target>
 
