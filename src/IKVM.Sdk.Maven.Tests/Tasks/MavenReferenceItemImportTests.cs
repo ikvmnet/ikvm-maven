@@ -51,23 +51,23 @@ namespace IKVM.Sdk.Maven.Tests.Tasks
 
         public TestContext TestContext { get; set; }
 
-        [TestMethod]
-        public void Can_load_assets_file()
-        {
-            var l = MavenReferenceItemImport.LoadLockFile(Path.Combine(binPath, "Tasks", "Test.project.assets.json"), new TestContextLogger(TestContext));
-            l.Should().NotBeNull();
-            l.Targets.Should().NotBeEmpty();
-            l.Libraries.Should().NotBeEmpty();
-        }
+        //[TestMethod]
+        //public void Can_load_assets_file()
+        //{
+        //    var l = MavenReferenceItemImport.LoadLockFile(Path.Combine(binPath, "Tasks", "Test.project.assets.json"), new TestContextLogger(TestContext));
+        //    l.Should().NotBeNull();
+        //    l.Targets.Should().NotBeEmpty();
+        //    l.Libraries.Should().NotBeEmpty();
+        //}
 
-        [TestMethod]
-        public void Can_discover_POM()
-        {
-            var l = MavenReferenceItemImport.LoadLockFile(Path.Combine(binPath, "Tasks", "Test.project.assets.json"), new TestContextLogger(TestContext));
-            l.Should().NotBeNull();
-            var f = MavenReferenceItemImport.GetProjectObjectModelFiles(l, "netcoreapp3.1", "win7-x64").ToList();
-            f.Should().NotBeNull();
-        }
+        //[TestMethod]
+        //public void Can_discover_POM()
+        //{
+        //    var l = MavenReferenceItemImport.LoadLockFile(Path.Combine(binPath, "Tasks", "Test.project.assets.json"), new TestContextLogger(TestContext));
+        //    l.Should().NotBeNull();
+        //    var f = MavenReferenceItemImport.GetProjectObjectModelFiles(l, "netcoreapp3.1", "win7-x64").ToList();
+        //    f.Should().NotBeNull();
+        //}
 
     }
 
