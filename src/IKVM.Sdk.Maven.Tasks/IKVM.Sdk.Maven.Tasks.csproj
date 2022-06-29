@@ -8,7 +8,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.2.0-prerelease1515" />
+        <PackageReference Include="IKVM" Version="8.2.0-prerelease2138" />
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" />
         <PackageReference Include="NuGet.ProjectModel" Version="6.2.1" />
     </ItemGroup>

@@ -203,11 +203,16 @@ namespace IKVM.Sdk.Maven.Tasks
 
             // artifact is required during compile, ensure we reference
             if (node.getDependency().getScope() == JavaScopes.COMPILE)
+            {
+                outputItem.Private = true;
                 outputItem.ReferenceOutputAssembly = true;
+            }
 
             // artifact is required during runtime, copy local
             if (node.getDependency().getScope() == JavaScopes.RUNTIME)
+            {
                 outputItem.Private = true;
+            }
 
             // input item was matched, set new output based on input
             // user can override properties of transitive items by explicitely adding a dependency
