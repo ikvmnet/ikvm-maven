@@ -10,7 +10,6 @@
                 <ReferenceSource>PackageReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
-        <Message Text="_MavenReferenceItemFromPackageReferences: @(_MavenReferenceItemFromPackageReferences)" />
     </Target>
 
     <!-- Obtains MavenReferenceItem items from child projects. -->
@@ -32,7 +31,6 @@
                 <ReferenceSource>ProjectReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
-        <Message Text="_ResolvedMavenReferenceItemFromProjectReferences: @(_ResolvedMavenReferenceItemFromProjectReferences)" />
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
@@ -72,7 +70,7 @@
 
     <!-- Assembles the set of IkvmReferenceItems from various sources. -->
     <Target Name="GetMavenReferenceItems" DependsOnTargets="$(GetMavenReferenceItemsDependsOn)" Returns="@(MavenReferenceItem)">
-        <Message Text="MavenReferenceItem: @(MavenReferenceItem)" />
+        
     </Target>
 
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
@@ -100,40 +98,12 @@
 
     </Target>
 
-    <!-- Installs the resolved MavenReferenceItem into their respective paths. -->
-    <Target Name="_InstallMavenReferences" DependsOnTargets="GetMavenIkvmReferenceItems">
-        <MavenReferenceItemInstall Items="@(MavenReferenceItem)">
-
-        </MavenReferenceItemInstall>
-    </Target>
-
-    <PropertyGroup>
-        <InstallMavenReferencesDependsOn>
-            $(InstallMavenReferencesDependsOn);
-            GetMavenReferenceItems;
-            _InstallMavenReferences;
-        </InstallMavenReferencesDependsOn>
-    </PropertyGroup>
-
-    <!-- Installs the resolved MavenReferenceItem into their respective paths. -->
-    <Target Name="InstallMavenReferences" DependsOnTargets="$(InstallMavenReferencesDependsOn)">
-
-    </Target>
-
     <!-- Attach our target before GetIkvmReferenceItems. -->
     <PropertyGroup>
         <GetIkvmReferenceItemsDependsOn>
             GetMavenIkvmReferenceItems;
             $(GetIkvmReferenceItemsDependsOn);
         </GetIkvmReferenceItemsDependsOn>
-    </PropertyGroup>
-
-    <!-- Attach our target before CompileIkvmReferences. -->
-    <PropertyGroup>
-        <CompileIkvmReferencesDependsOn>
-            InstallMavenReferences;
-            $(CompileIkvmReferencesDependsOn);
-        </CompileIkvmReferencesDependsOn>
     </PropertyGroup>
 
     <!-- Gets the MavenReferenceItems that will be emitted to the generated package. -->
