@@ -56,16 +56,6 @@ namespace IKVM.Sdk.Maven.Tests
                 Directory.Delete(nugetPackageRoot, true);
             Directory.CreateDirectory(nugetPackageRoot);
 
-            // only select supported tfms
-            var tfms = new[] { "netcoreapp3.1", "net5.0", "net6.0" };
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                tfms = new[] { "net461", "net472", "net48", "netcoreapp3.1", "net5.0", "net6.0" };
-
-            // only select supported rids
-            var rids = new[] { "win7-x64", "linux-x64" };
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                rids = new[] { "linux-x64" };
-
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"Project", "Exe", "ProjectExe.csproj"));
             analyzer.SetGlobalProperty("PackageVersion", properties["PackageVersion"]);
@@ -93,21 +83,31 @@ namespace IKVM.Sdk.Maven.Tests
                 results.OverallSuccess.Should().Be(true);
             }
 
-            foreach (var tfm in tfms)
+            foreach (var tfmrid in new[] {
+                "net461/win7-x64",
+                "net472/win7-x64",
+                "net48/win7-x64",
+                "netcoreapp3.1/win7-x64",
+                "net5.0/win7-x64",
+                "net6.0/win7-x64",
+                "netcoreapp3.1/linux-x64",
+                "net5.0/linux-x64",
+                "net6.0/linux-x64" })
             {
-                foreach (var rid in rids)
-                {
-                    var options = new EnvironmentOptions();
-                    options.DesignTime = false;
-                    options.Restore = false;
-                    options.GlobalProperties.Add("TargetFramework", tfm);
-                    options.GlobalProperties.Add("RuntimeIdentifier", rid);
-                    options.TargetsToBuild.Clear();
-                    options.TargetsToBuild.Add("Build");
-                    options.TargetsToBuild.Add("Publish");
-                    var results = analyzer.Build(options);
-                    results.OverallSuccess.Should().Be(true);
-                }
+                var _ = tfmrid.Split('/');
+                var tfm = _[0];
+                var rid = _[1];
+
+                var options = new EnvironmentOptions();
+                options.DesignTime = false;
+                options.Restore = false;
+                options.GlobalProperties.Add("TargetFramework", tfm);
+                options.GlobalProperties.Add("RuntimeIdentifier", rid);
+                options.TargetsToBuild.Clear();
+                options.TargetsToBuild.Add("Build");
+                options.TargetsToBuild.Add("Publish");
+                var results = analyzer.Build(options);
+                results.OverallSuccess.Should().Be(true);
             }
         }
 

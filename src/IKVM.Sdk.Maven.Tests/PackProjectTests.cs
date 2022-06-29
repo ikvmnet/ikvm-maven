@@ -89,59 +89,73 @@ namespace IKVM.Sdk.Maven.Tests
             return analyzer;
         }
 
+        /// <summary>
+        /// Gets the directory of the test assembly.
+        /// </summary>
+        /// <returns></returns>
+        string GetThisDir()
+        {
+            return Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location);
+        }
+
         [TestMethod]
         public void Can_generate_and_consume_nuget_package()
         {
             // build nuget package from PackProjectLib
-            var libAnalyzer = CreateAnalyzer(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackProject", "Lib", "PackProjectLib.csproj"), null);
+            var libAnalyzer = CreateAnalyzer(Path.Combine(GetThisDir(), "PackProject", "Lib", "PackProjectLib.csproj"), null);
             var libOptions = new EnvironmentOptions();
             libOptions.DesignTime = false;
+            libOptions.GlobalProperties["Configuration"] = "Release";
             libOptions.TargetsToBuild.Clear();
             libOptions.TargetsToBuild.Add("Restore");
+            libOptions.TargetsToBuild.Add("Clean");
             libOptions.TargetsToBuild.Add("Build");
             libOptions.TargetsToBuild.Add("Pack");
             var libResults = libAnalyzer.Build(libOptions);
             libResults.OverallSuccess.Should().Be(true);
 
             // build exe which references lib which references nuget package
-            var buildAnalyzer = CreateAnalyzer(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "PackProject", "Lib", "bin", "Debug"));
+            var buildAnalyzer = CreateAnalyzer(Path.Combine(GetThisDir(), "PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(GetThisDir(), "PackProject", "Lib", "bin", "Release"));
             var buildOptions = new EnvironmentOptions();
             buildOptions.DesignTime = false;
+            buildOptions.GlobalProperties["Configuration"] = "Release";
             buildOptions.TargetsToBuild.Clear();
+            buildOptions.TargetsToBuild.Add("Restore");
+            buildOptions.TargetsToBuild.Add("Clean");
             buildOptions.TargetsToBuild.Add("Build");
             var buildResults = buildAnalyzer.Build(buildOptions);
             buildResults.OverallSuccess.Should().Be(true);
 
-            // only select supported tfms
-            var tfms = new[] { "netcoreapp3.1", "net5.0", "net6.0" };
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-                tfms = new[] { "net461", "net472", "net48", "netcoreapp3.1", "net5.0", "net6.0" };
-
-            // only select supported rids
-            var rids = new[] { "win7-x64", "linux-x64" };
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-                rids = new[] { "linux-x64" };
-
-            foreach (var tfm in tfms)
+            foreach (var tfmrid in new[] {
+                "net461/win7-x64",
+                "net472/win7-x64",
+                "net48/win7-x64",
+                "netcoreapp3.1/win7-x64",
+                "net5.0/win7-x64",
+                "net6.0/win7-x64",
+                "netcoreapp3.1/linux-x64",
+                "net5.0/linux-x64",
+                "net6.0/linux-x64" })
             {
-                foreach (var rid in rids)
-                {
-                    TestContext.WriteLine("Publishing with TargetFramework {0} and RuntimeIdentifier {1}.", tfm, rid);
+                var _ = tfmrid.Split('/');
+                var tfm = _[0];
+                var rid = _[1];
 
-                    // publish exe which references lib which references nuget package
-                    var pubAnalyzer = CreateAnalyzer(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "PackProject", "Lib", "bin", "Debug"));
-                    var pubOptions = new EnvironmentOptions();
-                    pubOptions.GlobalProperties.Add("TargetFramework", tfm);
-                    pubOptions.GlobalProperties.Add("RuntimeIdentifier", rid);
-                    pubOptions.DesignTime = false;
-                    pubOptions.TargetsToBuild.Clear();
-                    pubOptions.TargetsToBuild.Add("Publish");
-                    var pubResults = pubAnalyzer.Build(pubOptions);
-                    pubResults.OverallSuccess.Should().Be(true);
-                }
+                TestContext.WriteLine("Publishing with TargetFramework {0} and RuntimeIdentifier {1}.", tfm, rid);
+
+                // publish exe which references lib which references nuget package
+                var pubAnalyzer = CreateAnalyzer(Path.Combine(GetThisDir(), "PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(GetThisDir(), "PackProject", "Lib", "bin", "Release"));
+                var pubOptions = new EnvironmentOptions();
+                pubOptions.GlobalProperties["Configuration"] = "Release";
+                pubOptions.GlobalProperties["TargetFramework"] = tfm;
+                pubOptions.GlobalProperties["RuntimeIdentifier"] = rid;
+                pubOptions.DesignTime = false;
+                pubOptions.TargetsToBuild.Clear();
+                pubOptions.TargetsToBuild.Add("Publish");
+                var pubResults = pubAnalyzer.Build(pubOptions);
+                pubResults.OverallSuccess.Should().Be(true);
             }
         }
-
     }
 
 }
