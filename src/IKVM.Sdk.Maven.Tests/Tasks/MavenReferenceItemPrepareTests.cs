@@ -14,8 +14,47 @@ namespace IKVM.Sdk.Maven.Tests.Tasks
 {
 
     [TestClass]
-    public class MavenReferenceItemAssignMetadataTests
+    public class MavenReferenceItemPrepareTests
     {
+
+        [TestMethod]
+        public void Should_work_with_itemspec_and_version_as_metadata()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemPrepare();
+            t.BuildEngine = engine.Object;
+
+            var i1 = new TaskItem("ikvm.test:foo");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.2.3");
+            t.Items = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            i1.GetMetadata(MavenReferenceItemMetadata.GroupId).Should().Be("ikvm.test");
+            i1.GetMetadata(MavenReferenceItemMetadata.ArtifactId).Should().Be("foo");
+            i1.GetMetadata(MavenReferenceItemMetadata.Version).Should().Be("1.2.3");
+            errors.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void Should_work_with_itemspec_with_version()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemPrepare();
+            t.BuildEngine = engine.Object;
+
+            var i1 = new TaskItem("ikvm.test:foo:1.2.3");
+            t.Items = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            i1.GetMetadata(MavenReferenceItemMetadata.GroupId).Should().Be("ikvm.test");
+            i1.GetMetadata(MavenReferenceItemMetadata.ArtifactId).Should().Be("foo");
+            i1.GetMetadata(MavenReferenceItemMetadata.Version).Should().Be("1.2.3");
+            errors.Should().BeEmpty();
+        }
 
         [TestMethod]
         public void Should_fail_if_no_groupid_with_bad_itemspec()

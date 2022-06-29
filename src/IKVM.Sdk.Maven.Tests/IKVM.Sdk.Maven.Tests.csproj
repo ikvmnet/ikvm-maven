@@ -35,9 +35,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Update="Tasks\Test.project.assets.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Update="Tasks\Test.project.assets.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <MavenReference Include="org.apache.maven:maven-core:3.8.6" />
+        <MavenReference Include="org.apache.maven:maven-core" Version="3.8.6" />
     </ItemGroup>
 
     <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />

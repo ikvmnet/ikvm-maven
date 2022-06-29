@@ -59,13 +59,12 @@ namespace IKVM.Sdk.Maven.Tasks
             // populate the properties of each item
             foreach (var item in map.Values)
             {
-                item.ItemSpec = NormalizeItemSpec(item.Item.ItemSpec);
+                item.ItemSpec = item.Item.ItemSpec;
                 item.GroupId = item.Item.GetMetadata(MavenReferenceItemMetadata.GroupId);
                 item.ArtifactId = item.Item.GetMetadata(MavenReferenceItemMetadata.ArtifactId);
                 item.Classifier = item.Item.GetMetadata(MavenReferenceItemMetadata.Classifier);
                 item.Version = item.Item.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Dependencies = ResolveDependencies(map, item, item.Item.GetMetadata(MavenReferenceItemMetadata.Dependencies));
-                item.Scopes = item.Item.GetMetadata(MavenReferenceItemMetadata.Scopes)?.Split(MavenReferenceItemMetadata.PropertySeperatorCharArray, StringSplitOptions.RemoveEmptyEntries).ToList();
                 item.Debug = item.Item.GetMetadata(MavenReferenceItemMetadata.Debug) == "true";
                 item.AssemblyName = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyName);
                 item.AssemblyVersion = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyVersion);

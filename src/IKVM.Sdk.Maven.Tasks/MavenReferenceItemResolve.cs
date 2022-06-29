@@ -90,7 +90,7 @@ namespace IKVM.Sdk.Maven.Tasks
             // convert set of incoming items into a dependency list
             var dependencies = new java.util.ArrayList();
             foreach (var item in items)
-                foreach (var scope in item.Scopes)
+                foreach (var scope in new[] { JavaScopes.COMPILE, JavaScopes.RUNTIME })
                     dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), scope, java.lang.Boolean.FALSE, new java.util.ArrayList()));
 
             // resolve the artifacts

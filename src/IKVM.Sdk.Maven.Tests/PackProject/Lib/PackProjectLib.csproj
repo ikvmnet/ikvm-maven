@@ -10,5 +10,5 @@
     <ItemGroup>
         <MavenReference Include="org.apache.maven:maven-core" Version="3.8.6" />
     </ItemGroup>
-    
+
 </Project>

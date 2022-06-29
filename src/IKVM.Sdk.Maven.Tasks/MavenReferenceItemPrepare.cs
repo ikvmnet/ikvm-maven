@@ -61,28 +61,28 @@ namespace IKVM.Sdk.Maven.Tasks
         {
             if (string.IsNullOrWhiteSpace(item.ItemSpec) == false)
             {
-                // if the itemspec is parsable as coordinates, we should attempt to apply or validate metadata
-                var a = MavenTaskUtil.TryParseArtifact(item.ItemSpec);
-                if (a != null)
+                var a = item.ItemSpec.Split(':');
+                if (a.Length is 2 or 3)
                 {
+                    // itemspec may set various properties
+                    var groupId = a[0];
+                    var artifactId = a[1];
+                    var version = a.Length >= 3 ? a[2] : null;
+
+                    // if the itemspec is parsable as coordinates, we should attempt to apply or validate metadata
                     if (string.IsNullOrWhiteSpace(item.GroupId))
-                        item.GroupId = a.getGroupId();
-                    else if (item.GroupId != a.getGroupId())
+                        item.GroupId = groupId;
+                    else if (item.GroupId != groupId)
                         throw new MavenTaskMessageException("Error.MavenInvalidGroupId", item.ItemSpec);
 
                     if (string.IsNullOrWhiteSpace(item.ArtifactId))
-                        item.ArtifactId = a.getArtifactId();
-                    else if (item.ArtifactId != a.getArtifactId())
+                        item.ArtifactId = artifactId;
+                    else if (item.ArtifactId != artifactId)
                         throw new MavenTaskMessageException("Error.MavenInvalidArtifactId", item.ItemSpec);
 
-                    if (string.IsNullOrWhiteSpace(item.Classifier))
-                        item.Classifier = a.getClassifier();
-                    else if (item.Classifier != a.getClassifier())
-                        throw new MavenTaskMessageException("Error.MavenInvalidClassifier", item.ItemSpec);
-
                     if (string.IsNullOrWhiteSpace(item.Version))
-                        item.Version = a.getVersion();
-                    else if (item.Version != a.getVersion())
+                        item.Version = version;
+                    else if (version != null && item.Version != version)
                         throw new MavenTaskMessageException("Error.MavenInvalidVersion", item.ItemSpec);
                 }
             }
@@ -95,18 +95,6 @@ namespace IKVM.Sdk.Maven.Tasks
 
             if (string.IsNullOrWhiteSpace(item.Version))
                 throw new MavenTaskMessageException("Error.MavenMissingVersion", item.ItemSpec);
-
-            // add default scopes
-            if (item.Scopes.Count == 0)
-            {
-                item.Scopes.Add(JavaScopes.COMPILE);
-                item.Scopes.Add(JavaScopes.RUNTIME);
-            }
-
-            // validate scopes
-            if (item.Scopes != null)
-                foreach (var scope in item.Scopes)
-                    ValidateScope(item, scope);
 
             // save item
             item.Save();
