@@ -148,7 +148,9 @@ namespace IKVM.Sdk.Maven.Tasks
                 if (dependency == null) // might be a sources artifact
                     continue;
 
-                outputItem.References.Add(dependency);
+                // add reference if not already added
+                if (outputItem.References.Contains(dependency) == false)
+                    outputItem.References.Add(dependency);
             }
 
             // persist modified item
