@@ -151,6 +151,11 @@ namespace IKVM.Sdk.Maven.Tasks
                 // add reference if not already added
                 if (outputItem.References.Contains(dependency) == false)
                     outputItem.References.Add(dependency);
+
+                // ensure each dependency references the references from its own references
+                foreach (var transitiveDependency in dependency.References)
+                    if (outputItem.References.Contains(transitiveDependency) == false)
+                        outputItem.References.Add(transitiveDependency);
             }
 
             // persist modified item

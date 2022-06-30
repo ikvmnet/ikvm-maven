@@ -3,8 +3,6 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-using org.eclipse.aether.util.artifact;
-
 namespace IKVM.Sdk.Maven.Tasks
 {
 
@@ -98,26 +96,6 @@ namespace IKVM.Sdk.Maven.Tasks
 
             // save item
             item.Save();
-        }
-
-        /// <summary>
-        /// Validates the scope value.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <param name="scope"></param>
-        /// <exception cref="MavenTaskMessageException"></exception>
-        void ValidateScope(MavenReferenceItem item, string scope)
-        {
-            switch (scope)
-            {
-                case JavaScopes.COMPILE:
-                case JavaScopes.RUNTIME:
-                case JavaScopes.PROVIDED:
-                case JavaScopes.TEST:
-                    break;
-                default:
-                    throw new MavenTaskMessageException("Error.MavenInvalidScope", item.ItemSpec, scope);
-            }
         }
 
     }
