@@ -207,8 +207,8 @@ jobs:
       uses: ncipollo/release-action@v1.10.0
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
-        artifacts: build/bin/*.zip,build/nuget/*.nupkg,build/nuget/*.snupkg,build/tools/*.zip
-        draft: true
+        artifacts: build/nuget/*.nupkg,build/nuget/*.snupkg
+        draft: false
         generateReleaseNotes: true
         prerelease: ${{ github.ref == 'refs/heads/develop' }}
         token: ${{ secrets.GITHUB_TOKEN }}
