@@ -4,7 +4,7 @@
 
 To use, install the `IKVM.Sdk.Maven` package from NuGet, and add a `<MavenReference />` element to your SDK-style project. Various Maven options are supported through item-metadata.
 
-The simplest use case is to specify the group ID and artifact ID coordinates on the item specification, and use Version for the metadata.
+The simplest use case is to specify the group ID and artifact ID coordinates on the item specification, and use `Version` for the metadata.
 
 ```
 <ItemGroup>
@@ -55,4 +55,3 @@ depend on generated assemblies do so under a certain set of assumptions that can
 assemblies published in NuGet packages are compiled against on certain assembly names and version, allowing different
 people to rename or change assemblies away from their default would break the expectation that two NuGet packages that
 depend on the same Maven artifact resolve to the same assembly name.
-
