@@ -34,8 +34,8 @@
 
     <ItemGroup Condition=" '$(TargetFramework)' == '' ">
         <PublishProjectReference Include="..\IKVM.Sdk.Maven.Tasks\IKVM.Sdk.Maven.Tasks.csproj">
-            <SetTargetFramework>TargetFramework=net461</SetTargetFramework>
-            <PublishPackagePath>tasks\net461</PublishPackagePath>
+            <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
+            <PublishPackagePath>tasks\net472</PublishPackagePath>
             <PublishProperties>SelfContained=false</PublishProperties>
         </PublishProjectReference>
         <PublishProjectReference Include="..\IKVM.Sdk.Maven.Tasks\IKVM.Sdk.Maven.Tasks.csproj">
@@ -50,7 +50,6 @@
         <ItemGroup>
             <_PackageFiles Include="$(IntermediateOutputPath)VERSION" PackagePath="." />
         </ItemGroup>
-        <Message Text="AllowedOutputExtensionsInPackageBuildOutputFolder : $(AllowedOutputExtensionsInPackageBuildOutputFolder)" />
     </Target>
 
 </Project>
