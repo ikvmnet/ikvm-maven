@@ -5,15 +5,13 @@ using System.Xml.Linq;
 
 using FluentAssertions;
 
-using IKVM.Sdk.Maven.Tasks;
-
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
 
-namespace IKVM.Sdk.Maven.Tests.Tasks
+namespace IKVM.Sdk.Maven.Tasks.Tests
 {
 
     [TestClass]

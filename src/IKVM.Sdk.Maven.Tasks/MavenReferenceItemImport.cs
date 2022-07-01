@@ -9,11 +9,6 @@ using IKVM.Sdk.Maven.Tasks.Resources;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-using NuGet.Common;
-using NuGet.Frameworks;
-using NuGet.Packaging;
-using NuGet.ProjectModel;
-
 using org.apache.maven.model;
 using org.apache.maven.model.io;
 
@@ -25,35 +20,39 @@ namespace IKVM.Sdk.Maven.Tasks
     /// </summary>
     public class MavenReferenceItemImport : Task
     {
+
         /// <summary>
-        /// Forces an exception on errors reading the lock file.
+        /// Disposable wrapper.
         /// </summary>
-        sealed class ThrowOnLockFileLoadError : LoggerBase
+        /// <typeparam name="T"></typeparam>
+        class DisposableValue<T> : IDisposable
         {
 
-            readonly TaskLoggingHelper _log;
+            readonly T value;
+            readonly Action dispose;
 
             /// <summary>
             /// Initializes a new instance.
             /// </summary>
-            /// <param name="log"></param>
-            public ThrowOnLockFileLoadError(TaskLoggingHelper log)
+            /// <param name="value"></param>
+            /// <param name="dispose"></param>
+            public DisposableValue(T value, Action dispose)
             {
-                _log = log ?? throw new ArgumentNullException(nameof(log));
+                this.value = value;
+                this.dispose = dispose;
             }
 
-            public override void Log(ILogMessage message)
-            {
-                if (message.Level == LogLevel.Error)
-                    _log.LogWarning(message.FormatWithCode(), null, null, message.ProjectPath);
-                else
-                    _log.LogMessage(message.FormatWithCode(), null, null, message.ProjectPath);
-            }
+            /// <summary>
+            /// Gets the disposable value.
+            /// </summary>
+            public T Value => value;
 
-            public override System.Threading.Tasks.Task LogAsync(ILogMessage message)
+            /// <summary>
+            /// Disposes of the instance.
+            /// </summary>
+            public void Dispose()
             {
-                Log(message);
-                return System.Threading.Tasks.Task.CompletedTask;
+                dispose?.Invoke();
             }
 
         }
@@ -100,12 +99,8 @@ namespace IKVM.Sdk.Maven.Tasks
 
             try
             {
-                var lockFile = LoadLockFile(AssetsFilePath, new ThrowOnLockFileLoadError(Log));
-                if (lockFile == null)
-                    throw new MavenTaskException("Unable to open assets file.");
-
                 // integrate each discovered POM
-                foreach (var pom in GetProjectObjectModelFiles(lockFile, TargetFramework, RuntimeIdentifier))
+                foreach (var pom in GetProjectObjectModelFiles(AssetsFilePath, TargetFramework, RuntimeIdentifier))
                     foreach (var dependency in GetProjectObjectModelFileDependencies(pom))
                         items.Add(GetMavenReferenceItem(dependency));
 
@@ -118,6 +113,37 @@ namespace IKVM.Sdk.Maven.Tasks
                 Log.LogErrorWithCodeFromResources(e.MessageResourceName, e.MessageArgs);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Gets the available Maven project model files.
+        /// </summary>
+        /// <param name="assetsFilePath"></param>
+        /// <param name="targetFramework"></param>
+        /// <param name="runtimeIdentifier"></param>
+        /// <returns></returns>
+        internal List<string> GetProjectObjectModelFiles(string assetsFilePath, string targetFramework, string runtimeIdentifier)
+        {
+            using var api = GetNuGetApi();
+            return api.Value.GetProjectObjectModelFiles(assetsFilePath, targetFramework, runtimeIdentifier, new NuGetMSBuildLogger(Log));
+        }
+
+        /// <summary>
+        /// Gets an instance of the <see cref="NuGetApi"/>. On Framework this method returns a remote reference to an
+        /// isolated AppDomain so as to not conflict with locally loaded versions of NuGet.
+        /// </summary>
+        /// <returns></returns>
+        DisposableValue<NuGetApi> GetNuGetApi()
+        {
+#if NETFRAMEWORK
+            var appDomainSetup = new AppDomainSetup();
+            appDomainSetup.ApplicationBase = Path.GetDirectoryName(typeof(NuGetApi).Assembly.Location);
+            var appDomain = AppDomain.CreateDomain("IKVM.Sdk.Maven.Tasks", null, appDomainSetup);
+            var api = (NuGetApi)appDomain.CreateInstanceAndUnwrap(typeof(NuGetApi).Assembly.FullName, typeof(NuGetApi).FullName);
+            return new DisposableValue<NuGetApi>(api, () => AppDomain.Unload(appDomain));
+#else
+            return new DisposableValue<NuGetApi>(new NuGetApi(), null);
+#endif
         }
 
         /// <summary>
@@ -152,6 +178,10 @@ namespace IKVM.Sdk.Maven.Tasks
             if (pom is null)
                 throw new ArgumentNullException(nameof(pom));
 
+            // file doesn't actually exist
+            if (File.Exists(pom) == false)
+                yield break;
+
             // read POM file
             var reader = new DefaultModelReader();
             var model = reader.read(new java.io.File(pom), null);
@@ -159,95 +189,6 @@ namespace IKVM.Sdk.Maven.Tasks
             // extract dependencies from model
             foreach (Dependency dependency in (IEnumerable)model.getDependencies())
                 yield return dependency;
-        }
-
-        /// <summary>
-        /// Probes the lock file for POM files given a target framework and runtime identifier.
-        /// </summary>
-        /// <param name="lockFile"></param>
-        /// <param name="targetFramework"></param>
-        /// <param name="runtimeIdentifier"></param>
-        /// <returns></returns>
-        /// <exception cref="MavenTaskException"></exception>
-        internal static IEnumerable<string> GetProjectObjectModelFiles(LockFile lockFile, string targetFramework, string runtimeIdentifier)
-        {
-            if (lockFile is null)
-                throw new ArgumentNullException(nameof(lockFile));
-            if (targetFramework is null)
-                throw new ArgumentNullException(nameof(targetFramework));
-
-            // start with the target being built
-            var target = lockFile.GetTarget(NuGetFramework.Parse(targetFramework), null);
-#if NETCOREAPP
-            if (target == null && lockFile.PackageSpec.TargetFrameworks.All(tfi => string.IsNullOrEmpty(tfi.TargetAlias)))
-                target = lockFile.GetTarget(NuGetFramework.Parse(targetFramework), null);
-#endif
-            if (target == null)
-                yield break;
-
-            // for each in-scope library
-            foreach (var library in target.Libraries)
-            {
-                // must be a dependency library
-                if (library.Type != "package")
-                    continue;
-
-                // target library should exist in libraries
-                var lib = lockFile.GetLibrary(library.Name, library.Version);
-                if (lib == null)
-                    continue;
-
-                // group the available POM files by TFM
-                var pomPathsByTfm = lib.Files
-                    .Where(i => i.StartsWith("maven/") && i.EndsWith($"/{library.Name}.pom"))
-                    .Select(i => new { Segments = i.Split('/'), File = i }).Where(i => i.Segments.Length == 3)
-                    .Select(i => new { Folder = i.Segments[1], Path = i.File.Replace('/', Path.DirectorySeparatorChar) })
-                    .GroupBy(i => i.Folder)
-                    .Select(i => new FrameworkSpecificGroup(NuGetFramework.ParseFolder(i.Key), i.Select(j => j.Path).ToList()))
-                    .ToList();
-
-                // find the group of POMs for the TFM
-                var compatibleGroup = NuGetFrameworkUtility.GetNearest(pomPathsByTfm, NuGetFramework.Parse(targetFramework));
-                if (compatibleGroup == null)
-                    continue;
-
-                // integrate each discovered POM
-                foreach (var pom in compatibleGroup.Items)
-                    foreach (var pkgDir in lockFile.PackageFolders)
-                        if (Path.Combine(pkgDir.Path, lib.Path.Replace('/', Path.DirectorySeparatorChar), pom) is string pomPath && File.Exists(pomPath))
-                            yield return pomPath;
-            }
-        }
-
-        /// <summary>
-        /// Attempts to load the given lock file path.
-        /// </summary>
-        /// <param name="path"></param>
-        /// <param name="logger"></param>
-        /// <returns></returns>
-        /// <exception cref="MavenTaskException"></exception>
-        internal static LockFile LoadLockFile(string path, NuGet.Common.ILogger logger)
-        {
-            if (path is null)
-                throw new ArgumentNullException(nameof(path));
-            if (File.Exists(path) == false)
-                throw new FileNotFoundException("Could not find assets file.", path);
-
-            LockFile lockFile;
-
-            try
-            {
-                lockFile = LockFileUtilities.GetLockFile(path, logger);
-            }
-            catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
-            {
-                throw new MavenTaskException("Error reading assets file.", ex);
-            }
-
-            if (lockFile == null)
-                throw new MavenTaskException("Could not read assets file.");
-
-            return lockFile;
         }
 
     }

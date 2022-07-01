@@ -22,7 +22,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKVM.Sdk.Maven", "src\IKVM.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKVM.Sdk.Maven.Tasks", "src\IKVM.Sdk.Maven.Tasks\IKVM.Sdk.Maven.Tasks.csproj", "{1EC8A993-D157-4DDA-B792-4569F0137B63}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IKVM.Sdk.Maven.Tests", "src\IKVM.Sdk.Maven.Tests\IKVM.Sdk.Maven.Tests.csproj", "{A8E93D8C-39A3-4998-97F6-0CA141BC6D1B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKVM.Sdk.Maven.Tests", "src\IKVM.Sdk.Maven.Tests\IKVM.Sdk.Maven.Tests.csproj", "{A8E93D8C-39A3-4998-97F6-0CA141BC6D1B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IKVM.Sdk.Maven.Tasks.Tests", "src\IKVM.Sdk.Maven.Tasks.Tests\IKVM.Sdk.Maven.Tasks.Tests.csproj", "{AC43EEA3-AD67-441D-95A0-86477B29D477}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +44,10 @@ Global
 		{A8E93D8C-39A3-4998-97F6-0CA141BC6D1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A8E93D8C-39A3-4998-97F6-0CA141BC6D1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A8E93D8C-39A3-4998-97F6-0CA141BC6D1B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AC43EEA3-AD67-441D-95A0-86477B29D477}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC43EEA3-AD67-441D-95A0-86477B29D477}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AC43EEA3-AD67-441D-95A0-86477B29D477}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC43EEA3-AD67-441D-95A0-86477B29D477}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
