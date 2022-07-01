@@ -9,11 +9,22 @@
 
     <ItemGroup>
         <PackageReference Include="IKVM" Version="8.2.0-prerelease2777" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
         <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.11.0" PrivateAssets="all" />
-        <PackageReference Include="NuGet.Common" Version="6.2.1" PrivateAssets="all" />
-        <PackageReference Include="NuGet.Packaging" Version="6.2.1" PrivateAssets="all" />
-        <PackageReference Include="NuGet.Frameworks" Version="6.2.1" PrivateAssets="all" />
-        <PackageReference Include="NuGet.ProjectModel" Version="6.2.1" PrivateAssets="all" />
+        <PackageReference Include="NuGet.Common" Version="5.0.0" />
+        <PackageReference Include="NuGet.Packaging" Version="5.0.0" />
+        <PackageReference Include="NuGet.Frameworks" Version="5.0.0" />
+        <PackageReference Include="NuGet.ProjectModel" Version="5.0.0" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == 'netcoreapp3.1' ">
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="17.2.0" />
+        <PackageReference Include="NuGet.Common" Version="6.2.1" />
+        <PackageReference Include="NuGet.Packaging" Version="6.2.1" />
+        <PackageReference Include="NuGet.Frameworks" Version="6.2.1" />
+        <PackageReference Include="NuGet.ProjectModel" Version="6.2.1" />
     </ItemGroup>
 
     <Target Name="DownloadMavenArtifacts">
