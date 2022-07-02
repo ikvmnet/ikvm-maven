@@ -70,7 +70,7 @@
 
     <!-- Assembles the set of IkvmReferenceItems from various sources. -->
     <Target Name="GetMavenReferenceItems" DependsOnTargets="$(GetMavenReferenceItemsDependsOn)" Returns="@(MavenReferenceItem)">
-        
+
     </Target>
 
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
