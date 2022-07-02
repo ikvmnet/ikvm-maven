@@ -1,11 +1,4 @@
-﻿<Project>
-    <PropertyGroup>
-        <ImportDirectoryBuildProps>false</ImportDirectoryBuildProps>
-        <ImportDirectoryBuildTargets>false</ImportDirectoryBuildTargets>
-    </PropertyGroup>
-
-    <Import Project="Sdk.props" Sdk="Microsoft.NET.Sdk" />
-
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net461;net472;net48;netcoreapp3.1;net5.0;net6.0</TargetFrameworks>
         <RuntimeIdentifiers>win7-x64;linux-x64</RuntimeIdentifiers>
@@ -18,6 +11,5 @@
     <ItemGroup>
         <MavenReference Include="org.apache.maven:maven-core" Version="3.8.6" />
     </ItemGroup>
-
-    <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
+    
 </Project>

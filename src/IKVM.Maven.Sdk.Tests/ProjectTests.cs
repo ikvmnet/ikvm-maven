@@ -58,6 +58,8 @@ namespace IKVM.Maven.Sdk.Tests
 
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"Project", "Exe", "ProjectExe.csproj"));
+            analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
+            analyzer.SetGlobalProperty("ImportDirectoryBuildTargets", "false");
             analyzer.SetGlobalProperty("PackageVersion", properties["PackageVersion"]);
             analyzer.SetGlobalProperty("RestoreSources", string.Join("%3B", "https://api.nuget.org/v3/index.json", Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "nuget")));
             analyzer.SetGlobalProperty("RestorePackagesPath", nugetPackageRoot + Path.DirectorySeparatorChar);
