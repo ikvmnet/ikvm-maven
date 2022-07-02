@@ -52,6 +52,11 @@ namespace IKVM.Sdk.Maven.Tasks
         public bool Debug { get; set; } = false;
 
         /// <summary>
+        /// Path to the key file to use for signing Maven assemblies.
+        /// </summary>
+        public string KeyFile { get; set; }
+
+        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <returns></returns>
@@ -195,7 +200,7 @@ namespace IKVM.Sdk.Maven.Tasks
             {
                 // generate a new IkvmReferenceItem, prefixed so it doesn't conflict with others
                 var outputItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
-                output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec, ReferenceOutputAssembly = false, Private = false });
+                output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec, KeyFile = KeyFile, ReferenceOutputAssembly = false, Private = false });
             }
 
             // ensure output item has Maven information attached to it

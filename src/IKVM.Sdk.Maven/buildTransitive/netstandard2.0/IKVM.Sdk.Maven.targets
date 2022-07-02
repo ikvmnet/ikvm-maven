@@ -75,7 +75,7 @@
 
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
-        <MavenReferenceItemResolve Items="@(MavenReferenceItem)">
+        <MavenReferenceItemResolve KeyFile="$(IkvmKeyFile)" Items="@(MavenReferenceItem)">
             <Output TaskParameter="ResolvedItems" ItemName="_MavenIkvmReferenceItem"/>
         </MavenReferenceItemResolve>
         <ItemGroup>

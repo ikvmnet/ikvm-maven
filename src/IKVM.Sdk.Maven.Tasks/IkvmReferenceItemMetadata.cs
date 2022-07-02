@@ -13,10 +13,12 @@
         public static readonly string DisableAutoAssemblyVersion = "DisableAutoAssemblyVersion";
         public static readonly string FallbackAssemblyName = "FallbackAssemblyName";
         public static readonly string FallbackAssemblyVersion = "FallbackAssemblyVersion";
-        public static readonly string Debug = "Debug";
         public static readonly string Compile = "Compile";
         public static readonly string Sources = "Sources";
         public static readonly string References = "References";
+        public static readonly string Debug = "Debug";
+        public static readonly string KeyFile = "KeyFile";
+        public static readonly string DelaySign = "DelaySign";
         public static readonly string Private = "Private";
         public static readonly string ReferenceOutputAssembly = "ReferenceOutputAssembly";
 
