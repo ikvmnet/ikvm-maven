@@ -1,0 +1,30 @@
+﻿<Project TreatAsLocalProperty="TaskFolder;TaskAssembly">
+
+    <PropertyGroup>
+        <IkvmMavenSdkDir>$(MSBuildThisFileDirectory)..\..\</IkvmMavenSdkDir>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</IkvmMavenSdkTaskFolder>
+        <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</IkvmMavenSdkTaskFolder>
+        <IkvmMavenSdkTaskAssembly>$(IkvmMavenSdkDir)tasks\$(IkvmMavenSdkTaskFolder)\IKVM.Maven.Sdk.Tasks.dll</IkvmMavenSdkTaskAssembly>
+    </PropertyGroup>
+
+    <UsingTask TaskName="MavenReferenceItemImport" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" />
+    <UsingTask TaskName="MavenReferenceItemPrepare" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" />
+    <UsingTask TaskName="MavenReferenceItemResolve" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" />
+    <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" />
+    <UsingTask TaskName="MavenWriteProjectObjectModelFile" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" />
+
+    <ItemDefinitionGroup>
+        <MavenReference>
+            <GroupId></GroupId>
+            <ArtifactId></ArtifactId>
+            <Classifier></Classifier>
+            <Version></Version>
+            <Optional></Optional>
+            <Scope></Scope>
+        </MavenReference>
+    </ItemDefinitionGroup>
+
+</Project>

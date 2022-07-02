@@ -1,0 +1,49 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <InternalsVisibleTo Include="IKVM.Maven.Sdk.Tasks.Tests" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="IKVM" Version="8.2.0-prerelease3420" />
+        <PackageReference Include="Microsoft.Build.Framework" Version="16.9.0" />
+        <PackageReference Include="Microsoft.Build.Tasks.Core" Version="16.9.0" />
+        <PackageReference Include="NuGet.Common" Version="6.2.1" />
+        <PackageReference Include="NuGet.Packaging" Version="6.2.1" />
+        <PackageReference Include="NuGet.Frameworks" Version="6.2.1" />
+        <PackageReference Include="NuGet.ProjectModel" Version="6.2.1" />
+    </ItemGroup>
+
+    <Target Name="DownloadMavenArtifacts">
+        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven-sdk.pom -DoutputDirectory=$(IntermediateOutputPath)ikvm-maven-sdk" />
+    </Target>
+
+    <Target Name="GetIkvmReferenceFromMaven" DependsOnTargets="DownloadMavenArtifacts" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences">
+        <ItemGroup>
+            <IkvmReference Include="ikvm-maven-sdk">
+                <AssemblyName>ikvm-maven-sdk</AssemblyName>
+                <AssemblyVersion>$(AssemblyVersion)</AssemblyVersion>
+                <Compile>$(IntermediateOutputPath)\ikvm-maven-sdk\*.jar</Compile>
+            </IkvmReference>
+        </ItemGroup>
+    </Target>
+
+    <ItemGroup>
+        <Compile Update="Resources\SR.Designer.cs">
+            <DesignTime>True</DesignTime>
+            <AutoGen>True</AutoGen>
+            <DependentUpon>SR.resx</DependentUpon>
+        </Compile>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Resources\SR.resx">
+            <Generator>ResXFileCodeGenerator</Generator>
+            <LastGenOutput>SR.Designer.cs</LastGenOutput>
+        </EmbeddedResource>
+    </ItemGroup>
+
+</Project>

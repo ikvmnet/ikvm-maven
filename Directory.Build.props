@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <PropertyGroup Label="Copyright Info">
-        <ProductName>IKVM.Sdk.Maven</ProductName>
+        <ProductName>IKVM.Maven</ProductName>
         <Authors>@(Authors, ',')</Authors>
         <CurrentYear Condition=" '$(CurrentYear)' == '' ">$([System.DateTime]::UtcNow.Year.ToString())</CurrentYear>
         <Copyright>Copyright © $(CurrentYear) @(Authors, ', ')</Copyright>
@@ -26,9 +26,9 @@
     </PropertyGroup>
 
     <PropertyGroup Label="Package Info">
-        <RepositoryUrl Condition=" '$(RepositoryUrl)' == '' ">https://github.com/ikvm-revived/ikvm-sdk-maven.git</RepositoryUrl>
+        <RepositoryUrl Condition=" '$(RepositoryUrl)' == '' ">https://github.com/ikvm-revived/ikvm-maven.git</RepositoryUrl>
         <RepositoryType Condition=" '$(RepositoryType)' == '' ">git</RepositoryType>
-        <PackageProjectUrl  Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/ikvm-revived/ikvm-sdk-maven</PackageProjectUrl>
+        <PackageProjectUrl  Condition=" '$(PackageProjectUrl)' == '' ">https://github.com/ikvm-revived/ikvm-maven</PackageProjectUrl>
         <PackageVersion Condition=" '$(PackageVersion)' == '' ">$(Version)</PackageVersion>
     </PropertyGroup>
 

@@ -1,0 +1,55 @@
+﻿<Project Sdk="Microsoft.Build.NoTargets/3.5.0">
+
+    <PropertyGroup>
+        <TargetFrameworks>net461;netcoreapp3.1</TargetFrameworks>
+        <IncludeBuildOutput>true</IncludeBuildOutput>
+        <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
+        <IncludeBuildOutput>false</IncludeBuildOutput>
+        <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <Description>Java SE 8 Virtual Machine for .NET (Maven SDK)</Description>
+        <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    </PropertyGroup>
+
+    <PropertyGroup>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Content Include="buildTransitive\**\*" PackagePath="buildTransitive\%(RecursiveDir)%(Filename)%(Extension)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <None Include="..\..\LICENSE.md" Pack="true" PackagePath="." />
+        <None Include="..\..\README.md" Pack="true" PackagePath="." />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+        <PackageReference Include="IKVM" Version="8.2.0-prerelease3420" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(TargetFramework)' == '' ">
+        <PublishProjectReference Include="..\IKVM.Maven.Sdk.Tasks\IKVM.Maven.Sdk.Tasks.csproj">
+            <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
+            <PublishPackagePath>tasks\net472</PublishPackagePath>
+            <PublishProperties>SelfContained=false</PublishProperties>
+        </PublishProjectReference>
+        <PublishProjectReference Include="..\IKVM.Maven.Sdk.Tasks\IKVM.Maven.Sdk.Tasks.csproj">
+            <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
+            <PublishPackagePath>tasks\netcoreapp3.1</PublishPackagePath>
+            <PublishProperties>SelfContained=false</PublishProperties>
+        </PublishProjectReference>
+    </ItemGroup>
+
+    <Target Name="MakeIkvmVersionFile" Outputs="$(IntermediateOutputPath)VERSION" BeforeTargets="_GetPackageFiles">
+        <WriteLinesToFile File="$(IntermediateOutputPath)VERSION" Lines="$(Version)" Overwrite="true" WriteOnlyWhenDifferent="true" />
+        <ItemGroup>
+            <_PackageFiles Include="$(IntermediateOutputPath)VERSION" PackagePath="." />
+        </ItemGroup>
+    </Target>
+
+</Project>

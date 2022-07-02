@@ -1,8 +1,8 @@
-# IKVM.Sdk.Maven - IKVM support for Maven dependencies
+# IKVM.Maven.Sdk - IKVM support for Maven dependencies
 
-`IKVM.Sdk.Maven` is a set of MSBuild extensions for referencing Maven artifacts within .NET SDK projects.
+`IKVM.Maven.Sdk` is a set of MSBuild extensions for referencing Maven artifacts within .NET SDK projects.
 
-To use, install the `IKVM.Sdk.Maven` package from NuGet, and add a `<MavenReference />` element to your SDK-style project. Various Maven options are supported through item-metadata.
+To use, install the `IKVM.Maven.Sdk` package from NuGet, and add a `<MavenReference />` element to your SDK-style project. Various Maven options are supported through item-metadata.
 
 The simplest use case is to specify the group ID and artifact ID coordinates on the item specification, and use `Version` for the metadata.
 
