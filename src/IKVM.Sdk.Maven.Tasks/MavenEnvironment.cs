@@ -1,34 +1,23 @@
 ﻿using System;
 using System.Collections;
 
-using ikvm.@internal;
-
-using IKVM.Runtime;
-
 using java.io;
 using java.lang;
 using java.util;
 
-using javax.inject;
-
 using Microsoft.Build.Utilities;
 
-using org.apache.maven.model;
-using org.apache.maven.model.building;
 using org.apache.maven.repository.@internal;
 using org.apache.maven.settings;
 using org.apache.maven.settings.building;
 using org.apache.maven.settings.crypto;
 using org.eclipse.aether;
-using org.eclipse.aether.artifact;
 using org.eclipse.aether.collection;
 using org.eclipse.aether.connector.basic;
 using org.eclipse.aether.impl;
 using org.eclipse.aether.repository;
-using org.eclipse.aether.resolution;
 using org.eclipse.aether.spi.connector;
 using org.eclipse.aether.spi.connector.transport;
-using org.eclipse.aether.spi.locator;
 using org.eclipse.aether.transport.file;
 using org.eclipse.aether.transport.http;
 using org.eclipse.aether.util.graph.transformer;
