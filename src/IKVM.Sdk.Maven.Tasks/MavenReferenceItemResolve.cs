@@ -15,6 +15,7 @@ using org.eclipse.aether.collection;
 using org.eclipse.aether.graph;
 using org.eclipse.aether.resolution;
 using org.eclipse.aether.util.artifact;
+using org.eclipse.aether.util.filter;
 
 namespace IKVM.Sdk.Maven.Tasks
 {
@@ -62,7 +63,7 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <summary>
         /// Indicates whether the resolution should include test items.
         /// </summary>
-        public bool IsTestProject { get; set; }
+        public bool IncludeTestScope { get; set; }
 
         /// <summary>
         /// Executes the task.
@@ -105,12 +106,20 @@ namespace IKVM.Sdk.Maven.Tasks
             foreach (var item in items)
                 dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), item.Scope, item.Optional ? TRUE : FALSE, new java.util.ArrayList()));
 
+            // filter for desired scopes to retrieve
+            var filter = new List<string>();
+            filter.Add(JavaScopes.COMPILE);
+            filter.Add(JavaScopes.RUNTIME);
+            filter.Add(JavaScopes.PROVIDED);
+            if (IncludeTestScope)
+                filter.Add(JavaScopes.TEST);
+
             // resolve the artifacts
             var result = maven.RepositorySystem.resolveDependencies(
                 maven.RepositorySystemSession,
                 new DependencyRequest(
                     new CollectRequest(dependencies, null, maven.Repositories),
-                    null));
+                    DependencyFilterUtils.classpathFilter(filter.ToArray())));
 
             // merge tree twice, once for compile artifacts, and again for sources artifacts
             var output = new List<IkvmReferenceItem>();
@@ -140,15 +149,8 @@ namespace IKVM.Sdk.Maven.Tasks
             if (artifact == null)
                 return null;
 
-            // find the original MavenReferenceItem that matches this artifact
-            var item = items.FirstOrDefault(i => i.GroupId == artifact.getGroupId() && i.ArtifactId == artifact.getArtifactId() && i.Classifier == artifact.getClassifier() && i.Version == artifact.getVersion());
-            if (item == null)
-                item = items.FirstOrDefault(i => i.GroupId == artifact.getGroupId() && i.ArtifactId == artifact.getArtifactId() && i.Version == artifact.getVersion());
-            if (item == null)
-                item = items.FirstOrDefault(i => i.GroupId == artifact.getGroupId() && i.ArtifactId == artifact.getArtifactId());
-
             // apply artifact as IkvmReferenceItem
-            var outputItem = MergeIkvmReferenceItemFromCompileArtifact(item, output, node, artifact);
+            var outputItem = MergeIkvmReferenceItemFromCompileArtifact(output, node, artifact);
             if (outputItem == null)
                 throw new MavenTaskException("Null result merging compile artifact.");
 
@@ -178,13 +180,12 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <summary>
         /// Merges a compile artifact into the IkvmReferenceItem.
         /// </summary>
-        /// <param name="item"></param>
         /// <param name="output"></param>
         /// <param name="node"></param>
         /// <param name="artifact"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        IkvmReferenceItem MergeIkvmReferenceItemFromCompileArtifact(MavenReferenceItem item, List<IkvmReferenceItem> output, DependencyNode node, Artifact artifact)
+        IkvmReferenceItem MergeIkvmReferenceItemFromCompileArtifact(List<IkvmReferenceItem> output, DependencyNode node, Artifact artifact)
         {
             if (output is null)
                 throw new ArgumentNullException(nameof(output));
@@ -207,7 +208,7 @@ namespace IKVM.Sdk.Maven.Tasks
             {
                 // generate a new IkvmReferenceItem, prefixed so it doesn't conflict with others
                 var outputItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
-                output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec, KeyFile = KeyFile, ReferenceOutputAssembly = false, Private = false });
+                output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec, ReferenceOutputAssembly = false, Private = false });
             }
 
             // ensure output item has Maven information attached to it
@@ -219,6 +220,10 @@ namespace IKVM.Sdk.Maven.Tasks
             // fallback to the Maven name and version if IKVM cannot detect otherwise
             outputItem.FallbackAssemblyName = artifactId;
             outputItem.FallbackAssemblyVersion = ToAssemblyVersion(version)?.ToString();
+
+            // inherit global settings
+            outputItem.Debug = Debug;
+            outputItem.KeyFile = KeyFile;
 
             // artifact is required during compile, ensure we reference
             if (node.getDependency().getScope() == JavaScopes.COMPILE)
@@ -239,31 +244,11 @@ namespace IKVM.Sdk.Maven.Tasks
                 outputItem.ReferenceOutputAssembly = true;
             }
 
-            // input item was matched, set new output based on input
-            // user can override properties of transitive items by explicitely adding a dependency
-            if (item != null)
+            // artifact is required for a test project, and we are a test project
+            if (node.getDependency().getScope() == JavaScopes.TEST && IncludeTestScope)
             {
-                // existing item specifies debug mode
-                outputItem.Debug = item.Debug;
-
-                // force the item's assembly name
-                if (string.IsNullOrWhiteSpace(item.AssemblyName) == false)
-                {
-                    outputItem.DisableAutoAssemblyName = false;
-                    outputItem.AssemblyName = item.AssemblyName;
-                }
-
-                // force the item's assembly name
-                if (string.IsNullOrWhiteSpace(item.AssemblyVersion) == false)
-                {
-                    outputItem.DisableAutoAssemblyVersion = false;
-                    outputItem.AssemblyName = item.AssemblyVersion;
-                }
-            }
-            else
-            {
-                // default values
-                outputItem.Debug = Debug;
+                outputItem.Private = true;
+                outputItem.ReferenceOutputAssembly = true;
             }
 
             // if the artifact is a jar, we need to associate the path to the jar to the item

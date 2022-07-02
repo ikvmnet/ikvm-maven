@@ -66,9 +66,6 @@ namespace IKVM.Sdk.Maven.Tasks
                 item.Version = item.Item.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Optional = string.Equals(item.Item.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
                 item.Scope = item.Item.GetMetadata(MavenReferenceItemMetadata.Scope);
-                item.Debug = string.Equals(item.Item.GetMetadata(MavenReferenceItemMetadata.Debug), "true", StringComparison.OrdinalIgnoreCase);
-                item.AssemblyName = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyName);
-                item.AssemblyVersion = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyVersion);
             }
 
             // return the resulting imported references

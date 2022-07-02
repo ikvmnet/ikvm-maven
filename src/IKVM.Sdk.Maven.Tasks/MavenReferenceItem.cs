@@ -64,21 +64,6 @@ namespace IKVM.Sdk.Maven.Tasks
         public string Scope { get; set; } = JavaScopes.COMPILE;
 
         /// <summary>
-        /// Force the assembly name to the given value.
-        /// </summary>
-        public string AssemblyName { get; set; }
-
-        /// <summary>
-        /// Force the assembly version to the given value.
-        /// </summary>
-        public string AssemblyVersion { get; set; }
-
-        /// <summary>
-        /// Generate debug information.
-        /// </summary>
-        public bool Debug { get; set; } = false;
-
-        /// <summary>
         /// Writes the metadata to the item.
         /// </summary>
         public void Save()
@@ -90,9 +75,6 @@ namespace IKVM.Sdk.Maven.Tasks
             Item.SetMetadata(MavenReferenceItemMetadata.Version, Version);
             Item.SetMetadata(MavenReferenceItemMetadata.Optional, Optional ? "true" : "false");
             Item.SetMetadata(MavenReferenceItemMetadata.Scope, Scope);
-            Item.SetMetadata(MavenReferenceItemMetadata.AssemblyName, AssemblyName);
-            Item.SetMetadata(MavenReferenceItemMetadata.AssemblyVersion, AssemblyVersion);
-            Item.SetMetadata(MavenReferenceItemMetadata.Debug, Debug ? "true" : "false");
         }
 
         /// <summary>

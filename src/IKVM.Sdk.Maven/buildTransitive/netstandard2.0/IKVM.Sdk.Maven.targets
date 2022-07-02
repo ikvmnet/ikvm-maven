@@ -73,9 +73,13 @@
 
     </Target>
 
+    <PropertyGroup>
+        <MavenIncludeTestScope Condition=" '$(MavenIncludeTestScope)' == '' ">$(IsTestProject)</MavenIncludeTestScope>
+    </PropertyGroup>
+
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
-        <MavenReferenceItemResolve KeyFile="$(IkvmKeyFile)" Items="@(MavenReferenceItem)">
+        <MavenReferenceItemResolve IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" Items="@(MavenReferenceItem)">
             <Output TaskParameter="ResolvedItems" ItemName="_MavenIkvmReferenceItem"/>
         </MavenReferenceItemResolve>
         <ItemGroup>
