@@ -13,8 +13,8 @@ on:
     - develop
 
 jobs:
-  build-ikvm-sdk-maven:
-    name: Build IKVM.Maven.Sdk (Windows)
+  build-ikvm-maven:
+    name: Build IKVM.Maven (Windows)
     runs-on: windows-latest
     steps:
     - name: Checkout Source
@@ -90,10 +90,10 @@ jobs:
       with:
         name: tests
         path: build/tests.tar.gz
-  test-ikvm-sdk-maven-windows:
-    name: Test IKVM.Maven.Sdk (Windows)
+  test-ikvm-maven-windows:
+    name: Test IKVM.Maven (Windows)
     needs:
-    - build-ikvm-sdk-maven
+    - build-ikvm-maven
     runs-on: windows-latest
     steps:
     - name: Setup .NET 3.1
@@ -133,10 +133,10 @@ jobs:
       with:
         name: TestResults-windows
         path: TestResults
-  #test-ikvm-sdk-maven-linux:
+  #test-ikvm-maven-linux:
   #  name: Test IKVM.Maven.Sdk (Linux)
   #  needs:
-  #  - build-ikvm-sdk-maven
+  #  - build-ikvm-maven
   #  runs-on: ubuntu-latest
   #  steps:
   #  - name: Setup .NET 3.1
@@ -180,8 +180,8 @@ jobs:
     name: Release
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     needs:
-    - test-ikvm-sdk-maven-windows
-    #- test-ikvm-sdk-maven-linux
+    - test-ikvm-maven-windows
+    #- test-ikvm-maven-linux
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Source
