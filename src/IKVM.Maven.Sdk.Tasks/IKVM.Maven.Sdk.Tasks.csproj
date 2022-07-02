@@ -18,15 +18,15 @@
     </ItemGroup>
 
     <Target Name="DownloadMavenArtifacts">
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven-sdk.pom -DoutputDirectory=$(IntermediateOutputPath)ikvm-maven-sdk" />
+        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven-sdk-tasks.pom -DoutputDirectory=$(IntermediateOutputPath)ikvm-maven-sdk-tasks" />
     </Target>
 
     <Target Name="GetIkvmReferenceFromMaven" DependsOnTargets="DownloadMavenArtifacts" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences">
         <ItemGroup>
-            <IkvmReference Include="ikvm-maven-sdk">
-                <AssemblyName>ikvm-maven-sdk</AssemblyName>
+            <IkvmReference Include="ikvm-maven-sdk-tasks">
+                <AssemblyName>ikvm-maven-sdk-tasks</AssemblyName>
                 <AssemblyVersion>$(AssemblyVersion)</AssemblyVersion>
-                <Compile>$(IntermediateOutputPath)\ikvm-maven-sdk\*.jar</Compile>
+                <Compile>$(IntermediateOutputPath)\ikvm-maven-sdk-tasks\*.jar</Compile>
             </IkvmReference>
         </ItemGroup>
     </Target>
