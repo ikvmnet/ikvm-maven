@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 using IKVM.Sdk.Maven.Tasks.Resources;
@@ -73,7 +74,8 @@ namespace IKVM.Sdk.Maven.Tasks
 
                 // add dependencies
                 foreach (var item in MavenReferenceItemUtil.Import(References))
-                    pom.addDependency(ItemToDependency(item));
+                    foreach (var dependency in ItemToDependencies(item))
+                        pom.addDependency(dependency);
 
                 // output to string
                 new DefaultModelWriter().write(wrt, null, pom);
@@ -100,13 +102,19 @@ namespace IKVM.Sdk.Maven.Tasks
         /// </summary>
         /// <param name="item"></param>
         /// <returns></returns>
-        Dependency ItemToDependency(MavenReferenceItem item)
+        IEnumerable<Dependency> ItemToDependencies(MavenReferenceItem item)
         {
-            var dependency = new Dependency();
-            dependency.setGroupId(item.GroupId);
-            dependency.setArtifactId(item.ArtifactId);
-            dependency.setVersion(item.Version);
-            return dependency;
+            foreach (var scope in item.Scopes)
+            {
+                var dependency = new Dependency();
+                dependency.setGroupId(item.GroupId);
+                dependency.setArtifactId(item.ArtifactId);
+                dependency.setClassifier(item.Classifier);
+                dependency.setVersion(item.Version);
+                dependency.setOptional(item.Optional);
+                dependency.setScope(scope);
+                yield return dependency;
+            }
         }
 
     }

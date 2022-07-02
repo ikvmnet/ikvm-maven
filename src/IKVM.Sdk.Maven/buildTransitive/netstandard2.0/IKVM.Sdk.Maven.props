@@ -22,6 +22,8 @@
             <ArtifactId></ArtifactId>
             <Classifier></Classifier>
             <Version></Version>
+            <Optional></Optional>
+            <Scopes></Scopes>
         </MavenReference>
     </ItemDefinitionGroup>
 

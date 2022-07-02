@@ -3,6 +3,8 @@
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
+using org.eclipse.aether.util.artifact;
+
 namespace IKVM.Sdk.Maven.Tasks
 {
 
@@ -94,9 +96,31 @@ namespace IKVM.Sdk.Maven.Tasks
             if (string.IsNullOrWhiteSpace(item.Version))
                 throw new MavenTaskMessageException("Error.MavenMissingVersion", item.ItemSpec);
 
+            if (item.Scopes.Count == 0)
+                item.Scopes.Add(JavaScopes.COMPILE);
+
+            foreach (var scope in item.Scopes)
+                if (IsValidScope(scope) == false)
+                    throw new MavenTaskMessageException("Error.MavenInvalidScope", item.ItemSpec, scope);
+
             // save item
             item.Save();
         }
+
+        /// <summary>
+        /// Returns <c>true</c> if the given scope is a valid value.
+        /// </summary>
+        /// <param name="scope"></param>
+        /// <returns></returns>
+        bool IsValidScope(string scope) => scope switch
+        {
+            JavaScopes.COMPILE => true,
+            JavaScopes.RUNTIME => true,
+            JavaScopes.PROVIDED => true,
+            JavaScopes.SYSTEM => true,
+            JavaScopes.TEST => true,
+            _ => false,
+        };
 
     }
 

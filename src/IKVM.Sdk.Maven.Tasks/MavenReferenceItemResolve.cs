@@ -25,6 +25,9 @@ namespace IKVM.Sdk.Maven.Tasks
     public class MavenReferenceItemResolve : Task
     {
 
+        static readonly java.lang.Boolean TRUE = new java.lang.Boolean(true);
+        static readonly java.lang.Boolean FALSE = new java.lang.Boolean(false);
+
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
@@ -95,8 +98,8 @@ namespace IKVM.Sdk.Maven.Tasks
             // convert set of incoming items into a dependency list
             var dependencies = new java.util.ArrayList();
             foreach (var item in items)
-                foreach (var scope in new[] { JavaScopes.COMPILE, JavaScopes.RUNTIME })
-                    dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), scope, java.lang.Boolean.FALSE, new java.util.ArrayList()));
+                foreach (var scope in item.Scopes)
+                    dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), scope, item.Optional ? TRUE : FALSE, new java.util.ArrayList()));
 
             // resolve the artifacts
             var result = maven.RepositorySystem.resolveDependencies(
@@ -224,6 +227,12 @@ namespace IKVM.Sdk.Maven.Tasks
             if (node.getDependency().getScope() == JavaScopes.RUNTIME)
             {
                 outputItem.Private = true;
+            }
+
+            // artifact is required during compile, but provided by runtime
+            if (node.getDependency().getScope() == JavaScopes.PROVIDED)
+            {
+                outputItem.ReferenceOutputAssembly = true;
             }
 
             // input item was matched, set new output based on input
