@@ -65,8 +65,7 @@ namespace IKVM.Sdk.Maven.Tasks
                 item.Classifier = item.Item.GetMetadata(MavenReferenceItemMetadata.Classifier);
                 item.Version = item.Item.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Optional = string.Equals(item.Item.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
-                item.Scopes = item.Item.GetMetadata(MavenReferenceItemMetadata.Scopes).Split(MavenReferenceItemMetadata.PropertySeperatorCharArray, StringSplitOptions.RemoveEmptyEntries).ToList();
-                item.Dependencies = ResolveDependencies(map, item, item.Item.GetMetadata(MavenReferenceItemMetadata.Dependencies));
+                item.Scope = item.Item.GetMetadata(MavenReferenceItemMetadata.Scope);
                 item.Debug = string.Equals(item.Item.GetMetadata(MavenReferenceItemMetadata.Debug), "true", StringComparison.OrdinalIgnoreCase);
                 item.AssemblyName = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyName);
                 item.AssemblyVersion = item.Item.GetMetadata(MavenReferenceItemMetadata.AssemblyVersion);
@@ -74,50 +73,6 @@ namespace IKVM.Sdk.Maven.Tasks
 
             // return the resulting imported references
             return map.Values.ToArray();
-        }
-
-        /// <summary>
-        /// Attempts to resolve the dependencies given by the dependency string <paramref name="dependencies"/> for
-        /// <paramref name="item"/> against <paramref name="map"/>.
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="item"></param>
-        /// <param name="dependencies"></param>
-        /// <returns></returns>
-        /// <exception cref="MavenTaskException"></exception>
-        static List<MavenReferenceItem> ResolveDependencies(Dictionary<string, MavenReferenceItem> map, MavenReferenceItem item, string dependencies)
-        {
-            if (map is null)
-                throw new ArgumentNullException(nameof(map));
-            if (item is null)
-                throw new ArgumentNullException(nameof(item));
-
-            var l = new List<MavenReferenceItem>(8);
-            foreach (var itemSpec in dependencies.Split(MavenReferenceItemMetadata.PropertySeperatorCharArray, StringSplitOptions.RemoveEmptyEntries))
-                if (TryResolveDependency(map, itemSpec, out var resolved))
-                    l.Add(resolved);
-                else
-                    throw new MavenTaskMessageException("Error.MavenInvalidReference", item.ItemSpec, itemSpec);
-
-            return l;
-        }
-
-        /// <summary>
-        /// Attempts to resolve the given <see cref="MavenReferenceItem"/> itemspec against the set of  <see cref="MavenReferenceItem"/> instances
-        /// </summary>
-        /// <param name="map"></param>
-        /// <param name="itemSpec"></param>
-        /// <param name="resolved"></param>
-        /// <returns></returns>
-        static bool TryResolveDependency(Dictionary<string, MavenReferenceItem> map, string itemSpec, out MavenReferenceItem resolved)
-        {
-            if (map is null)
-                throw new ArgumentNullException(nameof(map));
-            if (string.IsNullOrEmpty(itemSpec))
-                throw new ArgumentException($"'{nameof(itemSpec)}' cannot be null or empty.", nameof(itemSpec));
-
-            resolved = map.TryGetValue(itemSpec, out var r) ? r : null;
-            return resolved != null;
         }
 
     }

@@ -96,12 +96,11 @@ namespace IKVM.Sdk.Maven.Tasks
             if (string.IsNullOrWhiteSpace(item.Version))
                 throw new MavenTaskMessageException("Error.MavenMissingVersion", item.ItemSpec);
 
-            if (item.Scopes.Count == 0)
-                item.Scopes.Add(JavaScopes.COMPILE);
+            if (string.IsNullOrWhiteSpace(item.Scope))
+                item.Scope = JavaScopes.COMPILE;
 
-            foreach (var scope in item.Scopes)
-                if (IsValidScope(scope) == false)
-                    throw new MavenTaskMessageException("Error.MavenInvalidScope", item.ItemSpec, scope);
+            if (IsValidScope(item.Scope) == false)
+                throw new MavenTaskMessageException("Error.MavenInvalidScope", item.ItemSpec, item.Scope);
 
             // save item
             item.Save();

@@ -163,8 +163,7 @@ namespace IKVM.Sdk.Maven.Tasks
             item.ArtifactId = dependency.getArtifactId();
             item.Classifier = dependency.getClassifier();
             item.Version = dependency.getVersion();
-            item.Scopes.Clear();
-            item.Scopes.Add(dependency.getScope());
+            item.Scope = dependency.getScope();
             item.Save();
             return item;
         }

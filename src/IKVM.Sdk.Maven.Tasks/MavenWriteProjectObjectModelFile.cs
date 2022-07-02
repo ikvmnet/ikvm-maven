@@ -104,17 +104,14 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <returns></returns>
         IEnumerable<Dependency> ItemToDependencies(MavenReferenceItem item)
         {
-            foreach (var scope in item.Scopes)
-            {
-                var dependency = new Dependency();
-                dependency.setGroupId(item.GroupId);
-                dependency.setArtifactId(item.ArtifactId);
-                dependency.setClassifier(item.Classifier);
-                dependency.setVersion(item.Version);
-                dependency.setOptional(item.Optional);
-                dependency.setScope(scope);
-                yield return dependency;
-            }
+            var dependency = new Dependency();
+            dependency.setGroupId(item.GroupId);
+            dependency.setArtifactId(item.ArtifactId);
+            dependency.setClassifier(item.Classifier);
+            dependency.setVersion(item.Version);
+            dependency.setOptional(item.Optional);
+            dependency.setScope(item.Scope);
+            yield return dependency;
         }
 
     }

@@ -23,7 +23,7 @@
             <Classifier></Classifier>
             <Version></Version>
             <Optional></Optional>
-            <Scopes></Scopes>
+            <Scope></Scope>
         </MavenReference>
     </ItemDefinitionGroup>
 

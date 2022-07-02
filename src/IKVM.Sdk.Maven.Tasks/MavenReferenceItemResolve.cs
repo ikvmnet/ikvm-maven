@@ -60,6 +60,11 @@ namespace IKVM.Sdk.Maven.Tasks
         public string KeyFile { get; set; }
 
         /// <summary>
+        /// Indicates whether the resolution should include test items.
+        /// </summary>
+        public bool IsTestProject { get; set; }
+
+        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <returns></returns>
@@ -98,8 +103,7 @@ namespace IKVM.Sdk.Maven.Tasks
             // convert set of incoming items into a dependency list
             var dependencies = new java.util.ArrayList();
             foreach (var item in items)
-                foreach (var scope in item.Scopes)
-                    dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), scope, item.Optional ? TRUE : FALSE, new java.util.ArrayList()));
+                dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), item.Scope, item.Optional ? TRUE : FALSE, new java.util.ArrayList()));
 
             // resolve the artifacts
             var result = maven.RepositorySystem.resolveDependencies(
@@ -111,7 +115,7 @@ namespace IKVM.Sdk.Maven.Tasks
             // merge tree twice, once for compile artifacts, and again for sources artifacts
             var output = new List<IkvmReferenceItem>();
             foreach (ArtifactResult artifact in (IEnumerable)result.getArtifactResults())
-                MergeIkvmReferenceItemCompileArtifacts(items, output, artifact.getRequest().getDependencyNode());
+                MergeIkvmReferenceItemArtifacts(items, output, artifact.getRequest().getDependencyNode());
 
             // return results
             return output;
@@ -123,7 +127,7 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <param name="items"></param>
         /// <param name="output"></param>
         /// <param name="node"></param>
-        IkvmReferenceItem MergeIkvmReferenceItemCompileArtifacts(MavenReferenceItem[] items, List<IkvmReferenceItem> output, DependencyNode node)
+        IkvmReferenceItem MergeIkvmReferenceItemArtifacts(MavenReferenceItem[] items, List<IkvmReferenceItem> output, DependencyNode node)
         {
             if (items is null)
                 throw new ArgumentNullException(nameof(items));
@@ -152,7 +156,7 @@ namespace IKVM.Sdk.Maven.Tasks
             foreach (DependencyNode child in (IEnumerable)node.getChildren())
             {
                 // recurse into dependency
-                var dependency = MergeIkvmReferenceItemCompileArtifacts(items, output, child);
+                var dependency = MergeIkvmReferenceItemArtifacts(items, output, child);
                 if (dependency == null) // might be a sources artifact
                     continue;
 

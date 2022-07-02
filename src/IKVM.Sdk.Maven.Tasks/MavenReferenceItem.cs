@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 
 using Microsoft.Build.Framework;
+
+using org.eclipse.aether.util.artifact;
 
 namespace IKVM.Sdk.Maven.Tasks
 {
@@ -61,12 +61,7 @@ namespace IKVM.Sdk.Maven.Tasks
         /// <summary>
         /// The scopes of this reference
         /// </summary>
-        public List<string> Scopes { get; set; } = new List<string>();
-
-        /// <summary>
-        /// Gets the dependencies of this maven reference.
-        /// </summary>
-        public List<MavenReferenceItem> Dependencies { get; set; } = new List<MavenReferenceItem>();
+        public string Scope { get; set; } = JavaScopes.COMPILE;
 
         /// <summary>
         /// Force the assembly name to the given value.
@@ -94,8 +89,7 @@ namespace IKVM.Sdk.Maven.Tasks
             Item.SetMetadata(MavenReferenceItemMetadata.Classifier, Classifier);
             Item.SetMetadata(MavenReferenceItemMetadata.Version, Version);
             Item.SetMetadata(MavenReferenceItemMetadata.Optional, Optional ? "true" : "false");
-            Item.SetMetadata(MavenReferenceItemMetadata.Scopes, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Scopes));
-            Item.SetMetadata(MavenReferenceItemMetadata.Dependencies, string.Join(MavenReferenceItemMetadata.PropertySeperatorString, Dependencies.Select(i => i.ItemSpec)));
+            Item.SetMetadata(MavenReferenceItemMetadata.Scope, Scope);
             Item.SetMetadata(MavenReferenceItemMetadata.AssemblyName, AssemblyName);
             Item.SetMetadata(MavenReferenceItemMetadata.AssemblyVersion, AssemblyVersion);
             Item.SetMetadata(MavenReferenceItemMetadata.Debug, Debug ? "true" : "false");
