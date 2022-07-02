@@ -29,13 +29,13 @@ namespace IKVM.Sdk.Maven.Tasks.Tests
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.opennlp");
             i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "opennlp-brat-annotator");
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.9.1");
-            i1.SetMetadata(MavenReferenceItemMetadata.Scopes, "compile;runtime");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
             var i2 = new TaskItem("org.apache.maven:maven-core:3.8.6");
             i2.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.maven");
             i2.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "maven-core");
             i2.SetMetadata(MavenReferenceItemMetadata.Version, "3.8.6");
-            i2.SetMetadata(MavenReferenceItemMetadata.Scopes, "compile;runtime");
+            i2.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
             t.Items = new[] { i1, i2 };
 
@@ -61,7 +61,7 @@ namespace IKVM.Sdk.Maven.Tasks.Tests
             i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "guice");
             i1.SetMetadata(MavenReferenceItemMetadata.Classifier, "no_aop");
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "4.2.2");
-            i1.SetMetadata(MavenReferenceItemMetadata.Scopes, "compile;runtime");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
             t.Items = new[] { i1 };
 
@@ -87,7 +87,7 @@ namespace IKVM.Sdk.Maven.Tasks.Tests
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "javax.inject");
             i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "javax.inject");
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "1");
-            i1.SetMetadata(MavenReferenceItemMetadata.Scopes, "compile;runtime");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
             t.Items = new[] { i1 };
 
