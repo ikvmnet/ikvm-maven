@@ -10,7 +10,7 @@
 
     <ItemGroup>
         <MavenReference Include="org.apache.maven:maven-core" Version="3.8.6" />
-        <MavenReference Include="com.yahoo.vespa:documentapi-dependencies" Version="8.12.48" />
+        <MavenReference Include="com.yahoo.vespa:documentapi" Version="8.12.48" />
     </ItemGroup>
     
 </Project>

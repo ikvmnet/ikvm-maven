@@ -135,12 +135,12 @@ namespace IKVM.Maven.Sdk.Tasks
                 ikvmItem.ReferenceOutputAssembly = true;
 
             // attempt to resolve any source artifacts for the items, ignore errors
-            var safeSession = maven.CreateRepositorySystemSession(true);
-            foreach (var ikvmItem in output.Values)
-                if (ResolveSourceArtifact(maven, safeSession, ikvmItem) is Artifact artifact)
-                    if (artifact.getFile() is java.io.File file)
-                        if (ikvmItem.Sources.Contains(file.getAbsolutePath()) == false)
-                            ikvmItem.Sources.Add(file.getAbsolutePath());
+            //var safeSession = maven.CreateRepositorySystemSession(true);
+            //foreach (var ikvmItem in output.Values)
+            //    if (ResolveSourceArtifact(maven, safeSession, ikvmItem) is Artifact artifact)
+            //        if (artifact.getFile() is java.io.File file)
+            //            if (ikvmItem.Sources.Contains(file.getAbsolutePath()) == false)
+            //                ikvmItem.Sources.Add(file.getAbsolutePath());
 
             // persist the changes
             foreach (var ikvmItem in output.Values)
