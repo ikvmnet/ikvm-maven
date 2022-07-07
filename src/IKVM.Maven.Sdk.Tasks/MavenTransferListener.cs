@@ -1,17 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
-
-using java.io;
-using java.lang;
-using java.text;
-using java.util;
 
 using Microsoft.Build.Utilities;
 
 using org.eclipse.aether.transfer;
-
-using Math = System.Math;
 
 namespace IKVM.Maven.Sdk.Tasks
 {
@@ -23,14 +15,17 @@ namespace IKVM.Maven.Sdk.Tasks
     {
 
         readonly TaskLoggingHelper log;
+        readonly bool noError;
 
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
         /// <param name="log"></param>
-        public MavenTransferListener(TaskLoggingHelper log)
+        /// <param name="noError"></param>
+        public MavenTransferListener(TaskLoggingHelper log, bool noError = false)
         {
             this.log = log ?? throw new ArgumentNullException(nameof(log));
+            this.noError = noError;
         }
 
         /// <summary>
@@ -71,11 +66,20 @@ namespace IKVM.Maven.Sdk.Tasks
             if (transferEvent is null)
                 throw new ArgumentNullException(nameof(transferEvent));
 
-            if (transferEvent.getException() is System.Exception e && e is not MetadataNotFoundException)
-                log.LogErrorFromException(e, true, true, null);
+            if (noError == false)
+            {
+                if (transferEvent.getException() is System.Exception e && e is not MetadataNotFoundException)
+                    log.LogErrorFromException(e, true, true, null);
+                else
+                    log.LogErrorFromResources("Error.MavenTransferFailed", transferEvent.getResource().getResourceName());
+            }
             else
-                log.LogErrorFromResources("Error.MavenTransferFailed", transferEvent.getResource().getResourceName());
-
+            {
+                if (transferEvent.getException() is System.Exception e && e is not MetadataNotFoundException)
+                    log.LogWarningFromException(e, true);
+                else
+                    log.LogWarningFromResources("Error.MavenTransferFailed", transferEvent.getResource().getResourceName());
+            }
         }
 
         public override void transferCorrupted(TransferEvent transferEvent)
@@ -83,10 +87,20 @@ namespace IKVM.Maven.Sdk.Tasks
             if (transferEvent is null)
                 throw new ArgumentNullException(nameof(transferEvent));
 
-            if (transferEvent.getException() is System.Exception e)
-                log.LogErrorFromException(e);
+            if (noError == false)
+            {
+                if (transferEvent.getException() is System.Exception e)
+                    log.LogErrorFromException(e, true, true, null);
+                else
+                    log.LogErrorFromResources("Error.MavenTransferCorrupted", transferEvent.getResource().getResourceName());
+            }
             else
-                log.LogErrorFromResources("Error.MavenTransferCorrupted", transferEvent.getResource().getResourceName());
+            {
+                if (transferEvent.getException() is System.Exception e)
+                    log.LogWarningFromException(e, true);
+                else
+                    log.LogWarningFromResources("Error.MavenTransferCorrupted", transferEvent.getResource().getResourceName());
+            }
         }
 
     }

@@ -103,6 +103,33 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion).Should().Be("1.0");
         }
 
+        [TestMethod]
+        public void Can_resolve_maven_references_through_packaging_type_pom()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+
+            var i1 = new TaskItem("com.yahoo.vespa:documentapi:8.12.48");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "com.yahoo.vespa");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "documentapi");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "8.12.48");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+
+            t.Items = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:annotations:8.12.48");
+            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:component:8.12.48");
+            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:config:8.12.48");
+            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:config-lib:8.12.48");
+            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:configdefinitions:8.12.48");
+        }
+
     }
 
 }

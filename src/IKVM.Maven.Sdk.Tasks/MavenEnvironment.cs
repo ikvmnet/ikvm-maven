@@ -100,7 +100,6 @@ namespace IKVM.Maven.Sdk.Tasks
         readonly string repositoryPath;
         readonly Settings settings;
         readonly RepositorySystem repositorySystem;
-        readonly RepositorySystemSession repositorySystemSession;
         readonly List repositories;
 
         /// <summary>
@@ -116,7 +115,6 @@ namespace IKVM.Maven.Sdk.Tasks
                 repositoryPath = DefaultRepositoryPath;
                 settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
                 repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
-                repositorySystemSession = CreateRepositorySystemSession() ?? throw new NullReferenceException("Null result creating RepositorySystemSession.");
                 repositories = CreateRepositories() ?? throw new NullReferenceException("Null result creating Repositories.");
             }
             catch (System.Exception)
@@ -129,11 +127,6 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Gets the configured <see cref="RepositorySystem"/>.
         /// </summary>
         public RepositorySystem RepositorySystem => repositorySystem;
-
-        /// <summary>
-        /// Gets the configured <see cref="RepositorySystemSession"/>.
-        /// </summary>
-        public RepositorySystemSession RepositorySystemSession => repositorySystemSession;
 
         /// <summary>
         /// Gets the configured repositories.
@@ -245,7 +238,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Creates a new <see cref="RepositorySystemSession"/> based on the currently loaded settings.
         /// </summary>
         /// <returns></returns>
-        RepositorySystemSession CreateRepositorySystemSession()
+        public RepositorySystemSession CreateRepositorySystemSession(bool noError = false)
         {
             var session = MavenRepositorySystemUtils.newSession();
             var repository = new LocalRepository(GetDefaultLocalRepoDir());
@@ -255,7 +248,7 @@ namespace IKVM.Maven.Sdk.Tasks
             session.setMirrorSelector(CreateMirrorSelector());
             session.setAuthenticationSelector(CreateAuthenticationSelector());
             session.setDependencyGraphTransformer(CreateDependencyGraphTransformer());
-            session.setTransferListener(new MavenTransferListener(log));
+            session.setTransferListener(new MavenTransferListener(log, noError));
             session.setRepositoryListener(new MavenRepositoryListener(log));
             return session;
         }

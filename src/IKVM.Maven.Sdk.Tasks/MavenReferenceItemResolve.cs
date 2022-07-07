@@ -6,10 +6,14 @@ using System.Text;
 
 using IKVM.Maven.Sdk.Tasks.Resources;
 
+using java.util;
+
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
+using org.apache.maven.artifact.resolver;
 using org.apache.maven.artifact.versioning;
+using org.eclipse.aether;
 using org.eclipse.aether.artifact;
 using org.eclipse.aether.collection;
 using org.eclipse.aether.graph;
@@ -105,97 +109,205 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(items));
 
             var maven = new IkvmMavenEnvironment(Log);
+            var session = maven.CreateRepositorySystemSession(false);
 
-            // convert set of incoming items into a dependency list
-            var dependencies = new java.util.ArrayList();
-            foreach (var item in items)
-                dependencies.add(new Dependency(new DefaultArtifact(item.GroupId, item.ArtifactId, item.Classifier, "jar", item.Version), item.Scope, item.Optional ? TRUE : FALSE, new java.util.ArrayList()));
+            // root of the runtime dependency graph
+            var graph = ResolveCompileDependencyGraph(maven, session, items);
+            if (graph == null)
+                throw new NullReferenceException("Null result obtaining dependency graph.");
 
-            // filter for desired scopes to retrieve
-            var filter = new List<string>();
-            filter.Add(JavaScopes.COMPILE);
-            filter.Add(JavaScopes.RUNTIME);
-            filter.Add(JavaScopes.PROVIDED);
+            // walk the full dependency graph to generate items and their references
+            var output = new Dictionary<string, IkvmReferenceItem>();
+            CollectIkvmReferenceItems(output, graph);
+
+            // resolve compile and runtime items and ensure they are copied
+            var privateScopes = new List<string>() { JavaScopes.COMPILE, JavaScopes.RUNTIME };
             if (IncludeTestScope)
-                filter.Add(JavaScopes.TEST);
+                privateScopes.Add(JavaScopes.TEST);
+            foreach (var ikvmItem in ResolveIkvmReferenceItemsForScopes(output, maven, session, graph, privateScopes))
+                ikvmItem.Private = true;
 
-            // resolve the artifacts
-            var result = maven.RepositorySystem.resolveDependencies(
-                maven.RepositorySystemSession,
-                new DependencyRequest(
-                    new CollectRequest(dependencies, null, maven.Repositories),
-                    DependencyFilterUtils.classpathFilter(filter.ToArray())));
+            // resolve compile and provided items and ensure they are referenced
+            var referenceOutputAssemblyScopes = new List<string>() { JavaScopes.COMPILE, JavaScopes.PROVIDED };
+            if (IncludeTestScope)
+                referenceOutputAssemblyScopes.Add(JavaScopes.TEST);
+            foreach (var ikvmItem in ResolveIkvmReferenceItemsForScopes(output, maven, session, graph, referenceOutputAssemblyScopes))
+                ikvmItem.ReferenceOutputAssembly = true;
 
-            // merge tree twice, once for compile artifacts, and again for sources artifacts
-            var output = new List<IkvmReferenceItem>();
-            foreach (ArtifactResult artifact in (IEnumerable)result.getArtifactResults())
-                MergeIkvmReferenceItemArtifacts(items, output, artifact.getRequest().getDependencyNode());
+            // attempt to resolve any source artifacts for the items, ignore errors
+            var safeSession = maven.CreateRepositorySystemSession(true);
+            foreach (var ikvmItem in output.Values)
+                if (ResolveSourceArtifact(maven, safeSession, ikvmItem) is Artifact artifact)
+                    if (artifact.getFile() is java.io.File file)
+                        if (ikvmItem.Sources.Contains(file.getAbsolutePath()) == false)
+                            ikvmItem.Sources.Add(file.getAbsolutePath());
+
+            // persist the changes
+            foreach (var ikvmItem in output.Values)
+                ikvmItem.Save();
 
             // return results
-            return output;
+            return output.Values;
         }
 
         /// <summary>
-        /// Merges the <see cref="DependencyNode"/> into the output dictionary.
+        /// Resolves the dependency graph for any items that may be relevant to the code of the application.
         /// </summary>
+        /// <param name="maven"></param>
+        /// <param name="session"></param>
         /// <param name="items"></param>
-        /// <param name="output"></param>
-        /// <param name="node"></param>
-        IkvmReferenceItem MergeIkvmReferenceItemArtifacts(MavenReferenceItem[] items, List<IkvmReferenceItem> output, DependencyNode node)
+        /// <returns></returns>
+        DependencyNode ResolveCompileDependencyGraph(IkvmMavenEnvironment maven, RepositorySystemSession session, MavenReferenceItem[] items)
         {
+            if (maven is null)
+                throw new ArgumentNullException(nameof(maven));
+            if (session is null)
+                throw new ArgumentNullException(nameof(session));
             if (items is null)
                 throw new ArgumentNullException(nameof(items));
+
+            // convert set of incoming items into a dependency list
+            var dependencies = new Dependency[items.Length];
+            for (int i = 0; i < items.Length; i++)
+                dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? TRUE : FALSE, new java.util.ArrayList());
+
+            // collect the full dependency graph
+            var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.COMPILE, JavaScopes.PROVIDED);
+            if (IncludeTestScope)
+                filter = DependencyFilterUtils.orFilter(DependencyFilterUtils.classpathFilter(JavaScopes.TEST));
+            var result = maven.RepositorySystem.resolveDependencies(
+                session,
+                new DependencyRequest(
+                    new CollectRequest(Arrays.asList(dependencies), null, maven.Repositories),
+                    filter));
+
+            return result.getRoot();
+        }
+
+        /// <summary>
+        /// Attempts to resolve the source artifact for the specified <see cref="IkvmReferenceItem"/>.
+        /// </summary>
+        /// <param name="maven"></param>
+        /// <param name="session"></param>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        Artifact ResolveSourceArtifact(IkvmMavenEnvironment maven, RepositorySystemSession session, IkvmReferenceItem item)
+        {
+            if (maven is null)
+                throw new ArgumentNullException(nameof(maven));
+            if (session is null)
+                throw new ArgumentNullException(nameof(session));
+            if (item is null)
+                throw new ArgumentNullException(nameof(item));
+
+            try
+            {
+                var result = maven.RepositorySystem.resolveArtifact(
+                    session,
+                    new ArtifactRequest(
+                        new DefaultArtifact(
+                            item.MavenGroupId,
+                            item.MavenArtifactId,
+                            string.IsNullOrWhiteSpace(item.MavenClassifier) ? "sources" : item.MavenClassifier + "-sources",
+                            "jar",
+                            item.MavenVersion),
+                        maven.Repositories,
+                        null));
+                if (result.isResolved() == false)
+                    return null;
+                if (result.getArtifact() is not Artifact artifact)
+                    return null;
+
+                return artifact;
+            }
+            catch (org.eclipse.aether.resolution.ArtifactResolutionException)
+            {
+                return null;
+            }
+            catch (ArtifactNotFoundException)
+            {
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="IkvmReferenceItem"/>s that are applicable for the given dependency set and scopes.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="maven"></param>
+        /// <param name="session"></param>
+        /// <param name="root"></param>
+        /// <param name="scopes"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        IEnumerable<IkvmReferenceItem> ResolveIkvmReferenceItemsForScopes(Dictionary<string, IkvmReferenceItem> output, IkvmMavenEnvironment maven, RepositorySystemSession session, DependencyNode root, List<string> scopes)
+        {
+            if (output is null)
+                throw new ArgumentNullException(nameof(output));
+            if (maven is null)
+                throw new ArgumentNullException(nameof(maven));
+            if (session is null)
+                throw new ArgumentNullException(nameof(session));
+            if (root is null)
+                throw new ArgumentNullException(nameof(root));
+            if (scopes is null)
+                throw new ArgumentNullException(nameof(scopes));
+
+            var result = maven.RepositorySystem.resolveDependencies(
+                session,
+                new DependencyRequest(root, DependencyFilterUtils.classpathFilter(scopes.ToArray())));
+            foreach (ArtifactResult resultItem in (IEnumerable)result.getArtifactResults())
+                if (GetIkvmReferenceItemForArtifact(output, resultItem.getArtifact()) is IkvmReferenceItem ikvmItem)
+                    yield return ikvmItem;
+        }
+
+        /// <summary>
+        /// Collects any <see cref="IkvmReferenceItem"/>s from the given node.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="node"></param>
+        void CollectIkvmReferenceItems(Dictionary<string, IkvmReferenceItem> output, DependencyNode node)
+        {
             if (output is null)
                 throw new ArgumentNullException(nameof(output));
             if (node is null)
                 throw new ArgumentNullException(nameof(node));
 
+            // if artifact, obtain IkvmReferenceItem from artifact
             var artifact = node.getArtifact();
-            if (artifact == null)
-                return null;
+            var ikvmItem = artifact != null ? GetIkvmReferenceItemForArtifact(output, artifact) : null;
 
-            // apply artifact as IkvmReferenceItem
-            var outputItem = MergeIkvmReferenceItemFromCompileArtifact(output, node, artifact);
-            if (outputItem == null)
-                throw new MavenTaskException("Null result merging compile artifact.");
-
-            // each dependency gets translated into a reference
+            // walk tree and ensure IkvmReferenceItem exists for each child
             foreach (DependencyNode child in (IEnumerable)node.getChildren())
-            {
-                // recurse into dependency
-                var dependency = MergeIkvmReferenceItemArtifacts(items, output, child);
-                if (dependency == null) // might be a sources artifact
-                    continue;
+                if (child.getDependency().getScope() is JavaScopes.COMPILE or JavaScopes.PROVIDED)
+                    CollectIkvmReferenceItems(output, child);
 
-                // add reference if not already added
-                if (outputItem.References.Contains(dependency) == false)
-                    outputItem.References.Add(dependency);
-
-                // ensure each dependency references the references from its own references
-                foreach (var transitiveDependency in dependency.References)
-                    if (outputItem.References.Contains(transitiveDependency) == false)
-                        outputItem.References.Add(transitiveDependency);
-            }
-
-            // persist modified item
-            outputItem.Save();
-            return outputItem;
+            // if we've got an actual item, traverse it's dependencies to assign references
+            if (ikvmItem != null)
+                foreach (var ikvmReference in CollectIkvmReferenceItemReferences(output, node))
+                    if (ikvmItem.References.Contains(ikvmReference) == false)
+                        ikvmItem.References.Add(ikvmReference);
         }
 
         /// <summary>
-        /// Merges a compile artifact into the IkvmReferenceItem.
+        /// Gets the <see cref="IkvmReferenceItem"/> associated with the given artifact.
         /// </summary>
         /// <param name="output"></param>
-        /// <param name="node"></param>
         /// <param name="artifact"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        IkvmReferenceItem MergeIkvmReferenceItemFromCompileArtifact(List<IkvmReferenceItem> output, DependencyNode node, Artifact artifact)
+        IkvmReferenceItem GetIkvmReferenceItemForArtifact(Dictionary<string, IkvmReferenceItem> output, Artifact artifact)
         {
             if (output is null)
                 throw new ArgumentNullException(nameof(output));
             if (artifact is null)
                 throw new ArgumentNullException(nameof(artifact));
+
+            // we only process JAR artifacts
+            var extension = artifact.getExtension();
+            if (extension != "jar")
+                return null;
 
             // pull items out of artifact
             var groupId = artifact.getGroupId();
@@ -203,70 +315,65 @@ namespace IKVM.Maven.Sdk.Tasks
             var classifier = artifact.getClassifier();
             var version = artifact.getVersion();
 
-            // find an existing IkvmReferenceItem that matches this artifact
-            var outputItem = output.FirstOrDefault(i => i.MavenGroupId == groupId && i.MavenArtifactId == artifactId && i.MavenClassifier == classifier && i.MavenVersion == version);
-            if (outputItem == null)
-                outputItem = output.FirstOrDefault(i => i.MavenGroupId == groupId && i.MavenArtifactId == artifactId && i.MavenVersion == version);
-            if (outputItem == null)
-                outputItem = output.FirstOrDefault(i => i.MavenGroupId == groupId && i.MavenArtifactId == artifactId);
-            if (outputItem == null)
-            {
-                // generate a new IkvmReferenceItem, prefixed so it doesn't conflict with others
-                var outputItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
-                output.Add(outputItem = new IkvmReferenceItem(new TaskItem(outputItemSpec)) { ItemSpec = outputItemSpec, ReferenceOutputAssembly = false, Private = false });
-            }
+            // find or create the IkvmReferenceItem for the artifact
+            var ikvmItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
+            if (output.TryGetValue(ikvmItemSpec, out var ikvmItem))
+                return ikvmItem;
+
+            // create a new item
+            ikvmItem = new IkvmReferenceItem(new TaskItem(ikvmItemSpec)) { ItemSpec = ikvmItemSpec, ReferenceOutputAssembly = false, Private = false };
+            output.Add(ikvmItemSpec, ikvmItem);
 
             // ensure output item has Maven information attached to it
-            outputItem.MavenGroupId = groupId;
-            outputItem.MavenArtifactId = artifactId;
-            outputItem.MavenClassifier = classifier;
-            outputItem.MavenVersion = version;
+            ikvmItem.MavenGroupId = groupId;
+            ikvmItem.MavenArtifactId = artifactId;
+            ikvmItem.MavenClassifier = classifier;
+            ikvmItem.MavenVersion = version;
 
             // fallback to the Maven name and version if IKVM cannot detect otherwise
-            outputItem.FallbackAssemblyName = artifactId;
-            outputItem.FallbackAssemblyVersion = ToAssemblyVersion(version)?.ToString();
+            ikvmItem.FallbackAssemblyName = artifactId;
+            ikvmItem.FallbackAssemblyVersion = ToAssemblyVersion(version)?.ToString();
 
             // inherit global settings
-            outputItem.Debug = Debug;
-            outputItem.KeyFile = KeyFile;
+            ikvmItem.Debug = Debug;
+            ikvmItem.KeyFile = KeyFile;
 
             // setup the class loader
-            outputItem.ClassLoader = ClassLoader;
-
-            // artifact is required during compile, ensure we reference
-            if (node.getDependency().getScope() == JavaScopes.COMPILE)
-            {
-                outputItem.Private = true;
-                outputItem.ReferenceOutputAssembly = true;
-            }
-
-            // artifact is required during runtime, copy local
-            if (node.getDependency().getScope() == JavaScopes.RUNTIME)
-            {
-                outputItem.Private = true;
-            }
-
-            // artifact is required during compile, but provided by runtime
-            if (node.getDependency().getScope() == JavaScopes.PROVIDED)
-            {
-                outputItem.ReferenceOutputAssembly = true;
-            }
-
-            // artifact is required for a test project, and we are a test project
-            if (node.getDependency().getScope() == JavaScopes.TEST && IncludeTestScope)
-            {
-                outputItem.Private = true;
-                outputItem.ReferenceOutputAssembly = true;
-            }
+            ikvmItem.ClassLoader = ClassLoader;
 
             // if the artifact is a jar, we need to associate the path to the jar to the item
-            var file = artifact.getFile().getAbsolutePath();
-            if (outputItem.Compile.Contains(file) == false)
-                outputItem.Compile.Add(file);
+            var file = artifact.getFile();
+            var filePath = file.getAbsolutePath();
+            if (ikvmItem.Compile.Contains(filePath) == false)
+                ikvmItem.Compile.Add(filePath);
 
-            // persist modified item
-            outputItem.Save();
-            return outputItem;
+            return ikvmItem;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        IEnumerable<IkvmReferenceItem> CollectIkvmReferenceItemReferences(Dictionary<string, IkvmReferenceItem> output, DependencyNode node)
+        {
+            if (output is null)
+                throw new ArgumentNullException(nameof(output));
+            if (node is null)
+                throw new ArgumentNullException(nameof(node));
+
+            foreach (DependencyNode child in (IEnumerable)node.getChildren())
+            {
+                // if the child node is a direct artifact
+                if (child.getArtifact() is Artifact artifact)
+                    if (GetIkvmReferenceItemForArtifact(output, artifact) is IkvmReferenceItem reference)
+                        yield return reference;
+
+                // recurse into child
+                foreach (var reference in CollectIkvmReferenceItemReferences(output, child))
+                    yield return reference;
+            }
         }
 
         /// <summary>
