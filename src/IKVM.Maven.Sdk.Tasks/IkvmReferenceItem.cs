@@ -79,6 +79,11 @@ namespace IKVM.Maven.Sdk.Tasks
         public List<IkvmReferenceItem> References { get; set; } = new List<IkvmReferenceItem>();
 
         /// <summary>
+        /// Name of the classloader to use.
+        /// </summary>
+        public string ClassLoader { get; set; }
+
+        /// <summary>
         /// Compile in debug mode.
         /// </summary>
         public bool Debug { get; set; }
@@ -143,6 +148,7 @@ namespace IKVM.Maven.Sdk.Tasks
             Item.SetMetadata(IkvmReferenceItemMetadata.Compile, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, Compile));
             Item.SetMetadata(IkvmReferenceItemMetadata.Sources, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, Sources));
             Item.SetMetadata(IkvmReferenceItemMetadata.References, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, References.Select(i => i.ItemSpec)));
+            Item.SetMetadata(IkvmReferenceItemMetadata.ClassLoader, ClassLoader);
             Item.SetMetadata(IkvmReferenceItemMetadata.Debug, Debug ? "true" : "false");
             Item.SetMetadata(IkvmReferenceItemMetadata.KeyFile, KeyFile);
             Item.SetMetadata(IkvmReferenceItemMetadata.DelaySign, DelaySign ? "true" : "false");

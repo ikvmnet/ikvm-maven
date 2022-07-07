@@ -51,6 +51,11 @@ namespace IKVM.Maven.Sdk.Tasks
         public ITaskItem[] ResolvedItems { get; set; }
 
         /// <summary>
+        /// Name of the classloader to use for the reference items.
+        /// </summary>
+        public string ClassLoader { get; set; }
+
+        /// <summary>
         /// Value to set for Debug on generated references unless otherwise specified.
         /// </summary>
         public bool Debug { get; set; } = false;
@@ -224,6 +229,9 @@ namespace IKVM.Maven.Sdk.Tasks
             // inherit global settings
             outputItem.Debug = Debug;
             outputItem.KeyFile = KeyFile;
+
+            // setup the class loader
+            outputItem.ClassLoader = ClassLoader;
 
             // artifact is required during compile, ensure we reference
             if (node.getDependency().getScope() == JavaScopes.COMPILE)
