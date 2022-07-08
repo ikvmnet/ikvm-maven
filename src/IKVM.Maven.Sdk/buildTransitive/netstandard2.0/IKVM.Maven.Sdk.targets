@@ -1,5 +1,34 @@
 ﻿<Project>
 
+    <UsingTask
+        TaskName="MavenKeyValuePairsToItemGroup"
+        TaskFactory="RoslynCodeTaskFactory"
+        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
+        <ParameterGroup>
+            <Value ParameterType="System.String" Required="true" />
+            <Output ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
+        </ParameterGroup>
+        <Task>
+            <Using Namespace="System"/>
+            <Using Namespace="System.Linq"/>
+            <Code Type="Fragment" Language="cs">
+                <![CDATA[
+                Output = Value
+                    .Split(';')
+                    .Select(i => i.Split('='))
+                    .Select(i =>
+                    {
+                        var t = new TaskItem(i[0]);
+                        if (i.Length > 1)
+                            t.SetMetadata("RepositoryUrl", i[1]);
+                        return t;
+                    })
+                    .ToArray();
+                ]]>
+            </Code>
+        </Task>
+    </UsingTask>
+
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
         <MavenReferenceItemImport AssetsFilePath="$(ProjectAssetsFile)" TargetFramework="$(TargetFramework)" RuntimeIdentifier="$(RuntimeIdentifier)" Condition="Exists('$(ProjectAssetsFile)')">
@@ -74,13 +103,22 @@
     </Target>
 
     <PropertyGroup>
+        <MavenDefaultRepositories Condition=" '$(MavenDefaultRepositories)' == '' ">central=https://repo1.maven.org/maven2/</MavenDefaultRepositories>
+        <MavenAdditionalRepositories Condition=" '$(MavenAdditionalRepositories)' == '' "></MavenAdditionalRepositories>
+        <MavenRepositories Condition=" '$(MavenRepositories)' == '' ">$(MavenDefaultRepositories);$(MavenAdditionalRepositories)</MavenRepositories>
         <MavenIncludeTestScope Condition=" '$(MavenIncludeTestScope)' == '' ">$(IsTestProject)</MavenIncludeTestScope>
         <MavenClassLoader Condition=" '$(MavenClassLoader)' == '' ">ikvm.runtime.AppDomainAssemblyClassLoader</MavenClassLoader>
     </PropertyGroup>
 
+    <ItemGroup>
+        <_MavenRepositories1 Include="$(MavenRepositories.Split(';'))" />
+        <_MavenRepositories2 Include="@(_MavenRepositories1)" RepositoryId="$([System.String]::Copy('%(Identity)').Split('=')[0])" RepositoryUrl="$([System.String]::Copy('%(Identity)').Split('=')[1])" />
+        <MavenRepositories Include="@(_MavenRepositories2->'%(RepositoryId)')" />
+    </ItemGroup>
+
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
-        <MavenReferenceItemResolve IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" ClassLoader="$(MavenClassLoader)" Items="@(MavenReferenceItem)">
+        <MavenReferenceItemResolve Repositories="@(MavenRepositories)" IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" ClassLoader="$(MavenClassLoader)" Items="@(MavenReferenceItem)">
             <Output TaskParameter="ResolvedItems" ItemName="_MavenIkvmReferenceItem"/>
         </MavenReferenceItemResolve>
         <ItemGroup>

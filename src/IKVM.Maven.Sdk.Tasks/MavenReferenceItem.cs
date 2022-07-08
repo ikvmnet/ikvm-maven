@@ -10,7 +10,7 @@ namespace IKVM.Maven.Sdk.Tasks
     /// <summary>
     /// Models the required data of a <see cref="MavenReferenceItem"/>.
     /// </summary>
-    internal class MavenReferenceItem
+    class MavenReferenceItem
     {
 
         /// <summary>

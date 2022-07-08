@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 using java.io;
 using java.lang;
@@ -90,9 +92,7 @@ namespace IKVM.Maven.Sdk.Tasks
 
         const string SettingsXml = "settings.xml";
         const string SettingsSecurityXml = "settings-security.xml";
-        const string CentralRepositoryUrl = "https://repo.maven.apache.org/maven2/";
-        const string CentralRepositoryType = "default";
-        const string CentralRepositoryId = "central";
+        const string DefaultRepositoryType = "default";
 
         static readonly string DefaultRepositoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".m2");
 
@@ -105,22 +105,18 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <summary>
         /// Initializes a new instance.
         /// </summary>
+        /// <param name="repositories"></param>
         /// <param name="log"></param>
-        public IkvmMavenEnvironment(TaskLoggingHelper log)
+        public IkvmMavenEnvironment(IList<MavenRepository> repositories, TaskLoggingHelper log)
         {
-            this.log = log ?? throw new ArgumentNullException(nameof(log));
+            if (repositories is null)
+                throw new ArgumentNullException(nameof(repositories));
 
-            try
-            {
-                repositoryPath = DefaultRepositoryPath;
-                settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
-                repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
-                repositories = CreateRepositories() ?? throw new NullReferenceException("Null result creating Repositories.");
-            }
-            catch (System.Exception)
-            {
-                throw;
-            }
+            this.log = log ?? throw new ArgumentNullException(nameof(log));
+            this.repositoryPath = DefaultRepositoryPath;
+            this.settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
+            this.repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
+            this.repositories = Arrays.asList(repositories.Select(i => CreateRepository(i)).ToArray());
         }
 
         /// <summary>
@@ -266,18 +262,9 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Creates a new <see cref="ArtifactRepository"/> representing Maven Central.
         /// </summary>
         /// <returns></returns>
-        ArtifactRepository CreateCentralRepository()
+        ArtifactRepository CreateRepository(MavenRepository repository)
         {
-            return new RemoteRepository.Builder(CentralRepositoryId, CentralRepositoryType, CentralRepositoryUrl).build();
-        }
-
-        /// <summary>
-        /// Creates the set of repositories to be used for resolution.
-        /// </summary>
-        /// <returns></returns>
-        List CreateRepositories()
-        {
-            return Arrays.asList(CreateCentralRepository());
+            return new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url).build();
         }
 
     }

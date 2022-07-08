@@ -30,8 +30,8 @@ namespace IKVM.Maven.Sdk.Tasks
     public class MavenReferenceItemResolve : Task
     {
 
-        static readonly java.lang.Boolean TRUE = new java.lang.Boolean(true);
-        static readonly java.lang.Boolean FALSE = new java.lang.Boolean(false);
+        static readonly java.lang.Boolean TRUE = java.lang.Boolean.TRUE;
+        static readonly java.lang.Boolean FALSE = java.lang.Boolean.FALSE;
 
         /// <summary>
         /// Initializes a new instance.
@@ -41,6 +41,12 @@ namespace IKVM.Maven.Sdk.Tasks
         {
 
         }
+
+        /// <summary>
+        /// Set of Maven repostories to initialize.
+        /// </summary>
+        [Required]
+        public ITaskItem[] Repositories { get; set; }
 
         /// <summary>
         /// Set of MavenReferenceItem.
@@ -82,8 +88,9 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             try
             {
+                var repositories = Repositories.Select(i => new MavenRepository(i.ItemSpec, i.GetMetadata("Url"))).ToList();
                 var items = MavenReferenceItemUtil.Import(Items);
-                ResolvedItems = ResolveItems(items).Select(i => i.Item).ToArray();
+                ResolvedItems = ResolveItems(repositories, items).Select(i => i.Item).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -99,16 +106,17 @@ namespace IKVM.Maven.Sdk.Tasks
         }
 
         /// <summary>
-        /// Resolves the set of dependencies given by <paramref name="items"/> and augments their metadata.
+        /// Resolves the set of dependencies given by the set of items.
         /// </summary>
-        /// <param name="items"></param>
         /// <returns></returns>
-        IEnumerable<IkvmReferenceItem> ResolveItems(MavenReferenceItem[] items)
+        IEnumerable<IkvmReferenceItem> ResolveItems(IList<MavenRepository> repositories, IList<MavenReferenceItem> items)
         {
-            if (items is null)
+            if (repositories == null)
+                throw new ArgumentNullException(nameof(repositories));
+            if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            var maven = new IkvmMavenEnvironment(Log);
+            var maven = new IkvmMavenEnvironment(repositories, Log);
             var session = maven.CreateRepositorySystemSession(false);
 
             // root of the runtime dependency graph
@@ -157,7 +165,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <param name="session"></param>
         /// <param name="items"></param>
         /// <returns></returns>
-        DependencyNode ResolveCompileDependencyGraph(IkvmMavenEnvironment maven, RepositorySystemSession session, MavenReferenceItem[] items)
+        DependencyNode ResolveCompileDependencyGraph(IkvmMavenEnvironment maven, RepositorySystemSession session, IList<MavenReferenceItem> items)
         {
             if (maven is null)
                 throw new ArgumentNullException(nameof(maven));
@@ -167,8 +175,8 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(items));
 
             // convert set of incoming items into a dependency list
-            var dependencies = new Dependency[items.Length];
-            for (int i = 0; i < items.Length; i++)
+            var dependencies = new Dependency[items.Count];
+            for (int i = 0; i < items.Count; i++)
                 dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? TRUE : FALSE, new java.util.ArrayList());
 
             // collect the full dependency graph

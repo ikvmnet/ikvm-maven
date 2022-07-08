@@ -16,6 +16,17 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
     public class MavenReferenceItemResolveTests
     {
 
+        /// <summary>
+        /// Creates a task item for the central repository.
+        /// </summary>
+        /// <returns></returns>
+        static ITaskItem GetCentralRepositoryItem()
+        {
+            var item = new TaskItem("central");
+            item.SetMetadata("Url", "https://repo1.maven.org/maven2/");
+            return item;
+        }
+
         [TestMethod]
         public void Can_resolve_maven_references()
         {
@@ -24,6 +35,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
 
             var i1 = new TaskItem("org.apache.opennlp:opennlp-brat-annotator:1.9.1");
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.opennlp");
@@ -55,6 +67,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
 
             var i1 = new TaskItem("com.google.inject:guice");
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "com.google.inject");
@@ -82,6 +95,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
 
             var i1 = new TaskItem("javax.inject:javax.inject:1");
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "javax.inject");
@@ -111,6 +125,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
 
             var i1 = new TaskItem("com.yahoo.vespa:documentapi:8.12.48");
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "com.yahoo.vespa");
