@@ -73,7 +73,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 pom.setVersion(Version);
 
                 // add dependencies
-                foreach (var item in MavenReferenceItemUtil.Import(References))
+                foreach (var item in MavenReferenceItemMetadata.Load(References))
                     foreach (var dependency in ItemToDependencies(item))
                         pom.addDependency(dependency);
 

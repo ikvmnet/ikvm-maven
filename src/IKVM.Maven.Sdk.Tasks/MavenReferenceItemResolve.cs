@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,6 +11,8 @@ using java.util;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
+
+using Newtonsoft.Json;
 
 using org.apache.maven.artifact.resolver;
 using org.apache.maven.artifact.versioning;
@@ -41,6 +44,12 @@ namespace IKVM.Maven.Sdk.Tasks
         {
 
         }
+
+        /// <summary>
+        /// Path to the cache file.
+        /// </summary>
+        [Required]
+        public string CacheFile { get; set; }
 
         /// <summary>
         /// Set of Maven repostories to initialize.
@@ -81,6 +90,37 @@ namespace IKVM.Maven.Sdk.Tasks
         public bool IncludeTestScope { get; set; }
 
         /// <summary>
+        /// Attempts to read the cache file.
+        /// </summary>
+        /// <returns></returns>
+        MavenResolveCacheFile ReadCacheFile()
+        {
+            if (File.Exists(CacheFile))
+                using (var stm = File.OpenRead(CacheFile))
+                using (var rdr = new StreamReader(stm))
+                using (var jsn = new JsonTextReader(rdr))
+                {
+                    var cache = JsonSerializer.CreateDefault().Deserialize<MavenResolveCacheFile>(jsn);
+                    if (cache.Version == 1)
+                        return cache;
+                }
+
+            return null;
+        }
+
+        /// <summary>
+        /// Attempts to read the cache file.
+        /// </summary>
+        /// <returns></returns>
+        void WriteCacheFile(MavenResolveCacheFile file)
+        {
+            using (var stm = File.Create(CacheFile))
+            using (var wrt = new StreamWriter(stm))
+            using (var jsn = new JsonTextWriter(wrt))
+                JsonSerializer.CreateDefault().Serialize(jsn, file);
+        }
+
+        /// <summary>
         /// Executes the task.
         /// </summary>
         /// <returns></returns>
@@ -88,9 +128,41 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             try
             {
-                var repositories = Repositories.Select(i => new MavenRepository(i.ItemSpec, i.GetMetadata("Url"))).ToList();
-                var items = MavenReferenceItemUtil.Import(Items);
-                ResolvedItems = ResolveItems(repositories, items).Select(i => i.Item).ToArray();
+                var repositories = MavenRepositoryItemMetadata.Load(Repositories);
+                var items = MavenReferenceItemMetadata.Load(Items);
+
+                // attempt to look up previous results in cache
+                if (CacheFile != null)
+                {
+                    var cacheFile = ReadCacheFile();
+                    if (cacheFile != null)
+                    {
+                        if (cacheFile.Version == 1 &&
+                            Enumerable.SequenceEqual(cacheFile.Repositories, repositories) &&
+                            Enumerable.SequenceEqual(cacheFile.Items, items))
+                        {
+                            ResolvedItems = cacheFile.ResolvedItems.Select(ToTaskItem).ToArray();
+                            return true;
+                        }
+                    }
+                }
+
+                // resolve items
+                var resolvedItems = ResolveReferences(repositories, items).ToArray();
+
+                // save cache
+                if (CacheFile != null)
+                {
+                    WriteCacheFile(new MavenResolveCacheFile()
+                    {
+                        Version = 1,
+                        Repositories = repositories,
+                        Items = items,
+                        ResolvedItems = resolvedItems,
+                    });
+                }
+
+                ResolvedItems = resolvedItems.Select(ToTaskItem).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -106,10 +178,22 @@ namespace IKVM.Maven.Sdk.Tasks
         }
 
         /// <summary>
+        /// Persists the item to a task item.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        ITaskItem ToTaskItem(IkvmReferenceItem item)
+        {
+            var task = new TaskItem();
+            IkvmReferenceItemMetadata.Save(item, task);
+            return task;
+        }
+
+        /// <summary>
         /// Resolves the set of dependencies given by the set of items.
         /// </summary>
         /// <returns></returns>
-        IEnumerable<IkvmReferenceItem> ResolveItems(IList<MavenRepository> repositories, IList<MavenReferenceItem> items)
+        IEnumerable<IkvmReferenceItem> ResolveReferences(IList<MavenRepositoryItem> repositories, IList<MavenReferenceItem> items)
         {
             if (repositories == null)
                 throw new ArgumentNullException(nameof(repositories));
@@ -142,19 +226,6 @@ namespace IKVM.Maven.Sdk.Tasks
             foreach (var ikvmItem in ResolveIkvmReferenceItemsForScopes(output, maven, session, graph, referenceOutputAssemblyScopes))
                 ikvmItem.ReferenceOutputAssembly = true;
 
-            // attempt to resolve any source artifacts for the items, ignore errors
-            //var safeSession = maven.CreateRepositorySystemSession(true);
-            //foreach (var ikvmItem in output.Values)
-            //    if (ResolveSourceArtifact(maven, safeSession, ikvmItem) is Artifact artifact)
-            //        if (artifact.getFile() is java.io.File file)
-            //            if (ikvmItem.Sources.Contains(file.getAbsolutePath()) == false)
-            //                ikvmItem.Sources.Add(file.getAbsolutePath());
-
-            // persist the changes
-            foreach (var ikvmItem in output.Values)
-                ikvmItem.Save();
-
-            // return results
             return output.Values;
         }
 
@@ -329,7 +400,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 return ikvmItem;
 
             // create a new item
-            ikvmItem = new IkvmReferenceItem(new TaskItem(ikvmItemSpec)) { ItemSpec = ikvmItemSpec, ReferenceOutputAssembly = false, Private = false };
+            ikvmItem = new IkvmReferenceItem() { ItemSpec = ikvmItemSpec, ReferenceOutputAssembly = false, Private = false };
             output.Add(ikvmItemSpec, ikvmItem);
 
             // ensure output item has Maven information attached to it

@@ -41,37 +41,6 @@ namespace IKVM.Maven.Sdk.Tasks
             return b.ToString();
         }
 
-        /// <summary>
-        /// Attempts to import a set of <see cref="MavenReferenceItem"/> instances from the given <see cref="ITaskItem"/> instances.
-        /// </summary>
-        /// <param name="items"></param>
-        /// <returns></returns>
-        public static MavenReferenceItem[] Import(IEnumerable<ITaskItem> items)
-        {
-            if (items is null)
-                throw new ArgumentNullException(nameof(items));
-
-            // normalize itemspecs into a dictionary
-            var map = new Dictionary<string, MavenReferenceItem>();
-            foreach (var item in items)
-                map[item.ItemSpec] = new MavenReferenceItem(item);
-
-            // populate the properties of each item
-            foreach (var item in map.Values)
-            {
-                item.ItemSpec = item.Item.ItemSpec;
-                item.GroupId = item.Item.GetMetadata(MavenReferenceItemMetadata.GroupId);
-                item.ArtifactId = item.Item.GetMetadata(MavenReferenceItemMetadata.ArtifactId);
-                item.Classifier = item.Item.GetMetadata(MavenReferenceItemMetadata.Classifier);
-                item.Version = item.Item.GetMetadata(MavenReferenceItemMetadata.Version);
-                item.Optional = string.Equals(item.Item.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
-                item.Scope = item.Item.GetMetadata(MavenReferenceItemMetadata.Scope);
-            }
-
-            // return the resulting imported references
-            return map.Values.ToArray();
-        }
-
     }
 
 }

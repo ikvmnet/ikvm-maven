@@ -1,4 +1,6 @@
-﻿using IKVM.Maven.Sdk.Tasks.Resources;
+﻿using System.Linq;
+
+using IKVM.Maven.Sdk.Tasks.Resources;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
@@ -38,12 +40,13 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             try
             {
-                var items = MavenReferenceItemUtil.Import(Items);
+                var items = MavenReferenceItemMetadata.Load(Items);
 
                 // assign other metadata
                 foreach (var item in items)
                     AssignMetadata(item);
 
+                Items = items.Select(ToTaskItem).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -51,6 +54,18 @@ namespace IKVM.Maven.Sdk.Tasks
                 Log.LogErrorWithCodeFromResources(e.MessageResourceName, e.MessageArgs);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Persists the item to a task item.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        ITaskItem ToTaskItem(MavenReferenceItem item)
+        {
+            var task = new TaskItem();
+            MavenReferenceItemMetadata.Save(item, task);
+            return task;
         }
 
         /// <summary>
@@ -101,9 +116,6 @@ namespace IKVM.Maven.Sdk.Tasks
 
             if (IsValidScope(item.Scope) == false)
                 throw new MavenTaskMessageException("Error.MavenInvalidScope", item.ItemSpec, item.Scope);
-
-            // save item
-            item.Save();
         }
 
         /// <summary>

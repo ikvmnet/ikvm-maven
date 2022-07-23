@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
-using Microsoft.Build.Framework;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace IKVM.Maven.Sdk.Tasks
 {
@@ -10,23 +9,9 @@ namespace IKVM.Maven.Sdk.Tasks
     /// <summary>
     /// Models the required data of a <see cref="IkvmReferenceItem"/>.
     /// </summary>
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     class IkvmReferenceItem
     {
-
-        /// <summary>
-        /// Initializes a new instance.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <exception cref="ArgumentNullException"></exception>
-        public IkvmReferenceItem(ITaskItem item)
-        {
-            Item = item ?? throw new ArgumentNullException(nameof(item));
-        }
-
-        /// <summary>
-        /// Referenced node.
-        /// </summary>
-        public ITaskItem Item { get; }
 
         /// <summary>
         /// Unique name of the item.
@@ -132,34 +117,6 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Metadata attached by the Maven process.
         /// </summary>
         public string MavenVersion { get; set; }
-
-        /// <summary>
-        /// Writes the metadata to the item.
-        /// </summary>
-        public void Save()
-        {
-            Item.ItemSpec = ItemSpec;
-            Item.SetMetadata(IkvmReferenceItemMetadata.AssemblyName, AssemblyName);
-            Item.SetMetadata(IkvmReferenceItemMetadata.AssemblyVersion, AssemblyVersion);
-            Item.SetMetadata(IkvmReferenceItemMetadata.DisableAutoAssemblyName, DisableAutoAssemblyName ? "true" : "false");
-            Item.SetMetadata(IkvmReferenceItemMetadata.DisableAutoAssemblyVersion, DisableAutoAssemblyVersion ? "true" : "false");
-            Item.SetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyName, FallbackAssemblyName);
-            Item.SetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion, FallbackAssemblyVersion);
-            Item.SetMetadata(IkvmReferenceItemMetadata.Compile, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, Compile));
-            Item.SetMetadata(IkvmReferenceItemMetadata.Sources, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, Sources));
-            Item.SetMetadata(IkvmReferenceItemMetadata.References, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, References.Select(i => i.ItemSpec)));
-            Item.SetMetadata(IkvmReferenceItemMetadata.ClassLoader, ClassLoader);
-            Item.SetMetadata(IkvmReferenceItemMetadata.Debug, Debug ? "true" : "false");
-            Item.SetMetadata(IkvmReferenceItemMetadata.KeyFile, KeyFile);
-            Item.SetMetadata(IkvmReferenceItemMetadata.DelaySign, DelaySign ? "true" : "false");
-            Item.SetMetadata(IkvmReferenceItemMetadata.Private, Private ? "true" : "false");
-            Item.SetMetadata(IkvmReferenceItemMetadata.ReferenceOutputAssembly, ReferenceOutputAssembly ? "true" : "false");
-            Item.SetMetadata(IkvmReferenceItemMetadata.IkvmIdentity, IkvmIdentity);
-            Item.SetMetadata(IkvmReferenceItemMetadata.MavenGroupId, MavenGroupId);
-            Item.SetMetadata(IkvmReferenceItemMetadata.MavenArtifactId, MavenArtifactId);
-            Item.SetMetadata(IkvmReferenceItemMetadata.MavenClassifier, MavenClassifier);
-            Item.SetMetadata(IkvmReferenceItemMetadata.MavenVersion, MavenVersion);
-        }
 
     }
 

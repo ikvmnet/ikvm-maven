@@ -24,11 +24,12 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
-            var i1 = new TaskItem("ikvm.test:foo");
+            var i1 = (ITaskItem)new TaskItem("ikvm.test:foo");
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.2.3");
             t.Items = new[] { i1 };
 
             t.Execute().Should().BeTrue();
+            i1 = t.Items[0];
             i1.GetMetadata(MavenReferenceItemMetadata.GroupId).Should().Be("ikvm.test");
             i1.GetMetadata(MavenReferenceItemMetadata.ArtifactId).Should().Be("foo");
             i1.GetMetadata(MavenReferenceItemMetadata.Version).Should().Be("1.2.3");
@@ -44,10 +45,11 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
-            var i1 = new TaskItem("ikvm.test:foo:1.2.3");
+            var i1 = (ITaskItem)new TaskItem("ikvm.test:foo:1.2.3");
             t.Items = new[] { i1 };
 
             t.Execute().Should().BeTrue();
+            i1 = t.Items[0];
             i1.GetMetadata(MavenReferenceItemMetadata.GroupId).Should().Be("ikvm.test");
             i1.GetMetadata(MavenReferenceItemMetadata.ArtifactId).Should().Be("foo");
             i1.GetMetadata(MavenReferenceItemMetadata.Version).Should().Be("1.2.3");
@@ -63,7 +65,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
-            var i1 = new TaskItem("ikvm.test:::::foo:1.0");
+            var i1 = (ITaskItem)new TaskItem("ikvm.test:::::foo:1.0");
             t.Items = new[] { i1 };
 
             t.Execute().Should().BeFalse();
@@ -79,7 +81,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
-            var i1 = new TaskItem("ikvm.test:::::foo:1.0");
+            var i1 = (ITaskItem)new TaskItem("ikvm.test:::::foo:1.0");
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "ikvm.test");
             t.Items = new[] { i1 };
 
@@ -96,7 +98,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
-            var i1 = new TaskItem("ikvm.test:::::foo:1.0");
+            var i1 = (ITaskItem)new TaskItem("ikvm.test:::::foo:1.0");
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "ikvm.test");
             i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "foo");
             t.Items = new[] { i1 };
@@ -114,12 +116,13 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemPrepare();
             t.BuildEngine = engine.Object;
 
-            var i1 = new TaskItem("ikvm.test:foo:1.0");
+            var i1 = (ITaskItem)new TaskItem("ikvm.test:foo:1.0");
             t.Items = new[] { i1 };
 
             t.Execute().Should().BeTrue();
             errors.Should().BeEmpty();
 
+            i1 = t.Items[0];
             i1.ItemSpec.Should().Be("ikvm.test:foo:1.0");
             i1.GetMetadata(MavenReferenceItemMetadata.GroupId).Should().Be("ikvm.test");
             i1.GetMetadata(MavenReferenceItemMetadata.ArtifactId).Should().Be("foo");

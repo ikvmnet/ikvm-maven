@@ -107,7 +107,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// </summary>
         /// <param name="repositories"></param>
         /// <param name="log"></param>
-        public IkvmMavenEnvironment(IList<MavenRepository> repositories, TaskLoggingHelper log)
+        public IkvmMavenEnvironment(IList<MavenRepositoryItem> repositories, TaskLoggingHelper log)
         {
             if (repositories is null)
                 throw new ArgumentNullException(nameof(repositories));
@@ -262,7 +262,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Creates a new <see cref="ArtifactRepository"/> representing Maven Central.
         /// </summary>
         /// <returns></returns>
-        ArtifactRepository CreateRepository(MavenRepository repository)
+        ArtifactRepository CreateRepository(MavenRepositoryItem repository)
         {
             return new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url).build();
         }

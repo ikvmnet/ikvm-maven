@@ -1,4 +1,10 @@
-﻿namespace IKVM.Maven.Sdk.Tasks
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+using Microsoft.Build.Framework;
+
+namespace IKVM.Maven.Sdk.Tasks
 {
 
     static class MavenReferenceItemMetadata
@@ -17,6 +23,57 @@
         public static readonly string AssemblyName = "AssemblyName";
         public static readonly string AssemblyVersion = "AssemblyVersion";
         public static readonly string Debug = "Debug";
+
+        /// <summary>
+        /// Writes the metadata to the item.
+        /// </summary>
+        public static void Save(MavenReferenceItem item, ITaskItem task)
+        {
+            if (item is null)
+                throw new ArgumentNullException(nameof(item));
+            if (task is null)
+                throw new ArgumentNullException(nameof(task));
+
+            task.ItemSpec = item.ItemSpec;
+            task.SetMetadata(MavenReferenceItemMetadata.GroupId, item.GroupId);
+            task.SetMetadata(MavenReferenceItemMetadata.ArtifactId, item.ArtifactId);
+            task.SetMetadata(MavenReferenceItemMetadata.Classifier, item.Classifier);
+            task.SetMetadata(MavenReferenceItemMetadata.Version, item.Version);
+            task.SetMetadata(MavenReferenceItemMetadata.Optional, item.Optional ? "true" : "false");
+            task.SetMetadata(MavenReferenceItemMetadata.Scope, item.Scope);
+        }
+
+        /// <summary>
+        /// Attempts to import a set of <see cref="MavenReferenceItem"/> instances from the given <see cref="ITaskItem"/> instances.
+        /// </summary>
+        /// <param name="tasks"></param>
+        /// <returns></returns>
+        public static MavenReferenceItem[] Load(IEnumerable<ITaskItem> tasks)
+        {
+            if (tasks is null)
+                throw new ArgumentNullException(nameof(tasks));
+
+            // normalize itemspecs into a dictionary
+            var map = new Dictionary<string, MavenReferenceItem>();
+            foreach (var task in tasks)
+                map[task.ItemSpec] = new MavenReferenceItem();
+
+            // populate the properties of each item
+            foreach (var task in tasks)
+            {
+                var item = map[task.ItemSpec];
+                item.ItemSpec = task.ItemSpec;
+                item.GroupId = task.GetMetadata(MavenReferenceItemMetadata.GroupId);
+                item.ArtifactId = task.GetMetadata(MavenReferenceItemMetadata.ArtifactId);
+                item.Classifier = task.GetMetadata(MavenReferenceItemMetadata.Classifier);
+                item.Version = task.GetMetadata(MavenReferenceItemMetadata.Version);
+                item.Optional = string.Equals(task.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
+                item.Scope = task.GetMetadata(MavenReferenceItemMetadata.Scope);
+            }
+
+            // return the resulting imported references
+            return map.Values.ToArray();
+        }
 
     }
 

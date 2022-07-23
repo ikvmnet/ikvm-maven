@@ -108,7 +108,8 @@
         <MavenRepositories Condition=" '$(MavenRepositories)' == '' ">$(MavenDefaultRepositories);$(MavenAdditionalRepositories)</MavenRepositories>
         <MavenIncludeTestScope Condition=" '$(MavenIncludeTestScope)' == '' ">$(IsTestProject)</MavenIncludeTestScope>
         <MavenClassLoader Condition=" '$(MavenClassLoader)' == '' ">ikvm.runtime.AppDomainAssemblyClassLoader</MavenClassLoader>
-    </PropertyGroup>
+        <MavenCacheFile Condition=" '$(MavenCacheFile)' == '' ">$(IntermediateOutputPath)$(PackageId).maven.cache</MavenCacheFile>
+</PropertyGroup>
 
     <ItemGroup>
         <_MavenRepositories1 Include="$(MavenRepositories.Split(';'))" />
@@ -118,7 +119,7 @@
 
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
-        <MavenReferenceItemResolve Repositories="@(MavenRepositories)" IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" ClassLoader="$(MavenClassLoader)" Items="@(MavenReferenceItem)">
+        <MavenReferenceItemResolve CacheFile="$(MavenCacheFile)" Repositories="@(MavenRepositories)" IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" ClassLoader="$(MavenClassLoader)" Items="@(MavenReferenceItem)">
             <Output TaskParameter="ResolvedItems" ItemName="_MavenIkvmReferenceItem"/>
         </MavenReferenceItemResolve>
         <ItemGroup>

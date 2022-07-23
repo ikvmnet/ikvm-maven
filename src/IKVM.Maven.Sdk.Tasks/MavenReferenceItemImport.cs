@@ -105,7 +105,7 @@ namespace IKVM.Maven.Sdk.Tasks
                         items.Add(GetMavenReferenceItem(dependency));
 
                 // output final list of new dependencies
-                Items = items.Select(i => i.Item).ToArray();
+                Items = items.Select(ToTaskItem).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -113,6 +113,18 @@ namespace IKVM.Maven.Sdk.Tasks
                 Log.LogErrorWithCodeFromResources(e.MessageResourceName, e.MessageArgs);
                 return false;
             }
+        }
+
+        /// <summary>
+        /// Persists the item to a task item.
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        ITaskItem ToTaskItem(MavenReferenceItem item)
+        {
+            var task = new TaskItem();
+            MavenReferenceItemMetadata.Save(item, task);
+            return task;
         }
 
         /// <summary>
@@ -157,14 +169,13 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(dependency));
 
             var itemSpec = $"{dependency.getGroupId()}:{dependency.getArtifactId()}";
-            var item = new MavenReferenceItem(new TaskItem(itemSpec));
+            var item = new MavenReferenceItem();
             item.ItemSpec = itemSpec;
             item.GroupId = dependency.getGroupId();
             item.ArtifactId = dependency.getArtifactId();
             item.Classifier = dependency.getClassifier();
             item.Version = dependency.getVersion();
             item.Scope = dependency.getScope();
-            item.Save();
             return item;
         }
 
