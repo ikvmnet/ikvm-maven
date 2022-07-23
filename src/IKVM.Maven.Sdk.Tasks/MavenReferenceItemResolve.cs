@@ -61,13 +61,13 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Set of MavenReferenceItem.
         /// </summary>
         [Required]
-        public ITaskItem[] Items { get; set; }
+        public ITaskItem[] References { get; set; }
 
         /// <summary>
         /// Set of output IkvmReferenceItem instances.
         /// </summary>
         [Output]
-        public ITaskItem[] ResolvedItems { get; set; }
+        public ITaskItem[] ResolvedReferences { get; set; }
 
         /// <summary>
         /// Name of the classloader to use for the reference items.
@@ -129,7 +129,7 @@ namespace IKVM.Maven.Sdk.Tasks
             try
             {
                 var repositories = MavenRepositoryItemMetadata.Load(Repositories);
-                var items = MavenReferenceItemMetadata.Load(Items);
+                var items = MavenReferenceItemMetadata.Load(References);
 
                 // attempt to look up previous results in cache
                 if (CacheFile != null)
@@ -141,7 +141,7 @@ namespace IKVM.Maven.Sdk.Tasks
                             Enumerable.SequenceEqual(cacheFile.Repositories, repositories) &&
                             Enumerable.SequenceEqual(cacheFile.Items, items))
                         {
-                            ResolvedItems = cacheFile.ResolvedItems.Select(ToTaskItem).ToArray();
+                            ResolvedReferences = cacheFile.ResolvedItems.Select(ToTaskItem).ToArray();
                             return true;
                         }
                     }
@@ -162,7 +162,7 @@ namespace IKVM.Maven.Sdk.Tasks
                     });
                 }
 
-                ResolvedItems = resolvedItems.Select(ToTaskItem).ToArray();
+                ResolvedReferences = resolvedItems.Select(ToTaskItem).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)

@@ -119,8 +119,8 @@
 
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
     <Target Name="_GetMavenIkvmReferenceItems" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
-        <MavenReferenceItemResolve CacheFile="$(MavenCacheFile)" Repositories="@(MavenRepositories)" IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" ClassLoader="$(MavenClassLoader)" Items="@(MavenReferenceItem)">
-            <Output TaskParameter="ResolvedItems" ItemName="_MavenIkvmReferenceItem"/>
+        <MavenReferenceItemResolve CacheFile="$(MavenCacheFile)" Repositories="@(MavenRepositories)" IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" ClassLoader="$(MavenClassLoader)" References="@(MavenReferenceItem)">
+            <Output TaskParameter="ResolvedReferences" ItemName="_MavenIkvmReferenceItem"/>
         </MavenReferenceItemResolve>
         <ItemGroup>
             <IkvmReferenceItem Include="@(_MavenIkvmReferenceItem)">

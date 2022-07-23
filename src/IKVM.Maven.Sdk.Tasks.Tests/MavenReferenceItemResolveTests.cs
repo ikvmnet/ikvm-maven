@@ -49,14 +49,14 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             i2.SetMetadata(MavenReferenceItemMetadata.Version, "3.8.6");
             i2.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
-            t.Items = new[] { i1, i2 };
+            t.References = new[] { i1, i2 };
 
             t.Execute().Should().BeTrue();
             errors.Should().BeEmpty();
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec.StartsWith("maven$org.codehaus.plexus:plexus-utils:"));
-            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
-            t.ResolvedItems.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
-            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec.StartsWith("maven$org.codehaus.plexus:plexus-utils:"));
+            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
+            t.ResolvedReferences.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
+            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
         }
 
         [TestMethod]
@@ -76,15 +76,15 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "4.2.2");
             i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
-            t.Items = new[] { i1 };
+            t.References = new[] { i1 };
 
             t.Execute().Should().BeTrue();
             errors.Should().BeEmpty();
 
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.google.inject:guice:no_aop:4.2.2");
-            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
-            t.ResolvedItems.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
-            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.google.inject:guice:no_aop:4.2.2");
+            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
+            t.ResolvedReferences.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
+            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
         }
 
         [TestMethod]
@@ -103,17 +103,17 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "1");
             i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
-            t.Items = new[] { i1 };
+            t.References = new[] { i1 };
 
             t.Execute().Should().BeTrue();
             errors.Should().BeEmpty();
 
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
-            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
-            t.ResolvedItems.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
-            t.ResolvedItems.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
+            t.ResolvedReferences.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
+            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
 
-            var r = t.ResolvedItems.FirstOrDefault(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+            var r = t.ResolvedReferences.FirstOrDefault(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
             r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion).Should().Be("1.0");
         }
 
@@ -133,16 +133,16 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "8.12.48");
             i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
 
-            t.Items = new[] { i1 };
+            t.References = new[] { i1 };
 
             t.Execute().Should().BeTrue();
             errors.Should().BeEmpty();
 
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:annotations:8.12.48");
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:component:8.12.48");
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:config:8.12.48");
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:config-lib:8.12.48");
-            t.ResolvedItems.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:configdefinitions:8.12.48");
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:annotations:8.12.48");
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:component:8.12.48");
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:config:8.12.48");
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:config-lib:8.12.48");
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:configdefinitions:8.12.48");
         }
 
     }
