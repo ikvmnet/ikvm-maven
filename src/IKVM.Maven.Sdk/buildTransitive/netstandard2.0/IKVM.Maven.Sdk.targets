@@ -108,7 +108,7 @@
         <MavenRepositories Condition=" '$(MavenRepositories)' == '' ">$(MavenDefaultRepositories);$(MavenAdditionalRepositories)</MavenRepositories>
         <MavenIncludeTestScope Condition=" '$(MavenIncludeTestScope)' == '' ">$(IsTestProject)</MavenIncludeTestScope>
         <MavenClassLoader Condition=" '$(MavenClassLoader)' == '' ">ikvm.runtime.AppDomainAssemblyClassLoader</MavenClassLoader>
-        <MavenCacheFile Condition=" '$(MavenCacheFile)' == '' ">$(IntermediateOutputPath)$(PackageId).maven.cache</MavenCacheFile>
+        <MavenCacheFile Condition=" '$(MavenCacheFile)' == '' ">$(IntermediateOutputPath)$(ProjectName).maven.cache</MavenCacheFile>
 </PropertyGroup>
 
     <ItemGroup>
