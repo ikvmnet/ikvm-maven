@@ -298,19 +298,51 @@ namespace IKVM.Maven.Sdk.Tasks
                 return null;
 
             // check that the same set of repositories are involved
-            if (cacheFile.Repositories == null || maven.Repositories.size() != cacheFile.Repositories.Length)
+            if (cacheFile.Repositories == null || UnorderedSequenceEquals(((IEnumerable)maven.Repositories).Cast<RemoteRepository>().ToArray(), cacheFile.Repositories) == false)
                 return null;
-            for (int i = 0; i < maven.Repositories.size(); i++)
-                if (maven.Repositories.get(i) is not RemoteRepository a || cacheFile.Repositories[i] is not MavenRepositoryItem b ||
-                    a.getUrl() != b.Url || a.getId() != b.Id)
-                    return null;
 
             // check that the same set of dependencies are involved
-            if (cacheFile.Dependencies == null || Enumerable.SequenceEqual(dependencies, cacheFile.Dependencies, JavaEqualityComparer.Default) == false)
+            if (cacheFile.Dependencies == null || UnorderedSequenceEquals(dependencies, cacheFile.Dependencies) == false)
                 return null;
 
             // return previously resolved graph
             return cacheFile.Graph;
+        }
+
+        /// <summary>
+        /// Checks that each item in <paramref name="a"/> exists in <paramref name="b"/>.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        bool UnorderedSequenceEquals(IList<RemoteRepository> a, IList<MavenRepositoryItem> b)
+        {
+            if (a.Count != b.Count)
+                return false;
+
+            foreach (var i in a)
+                if (b.Any(j => j.Id == i.getId() && j.Url == i.getUrl()) == false)
+                    return false;
+
+            return true;
+        }
+
+        /// <summary>
+        /// Checks that each item in <paramref name="a"/> exists in <paramref name="b"/>.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        bool UnorderedSequenceEquals(IList<Dependency> a, IList<Dependency> b)
+        {
+            if (a.Count != b.Count)
+                return false;
+
+            foreach (var i in a)
+                if (b.Any(j => DependencyEqualityComparer.Default.Equals(i, j)) == false)
+                    return false;
+
+            return true;
         }
 
         /// <summary>
