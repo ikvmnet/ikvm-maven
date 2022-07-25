@@ -317,6 +317,12 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         bool UnorderedSequenceEquals(IList<RemoteRepository> a, IList<MavenRepositoryItem> b)
         {
+            if (ReferenceEquals(a, b))
+                return true;
+
+            if (b == null)
+                return false;
+
             if (a.Count != b.Count)
                 return false;
 
@@ -335,6 +341,12 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         bool UnorderedSequenceEquals(IList<Dependency> a, IList<Dependency> b)
         {
+            if (ReferenceEquals(a, b))
+                return true;
+
+            if (b == null)
+                return false;
+
             if (a.Count != b.Count)
                 return false;
 
