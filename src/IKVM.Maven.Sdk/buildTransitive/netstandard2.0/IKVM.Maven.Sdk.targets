@@ -1,34 +1,5 @@
 ﻿<Project>
 
-    <UsingTask
-        TaskName="MavenKeyValuePairsToItemGroup"
-        TaskFactory="RoslynCodeTaskFactory"
-        AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll" >
-        <ParameterGroup>
-            <Value ParameterType="System.String" Required="true" />
-            <Output ParameterType="Microsoft.Build.Framework.ITaskItem[]" Output="true" />
-        </ParameterGroup>
-        <Task>
-            <Using Namespace="System"/>
-            <Using Namespace="System.Linq"/>
-            <Code Type="Fragment" Language="cs">
-                <![CDATA[
-                Output = Value
-                    .Split(';')
-                    .Select(i => i.Split('='))
-                    .Select(i =>
-                    {
-                        var t = new TaskItem(i[0]);
-                        if (i.Length > 1)
-                            t.SetMetadata("RepositoryUrl", i[1]);
-                        return t;
-                    })
-                    .ToArray();
-                ]]>
-            </Code>
-        </Task>
-    </UsingTask>
-
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
     <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
         <MavenReferenceItemImport AssetsFilePath="$(ProjectAssetsFile)" TargetFramework="$(TargetFramework)" RuntimeIdentifier="$(RuntimeIdentifier)" Condition="Exists('$(ProjectAssetsFile)')">

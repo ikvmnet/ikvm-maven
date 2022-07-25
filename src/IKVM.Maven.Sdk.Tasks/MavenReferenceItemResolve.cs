@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
+using IKVM.Maven.Sdk.Tasks.Aether;
 using IKVM.Maven.Sdk.Tasks.Resources;
 
 using java.util;
@@ -20,6 +21,7 @@ using org.eclipse.aether;
 using org.eclipse.aether.artifact;
 using org.eclipse.aether.collection;
 using org.eclipse.aether.graph;
+using org.eclipse.aether.repository;
 using org.eclipse.aether.resolution;
 using org.eclipse.aether.util.artifact;
 using org.eclipse.aether.util.filter;
@@ -32,6 +34,20 @@ namespace IKVM.Maven.Sdk.Tasks
     /// </summary>
     public class MavenReferenceItemResolve : Task
     {
+
+        static readonly JsonSerializer serializer = new()
+        {
+            Converters =
+            {
+                new DefaultArtifactJsonConverter(),
+                new DefaultDependencyNodeJsonConverter(),
+                new DependencyJsonConverter(),
+                new ExclusionJsonConverter(),
+                new RemoteRepositoryJsonConverter(),
+                new VersionJsonConverter(),
+                new VersionConstraintJsonConverter(),
+            }
+        };
 
         static readonly java.lang.Boolean TRUE = java.lang.Boolean.TRUE;
         static readonly java.lang.Boolean FALSE = java.lang.Boolean.FALSE;
@@ -93,31 +109,32 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Attempts to read the cache file.
         /// </summary>
         /// <returns></returns>
-        MavenResolveCacheFile ReadCacheFile()
+        MavenResolveCacheFile TryReadCacheFile()
         {
-            if (File.Exists(CacheFile))
+            if (CacheFile != null && File.Exists(CacheFile))
+            {
                 using (var stm = File.OpenRead(CacheFile))
                 using (var rdr = new StreamReader(stm))
                 using (var jsn = new JsonTextReader(rdr))
-                {
-                    var cache = JsonSerializer.CreateDefault().Deserialize<MavenResolveCacheFile>(jsn);
-                    if (cache.Version == 1)
-                        return cache;
-                }
+                    return serializer.Deserialize<MavenResolveCacheFile>(jsn);
+            }
 
             return null;
         }
 
         /// <summary>
-        /// Attempts to read the cache file.
+        /// Attempts to write the cache file.
         /// </summary>
         /// <returns></returns>
-        void WriteCacheFile(MavenResolveCacheFile file)
+        void TryWriteCacheFile(MavenResolveCacheFile cacheFile)
         {
-            using (var stm = File.Create(CacheFile))
-            using (var wrt = new StreamWriter(stm))
-            using (var jsn = new JsonTextWriter(wrt))
-                JsonSerializer.CreateDefault().Serialize(jsn, file);
+            if (CacheFile != null)
+            {
+                using (var stm = File.Create(CacheFile))
+                using (var wrt = new StreamWriter(stm))
+                using (var jsn = new JsonTextWriter(wrt))
+                    serializer.Serialize(jsn, cacheFile);
+            }
         }
 
         /// <summary>
@@ -130,39 +147,7 @@ namespace IKVM.Maven.Sdk.Tasks
             {
                 var repositories = MavenRepositoryItemMetadata.Load(Repositories);
                 var items = MavenReferenceItemMetadata.Load(References);
-
-                // attempt to look up previous results in cache
-                if (CacheFile != null)
-                {
-                    var cacheFile = ReadCacheFile();
-                    if (cacheFile != null)
-                    {
-                        if (cacheFile.Version == 1 &&
-                            Enumerable.SequenceEqual(cacheFile.Repositories, repositories) &&
-                            Enumerable.SequenceEqual(cacheFile.Items, items))
-                        {
-                            ResolvedReferences = cacheFile.ResolvedItems.Select(ToTaskItem).ToArray();
-                            return true;
-                        }
-                    }
-                }
-
-                // resolve items
-                var resolvedItems = ResolveReferences(repositories, items).ToArray();
-
-                // save cache
-                if (CacheFile != null)
-                {
-                    WriteCacheFile(new MavenResolveCacheFile()
-                    {
-                        Version = 1,
-                        Repositories = repositories,
-                        Items = items,
-                        ResolvedItems = resolvedItems,
-                    });
-                }
-
-                ResolvedReferences = resolvedItems.Select(ToTaskItem).ToArray();
+                ResolvedReferences = ResolveReferences(repositories, items).Select(ToTaskItem).ToArray();
                 return true;
             }
             catch (MavenTaskMessageException e)
@@ -204,7 +189,7 @@ namespace IKVM.Maven.Sdk.Tasks
             var session = maven.CreateRepositorySystemSession(false);
 
             // root of the runtime dependency graph
-            var graph = ResolveCompileDependencyGraph(maven, session, items);
+            var graph = ResolveCompileDependencyGraph(maven, session, repositories, items);
             if (graph == null)
                 throw new NullReferenceException("Null result obtaining dependency graph.");
 
@@ -234,14 +219,17 @@ namespace IKVM.Maven.Sdk.Tasks
         /// </summary>
         /// <param name="maven"></param>
         /// <param name="session"></param>
+        /// <param name="repositories"></param>
         /// <param name="items"></param>
         /// <returns></returns>
-        DependencyNode ResolveCompileDependencyGraph(IkvmMavenEnvironment maven, RepositorySystemSession session, IList<MavenReferenceItem> items)
+        DependencyNode ResolveCompileDependencyGraph(IkvmMavenEnvironment maven, RepositorySystemSession session, IList<MavenRepositoryItem> repositories, IList<MavenReferenceItem> items)
         {
             if (maven is null)
                 throw new ArgumentNullException(nameof(maven));
             if (session is null)
                 throw new ArgumentNullException(nameof(session));
+            if (repositories is null)
+                throw new ArgumentNullException(nameof(repositories));
             if (items is null)
                 throw new ArgumentNullException(nameof(items));
 
@@ -249,6 +237,11 @@ namespace IKVM.Maven.Sdk.Tasks
             var dependencies = new Dependency[items.Count];
             for (int i = 0; i < items.Count; i++)
                 dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? TRUE : FALSE, new java.util.ArrayList());
+
+            // check the cache
+            var root = ResolveCompileDependencyGraphFromCache(maven, session, dependencies);
+            if (root != null)
+                return root;
 
             // collect the full dependency graph
             var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.COMPILE, JavaScopes.PROVIDED);
@@ -260,7 +253,60 @@ namespace IKVM.Maven.Sdk.Tasks
                     new CollectRequest(Arrays.asList(dependencies), null, maven.Repositories),
                     filter));
 
-            return result.getRoot();
+            root = (DefaultDependencyNode)result.getRoot();
+            if (root == null)
+                throw new MavenTaskException("Null dependency graph.");
+
+            TryWriteCacheFile(new MavenResolveCacheFile()
+            {
+                Version = 1,
+                Dependencies = dependencies,
+                Repositories = repositories.ToArray(),
+                Graph = root,
+            });
+
+            return root;
+        }
+
+        /// <summary>
+        /// Attempts to resolve the dependency graph from the cache file.
+        /// </summary>
+        /// <param name="maven"></param>
+        /// <param name="session"></param>
+        /// <param name="dependencies"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        DefaultDependencyNode ResolveCompileDependencyGraphFromCache(IkvmMavenEnvironment maven, RepositorySystemSession session, IList<Dependency> dependencies)
+        {
+            if (maven is null)
+                throw new ArgumentNullException(nameof(maven));
+            if (session is null)
+                throw new ArgumentNullException(nameof(session));
+            if (dependencies is null)
+                throw new ArgumentNullException(nameof(dependencies));
+
+            var cacheFile = TryReadCacheFile();
+            if (cacheFile == null)
+                return null;
+
+            // current version
+            if (cacheFile.Version != 1)
+                return null;
+
+            // check that the same set of repositories are involved
+            if (maven.Repositories.size() != cacheFile.Repositories.Length)
+                return null;
+            for (int i = 0; i < maven.Repositories.size(); i++)
+                if (maven.Repositories.get(i) is not RemoteRepository a || cacheFile.Repositories[i] is not MavenRepositoryItem b ||
+                    a.getUrl() != b.Url || a.getId() != b.Id)
+                    return null;
+
+            // check that the same set of dependencies are involved
+            if (Enumerable.SequenceEqual(dependencies, cacheFile.Dependencies, JavaEqualityComparer.Default) == false)
+                return null;
+
+            // return previously resolved graph
+            return cacheFile.Graph;
         }
 
         /// <summary>

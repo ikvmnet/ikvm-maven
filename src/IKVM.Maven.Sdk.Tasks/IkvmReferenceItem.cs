@@ -9,7 +9,6 @@ namespace IKVM.Maven.Sdk.Tasks
     /// <summary>
     /// Models the required data of a <see cref="IkvmReferenceItem"/>.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     class IkvmReferenceItem
     {
 
