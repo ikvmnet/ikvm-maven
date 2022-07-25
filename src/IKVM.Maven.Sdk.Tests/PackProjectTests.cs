@@ -54,7 +54,7 @@ namespace IKVM.Maven.Sdk.Tests
         /// <returns></returns>
         IProjectAnalyzer CreateAnalyzer(string projectFile, string additionalPackageDir)
         {
-            var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests_Package", "nuget", "packages");
+            var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests_PackProject", "nuget", "packages");
             if (Directory.Exists(nugetPackageRoot))
                 Directory.Delete(nugetPackageRoot, true);
             Directory.CreateDirectory(nugetPackageRoot);
