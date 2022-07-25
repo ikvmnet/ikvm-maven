@@ -132,7 +132,7 @@ namespace IKVM.Maven.Sdk.Tasks
             {
                 using var stm = File.Create(CacheFile);
                 using var wrt = new StreamWriter(stm);
-                using var jsn = new JsonTextWriter(wrt);
+                using var jsn = new JsonTextWriter(wrt) { Formatting = Formatting.Indented };
                 serializer.Serialize(jsn, cacheFile);
             }
         }
