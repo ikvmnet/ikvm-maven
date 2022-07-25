@@ -293,8 +293,12 @@ namespace IKVM.Maven.Sdk.Tasks
             if (cacheFile.Version != 1)
                 return null;
 
+            // nothing was cached
+            if (cacheFile.Graph == null)
+                return null;
+
             // check that the same set of repositories are involved
-            if (maven.Repositories.size() != cacheFile.Repositories.Length)
+            if (cacheFile.Repositories == null || maven.Repositories.size() != cacheFile.Repositories.Length)
                 return null;
             for (int i = 0; i < maven.Repositories.size(); i++)
                 if (maven.Repositories.get(i) is not RemoteRepository a || cacheFile.Repositories[i] is not MavenRepositoryItem b ||
@@ -302,7 +306,7 @@ namespace IKVM.Maven.Sdk.Tasks
                     return null;
 
             // check that the same set of dependencies are involved
-            if (Enumerable.SequenceEqual(dependencies, cacheFile.Dependencies, JavaEqualityComparer.Default) == false)
+            if (cacheFile.Dependencies == null || Enumerable.SequenceEqual(dependencies, cacheFile.Dependencies, JavaEqualityComparer.Default) == false)
                 return null;
 
             // return previously resolved graph

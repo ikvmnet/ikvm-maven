@@ -84,8 +84,8 @@
 
     <ItemGroup>
         <_MavenRepositories1 Include="$(MavenRepositories.Split(';'))" />
-        <_MavenRepositories2 Include="@(_MavenRepositories1)" RepositoryId="$([System.String]::Copy('%(Identity)').Split('=')[0])" RepositoryUrl="$([System.String]::Copy('%(Identity)').Split('=')[1])" />
-        <MavenRepositories Include="@(_MavenRepositories2->'%(RepositoryId)')" />
+        <_MavenRepositories2 Include="@(_MavenRepositories1)" Id="$([System.String]::Copy('%(Identity)').Split('=')[0])" Url="$([System.String]::Copy('%(Identity)').Split('=')[1])" />
+        <MavenRepositories Include="@(_MavenRepositories2->'%(Id)')" />
     </ItemGroup>
 
     <!-- Transfers the MavenReferenceItem set into the collection of IkvmReferenceItem. -->
@@ -97,6 +97,9 @@
             <IkvmReferenceItem Include="@(_MavenIkvmReferenceItem)">
                 <ReferenceSource>MavenReference</ReferenceSource>
             </IkvmReferenceItem>
+        </ItemGroup>
+        <ItemGroup>
+            <FileWrites Include="$(MavenCacheFile)" />
         </ItemGroup>
     </Target>
 
