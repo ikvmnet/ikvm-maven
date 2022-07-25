@@ -113,10 +113,10 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             if (CacheFile != null && File.Exists(CacheFile))
             {
-                using (var stm = File.OpenRead(CacheFile))
-                using (var rdr = new StreamReader(stm))
-                using (var jsn = new JsonTextReader(rdr))
-                    return serializer.Deserialize<MavenResolveCacheFile>(jsn);
+                using var stm = File.OpenRead(CacheFile);
+                using var rdr = new StreamReader(stm);
+                using var jsn = new JsonTextReader(rdr);
+                return serializer.Deserialize<MavenResolveCacheFile>(jsn);
             }
 
             return null;
@@ -130,10 +130,10 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             if (CacheFile != null)
             {
-                using (var stm = File.Create(CacheFile))
-                using (var wrt = new StreamWriter(stm))
-                using (var jsn = new JsonTextWriter(wrt))
-                    serializer.Serialize(jsn, cacheFile);
+                using var stm = File.Create(CacheFile);
+                using var wrt = new StreamWriter(stm);
+                using var jsn = new JsonTextWriter(wrt);
+                serializer.Serialize(jsn, cacheFile);
             }
         }
 
