@@ -154,30 +154,55 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
-            var t = new MavenReferenceItemResolve();
-            t.BuildEngine = engine.Object;
-            t.CacheFile = cacheFile;
-            t.Repositories = new[] { GetCentralRepositoryItem() };
 
-            var i1 = new TaskItem("javax.inject:javax.inject:1");
-            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "javax.inject");
-            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "javax.inject");
-            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1");
-            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
-            t.References = new[] { i1 };
-            t.Execute().Should().BeTrue();
-            errors.Should().BeEmpty();
+            {
+                var t = new MavenReferenceItemResolve();
+                t.BuildEngine = engine.Object;
+                t.CacheFile = cacheFile;
+                t.Repositories = new[] { GetCentralRepositoryItem() };
 
-            var cacheFileText = File.ReadAllText(cacheFile);
-            t.Execute().Should().BeTrue();
+                var i1 = new TaskItem("javax.inject:javax.inject:1");
+                i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "javax.inject");
+                i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "javax.inject");
+                i1.SetMetadata(MavenReferenceItemMetadata.Version, "1");
+                i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+                t.References = new[] { i1 };
+                t.Execute().Should().BeTrue();
+                errors.Should().BeEmpty();
 
-            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
-            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
-            t.ResolvedReferences.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
-            t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
+                t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+                t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
+                t.ResolvedReferences.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
+                t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
 
-            var r = t.ResolvedReferences.FirstOrDefault(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
-            r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion).Should().Be("1.0");
+                var r = t.ResolvedReferences.FirstOrDefault(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+                r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion).Should().Be("1.0");
+            }
+
+            {
+                var t = new MavenReferenceItemResolve();
+                t.BuildEngine = engine.Object;
+                t.CacheFile = cacheFile;
+                t.Repositories = new[] { GetCentralRepositoryItem() };
+
+                var i1 = new TaskItem("javax.inject:javax.inject:1");
+                i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "javax.inject");
+                i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "javax.inject");
+                i1.SetMetadata(MavenReferenceItemMetadata.Version, "1");
+                i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+                t.References = new[] { i1 };
+                t.Execute().Should().BeTrue();
+                errors.Should().BeEmpty();
+
+                t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+                t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.ItemSpec));
+                t.ResolvedReferences.Should().OnlyContain(i => i.ItemSpec.StartsWith("maven$"));
+                t.ResolvedReferences.Should().OnlyContain(i => !string.IsNullOrWhiteSpace(i.GetMetadata(IkvmReferenceItemMetadata.Compile)));
+
+                var r = t.ResolvedReferences.FirstOrDefault(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
+                r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion).Should().Be("1.0");
+            }
+
         }
 
     }
