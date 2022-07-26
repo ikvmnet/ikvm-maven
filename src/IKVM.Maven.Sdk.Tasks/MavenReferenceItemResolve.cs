@@ -239,10 +239,10 @@ namespace IKVM.Maven.Sdk.Tasks
                 dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? TRUE : FALSE, new java.util.ArrayList());
 
             // check the cache
-            var root = ResolveCompileDependencyGraphFromCache(maven, session, dependencies);
+            var root = ResolveCompileDependencyGraphFromCache(maven, dependencies);
             if (root != null)
             {
-                Log.LogMessageFromText("Resolved dependencies from project cache.", MessageImportance.Low);
+                Log.LogMessageFromText("Resolved Maven dependency graph from project cache.", MessageImportance.Low);
                 return root;
             }
 
@@ -275,16 +275,13 @@ namespace IKVM.Maven.Sdk.Tasks
         /// Attempts to resolve the dependency graph from the cache file.
         /// </summary>
         /// <param name="maven"></param>
-        /// <param name="session"></param>
         /// <param name="dependencies"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        DefaultDependencyNode ResolveCompileDependencyGraphFromCache(IkvmMavenEnvironment maven, RepositorySystemSession session, IList<Dependency> dependencies)
+        DefaultDependencyNode ResolveCompileDependencyGraphFromCache(IkvmMavenEnvironment maven, IList<Dependency> dependencies)
         {
             if (maven is null)
                 throw new ArgumentNullException(nameof(maven));
-            if (session is null)
-                throw new ArgumentNullException(nameof(session));
             if (dependencies is null)
                 throw new ArgumentNullException(nameof(dependencies));
 
