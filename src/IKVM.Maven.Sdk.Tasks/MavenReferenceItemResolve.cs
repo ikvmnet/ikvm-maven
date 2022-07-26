@@ -241,7 +241,10 @@ namespace IKVM.Maven.Sdk.Tasks
             // check the cache
             var root = ResolveCompileDependencyGraphFromCache(maven, session, dependencies);
             if (root != null)
+            {
+                Log.LogMessageFromText("Resolved dependencies from project cache.", MessageImportance.Low);
                 return root;
+            }
 
             // collect the full dependency graph
             var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.COMPILE, JavaScopes.PROVIDED);
