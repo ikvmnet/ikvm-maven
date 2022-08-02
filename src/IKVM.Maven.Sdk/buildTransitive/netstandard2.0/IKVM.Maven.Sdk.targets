@@ -80,7 +80,7 @@
         <MavenIncludeTestScope Condition=" '$(MavenIncludeTestScope)' == '' ">$(IsTestProject)</MavenIncludeTestScope>
         <MavenClassLoader Condition=" '$(MavenClassLoader)' == '' ">ikvm.runtime.AppDomainAssemblyClassLoader</MavenClassLoader>
         <MavenCacheFile Condition=" '$(MavenCacheFile)' == '' ">$(IntermediateOutputPath)$(ProjectName).maven.cache</MavenCacheFile>
-</PropertyGroup>
+    </PropertyGroup>
 
     <ItemGroup>
         <_MavenRepositories1 Include="$(MavenRepositories.Split(';'))" />
