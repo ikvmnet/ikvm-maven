@@ -20,8 +20,6 @@ namespace IKVM.Maven.Sdk.Tasks
         public static readonly string Dependencies = "Dependencies";
         public static readonly string Scope = "Scope";
         public static readonly string Optional = "Optional";
-        public static readonly string AssemblyName = "AssemblyName";
-        public static readonly string AssemblyVersion = "AssemblyVersion";
         public static readonly string Debug = "Debug";
 
         /// <summary>

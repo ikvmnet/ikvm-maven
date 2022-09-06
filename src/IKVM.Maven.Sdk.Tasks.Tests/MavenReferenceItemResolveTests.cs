@@ -205,6 +205,37 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
         }
 
+        [TestMethod]
+        public void Can_resolve_maven_references_with_version_override()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("name.dmaus.schxslt:cli:1.9.1");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "name.dmaus.schxslt");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "cli");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.9.1");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+
+            var i2 = new TaskItem("net.sf.saxon:Saxon-HE:11.4");
+            i2.SetMetadata(MavenReferenceItemMetadata.GroupId, "net.sf.saxon");
+            i2.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "Saxon-HE");
+            i2.SetMetadata(MavenReferenceItemMetadata.Version, "11.4");
+            i2.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+
+            t.References = new[] { i1, i2 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$name.dmaus.schxslt:cli:1.9.1");
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$net.sf.saxon:Saxon-HE:11.4");
+        }
+
     }
 
 }
