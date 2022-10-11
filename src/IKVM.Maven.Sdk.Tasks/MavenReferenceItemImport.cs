@@ -147,7 +147,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         DisposableValue<NuGetApi> GetNuGetApi()
         {
-#if NETFRAMEWORK
+#if NETFRAMEWORK_
             var appDomainSetup = new AppDomainSetup();
             appDomainSetup.ApplicationBase = Path.GetDirectoryName(typeof(NuGetApi).Assembly.Location);
             var appDomain = AppDomain.CreateDomain("IKVM.Maven.Sdk.Tasks", null, appDomainSetup);
