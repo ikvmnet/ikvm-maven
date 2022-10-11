@@ -144,7 +144,7 @@
     </PropertyGroup>
 
     <!-- Outputs the project model file to the intermediate directory. -->
-    <Target Name="_BuildMavenProjectModelPackageFile" Condition=" '@(MavenReferenceItemsForProjectModel)' != '' ">
+    <Target Name="_BuildMavenProjectModelPackageFile" DependsOnTargets="GetMavenReferenceItemsForProjectModelFromMavenReferences" Condition=" '@(MavenReferenceItemsForProjectModel)' != '' ">
         <MavenWriteProjectObjectModelFile GroupId="$(MavenProjectGroupdId)" ArtifactId="$(MavenProjectArtifactId)" Version="$(MavenProjectVersion)" References="@(MavenReferenceItemsForProjectModel)" ProjectFile="$(IntermediateOutputPath)$(PackageId).pom">
 
         </MavenWriteProjectObjectModelFile>
@@ -152,7 +152,8 @@
 
     <PropertyGroup>
         <BuildMavenProjectModelPackageFileDependsOn>
-            $(BuildMavenProjectModelPackageFile);
+            $(BuildMavenProjectModelPackageFileDependsOn);
+            GetMavenReferenceItems;
             GetMavenReferenceItemsForProjectModelFromMavenReferences;
             _BuildMavenProjectModelPackageFile;
         </BuildMavenProjectModelPackageFileDependsOn>
@@ -163,15 +164,15 @@
 
     </Target>
 
-    <PropertyGroup>
-        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GetMavenProjectModelPackageFile</TargetsForTfmSpecificContentInPackage>
-    </PropertyGroup>
-
     <Target Name="GetMavenProjectModelPackageFile" DependsOnTargets="BuildMavenProjectModelPackageFile">
         <ItemGroup>
             <TfmSpecificPackageFile Include="$(IntermediateOutputPath)$(PackageId).pom" PackagePath="maven\$(TargetFramework)" Condition="Exists('$(IntermediateOutputPath)$(PackageId).pom')" />
         </ItemGroup>
     </Target>
+
+    <PropertyGroup>
+        <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);GetMavenProjectModelPackageFile</TargetsForTfmSpecificContentInPackage>
+    </PropertyGroup>
 
     <Target Name="CleanMaven">
         <Delete Files="$(MavenCacheFile)" />
