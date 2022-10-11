@@ -236,6 +236,37 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$net.sf.saxon:Saxon-HE:11.4");
         }
 
+        [TestMethod]
+        public void Can_resolve_maven_references_with_transitive_dependencies()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.junit.platform:junit-platform-launcher:1.9.1");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.junit.platform");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "junit-platform-launcher");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.9.1");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.junit.platform:junit-platform-commons:1.9.1");
+
+            var r1 = t.ResolvedReferences.FirstOrDefault(i => i.ItemSpec == "maven$org.junit.platform:junit-platform-engine:1.9.1");
+            r1.GetMetadata("References").Split(';').Should().Contain("maven$org.junit.platform:junit-platform-commons:1.9.1");
+
+            var r2 = t.ResolvedReferences.FirstOrDefault(i => i.ItemSpec == "maven$org.junit.platform:junit-platform-launcher:1.9.1");
+            r2.GetMetadata("References").Split(';').Should().Contain("maven$org.junit.platform:junit-platform-engine:1.9.1");
+            r2.GetMetadata("References").Split(';').Should().Contain("maven$org.junit.platform:junit-platform-commons:1.9.1");
+        }
+
     }
 
 }
