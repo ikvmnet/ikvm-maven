@@ -173,4 +173,16 @@
         </ItemGroup>
     </Target>
 
+    <Target Name="CleanMaven">
+        <Delete Files="$(MavenCacheFile)" />
+        <Delete Files="$(IntermediateOutputPath)$(PackageId).pom" />
+    </Target>
+
+    <PropertyGroup>
+        <CleanDependsOn>
+            $(CleanDependsOn);
+            CleanMaven;
+        </CleanDependsOn>
+    </PropertyGroup>
+
 </Project>
