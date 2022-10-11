@@ -125,7 +125,7 @@
     </PropertyGroup>
 
     <!-- Gets the MavenReferenceItems that will be emitted to the generated package. -->
-    <Target Name="GetMavenReferenceItemsForProjectModelFromMavenReferences" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
+    <Target Name="GetMavenReferenceItemsForProjectModel" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
         <ItemGroup>
             <MavenReferenceItemsForProjectModel Include="@(MavenReferenceItem->WithMetadataValue('ReferenceSource', 'MavenReference'))" />
         </ItemGroup>
@@ -144,7 +144,7 @@
     </PropertyGroup>
 
     <!-- Outputs the project model file to the intermediate directory. -->
-    <Target Name="_BuildMavenProjectModelPackageFile" DependsOnTargets="GetMavenReferenceItemsForProjectModelFromMavenReferences" Condition=" '@(MavenReferenceItemsForProjectModel)' != '' ">
+    <Target Name="_BuildMavenProjectModelPackageFile" DependsOnTargets="GetMavenReferenceItems;GetMavenReferenceItemsForProjectModel" Condition=" '@(MavenReferenceItemsForProjectModel)' != '' ">
         <MavenWriteProjectObjectModelFile GroupId="$(MavenProjectGroupdId)" ArtifactId="$(MavenProjectArtifactId)" Version="$(MavenProjectVersion)" References="@(MavenReferenceItemsForProjectModel)" ProjectFile="$(IntermediateOutputPath)$(PackageId).pom">
 
         </MavenWriteProjectObjectModelFile>
@@ -154,7 +154,7 @@
         <BuildMavenProjectModelPackageFileDependsOn>
             $(BuildMavenProjectModelPackageFileDependsOn);
             GetMavenReferenceItems;
-            GetMavenReferenceItemsForProjectModelFromMavenReferences;
+            GetMavenReferenceItemsForProjectModel;
             _BuildMavenProjectModelPackageFile;
         </BuildMavenProjectModelPackageFileDependsOn>
     </PropertyGroup>
