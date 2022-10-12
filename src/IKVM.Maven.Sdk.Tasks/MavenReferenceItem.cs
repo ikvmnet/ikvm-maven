@@ -70,7 +70,8 @@ namespace IKVM.Maven.Sdk.Tasks
                 Classifier == other.Classifier &&
                 Version == other.Version &&
                 Optional == other.Optional &&
-                Scope == other.Scope;
+                Scope == other.Scope &&
+                ReferenceSource == other.ReferenceSource;
         }
 
         public override int GetHashCode()
@@ -83,6 +84,7 @@ namespace IKVM.Maven.Sdk.Tasks
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Version);
             hashCode = hashCode * -1521134295 + Optional.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Scope);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ReferenceSource);
             return hashCode;
         }
 
