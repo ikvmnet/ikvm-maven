@@ -21,6 +21,7 @@ namespace IKVM.Maven.Sdk.Tasks
         public static readonly string Scope = "Scope";
         public static readonly string Optional = "Optional";
         public static readonly string Debug = "Debug";
+        public static readonly string ReferenceSource = "ReferenceSource";
 
         /// <summary>
         /// Writes the metadata to the item.
@@ -39,6 +40,7 @@ namespace IKVM.Maven.Sdk.Tasks
             task.SetMetadata(MavenReferenceItemMetadata.Version, item.Version);
             task.SetMetadata(MavenReferenceItemMetadata.Optional, item.Optional ? "true" : "false");
             task.SetMetadata(MavenReferenceItemMetadata.Scope, item.Scope);
+            task.SetMetadata(MavenReferenceItemMetadata.ReferenceSource, item.ReferenceSource);
         }
 
         /// <summary>
@@ -67,6 +69,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 item.Version = task.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Optional = string.Equals(task.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
                 item.Scope = task.GetMetadata(MavenReferenceItemMetadata.Scope);
+                item.ReferenceSource = task.GetMetadata(MavenReferenceItemMetadata.ReferenceSource);
             }
 
             // return the resulting imported references

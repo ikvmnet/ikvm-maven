@@ -51,6 +51,11 @@ namespace IKVM.Maven.Sdk.Tasks
         /// </summary>
         public string Scope { get; set; } = JavaScopes.COMPILE;
 
+        /// <summary>
+        /// Originator of the reference item.
+        /// </summary>
+        public string ReferenceSource { get; set; }
+
         public override bool Equals(object obj)
         {
             return Equals(obj as MavenReferenceItem);
