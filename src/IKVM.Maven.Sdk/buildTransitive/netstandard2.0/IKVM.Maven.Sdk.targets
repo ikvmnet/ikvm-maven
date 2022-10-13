@@ -22,7 +22,7 @@
             Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework)"
             Condition=" '%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' And '@(ProjectReferenceWithConfiguration)' != '' And '$(BuildingProject)' == 'true' And '@(_MSBuildProjectReferenceExistent)' != '' "
             ContinueOnError="$(ContinueOnError)"
-            RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove)$(_GlobalPropertiesToRemoveFromProjectReferences)">
+            RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove);$(_GlobalPropertiesToRemoveFromProjectReferences)">
             <Output TaskParameter="TargetOutputs" ItemName="_MavenReferenceItemFromProjectReferences" />
         </MSBuild>
         <ItemGroup>
