@@ -29,7 +29,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.2.1" />
+        <PackageReference Include="IKVM" Version="8.3.0-prerelease0395" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == '' ">
