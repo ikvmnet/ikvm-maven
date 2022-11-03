@@ -55,3 +55,32 @@ depend on generated assemblies do so under a certain set of assumptions that can
 assemblies published in NuGet packages are compiled against on certain assembly names and version, allowing different
 people to rename or change assemblies away from their default would break the expectation that two NuGet packages that
 depend on the same Maven artifact resolve to the same assembly name.
+
+### AssemblyVersion override
+In some cases The Maven module version is not compatible with .net standards (Major.Minor.Build.Revision) and should be adjusted to produce valid .net assembly version.
+As an example [this module](https://mvnrepository.com/artifact/net.java.dev.stax-utils/stax-utils) contains version bigger 
+than [UInt16](https://learn.microsoft.com/en-us/dotnet/api/system.reflection.assemblyname.version?redirectedfrom=MSDN&view=net-6.0#remarks) that sets 65534 as a maximum number for a given version segment.
+
+You can add a new Target item in your project file that will override `AssemblyVersion` metadata for generated `IkvmReferenceItem` item. 
+
+```xml
+<Target Name="FixIkvmReference" AfterTargets="_GetMavenIkvmReferenceItems">
+	<ItemGroup>
+		<IkvmReferenceItem Condition="'%(Identity)'=='maven$net.java.dev.stax-utils:stax-utils:20070216'">
+			<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		</IkvmReferenceItem>
+	</ItemGroup>
+</Target>
+```
+
+The search pattern for a module identity looks like `maven${groupId}:{artifactId}:{version}`, so for a module example bellow 
+
+```xml
+<dependency>
+    <groupId>net.java.dev.stax-utils</groupId>
+    <artifactId>stax-utils</artifactId>
+    <version>20070216</version>
+</dependency>
+```
+
+it will be `maven$net.java.dev.stax-utils:stax-utils:20070216`
