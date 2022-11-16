@@ -198,7 +198,7 @@ jobs:
         path: dist/nuget
     - name: Create Release
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
-      uses: ncipollo/release-action@v1.10.0
+      uses: ncipollo/release-action@v1.11.2
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
         artifacts: dist/nuget/*.nupkg,dist/nuget/*.snupkg
