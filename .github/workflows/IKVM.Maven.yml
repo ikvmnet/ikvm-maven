@@ -95,15 +95,15 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: nuget
-        path: build/nuget
+        path: dist/nuget
     - name: Package Tests
       run: tar czvf tests.tar.gz tests
-      working-directory: build
+      working-directory: dist
     - name: Upload Tests
       uses: actions/upload-artifact@v3
       with:
         name: tests
-        path: build/tests.tar.gz
+        path: dist/tests.tar.gz
   test:
     strategy:
       matrix:
@@ -160,7 +160,7 @@ jobs:
       run: |
         $tfm = "${{ matrix.tfm }}"
         $sys = "${{ matrix.sys }}"
-        $tests = $(gci .\build\tests\*\$tfm -Recurse -Filter '*.Tests.dll')
+        $tests = $(gci .\dist\tests\*\$tfm -Recurse -Filter '*.Tests.dll')
         if ($tests) {
             Add-Content $env:GITHUB_ENV "`nRET=TestResults--$tfm--$sys"
             dotnet test -f $tfm --blame -v 2 --results-directory "TestResults" --logger:"console;verbosity=detailed" --logger:trx --collect "Code Coverage" $tests
@@ -195,20 +195,20 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: nuget
-        path: build/nuget
+        path: dist/nuget
     - name: Create Release
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
       uses: ncipollo/release-action@v1.10.0
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
-        artifacts: build/nuget/*.nupkg,build/nuget/*.snupkg
+        artifacts: dist/nuget/*.nupkg,dist/nuget/*.snupkg
         draft: false
         generateReleaseNotes: true
         prerelease: ${{ github.ref == 'refs/heads/develop' }}
         token: ${{ secrets.GITHUB_TOKEN }}
     - name: Push NuGet (GitHub)
       shell: pwsh
-      run: dotnet nuget push build/nuget/*.nupkg --source $env:GITHUB_REPOS --api-key $env:GITHUB_TOKEN --skip-duplicate
+      run: dotnet nuget push dist/nuget/*.nupkg --source $env:GITHUB_REPOS --api-key $env:GITHUB_TOKEN --skip-duplicate
       env:
         GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -216,14 +216,14 @@ jobs:
       shell: pwsh
       run: |
         dotnet nuget add source $env:AZUREDEVOPS_REPOS --name az --username az --password $env:AZUREDEVOPS_TOKEN --store-password-in-clear-text
-        dotnet nuget push build/nuget/*.nupkg --source az --api-key az --skip-duplicate
+        dotnet nuget push dist/nuget/*.nupkg --source az --api-key az --skip-duplicate
       env:
         AZUREDEVOPS_REPOS: https://pkgs.dev.azure.com/ikvm-revived/ikvm/_packaging/ikvm-ci/nuget/v3/index.json
         AZUREDEVOPS_TOKEN: ${{ secrets.AZUREDEVOPS_PAT }}
     - name: Push NuGet
       if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
       shell: pwsh
-      run: dotnet nuget push build/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
+      run: dotnet nuget push dist/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
       env:
         NUGET_REPOS: https://api.nuget.org/v3/index.json
         NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}

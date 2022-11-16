@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.5.6">
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+        <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+        <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net48" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net48" />
+        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|netcoreapp3.1" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="netcoreapp3.1" />
+        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net6.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net6.0" />
+        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net7.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net7.0" />
+        <TestTarget Include="IKVM.Maven.Sdk.Tests|net7.0" ProjectName="IKVM.Maven.Sdk.Tests" TargetFramework="net7.0" />
+    </ItemGroup>
+
+    <!-- Runs once per TFM/RID combination to generate individual output. -->
+    <Target Name="GetCopyToOutputDirectoryItemsByTestTarget" BeforeTargets="BeforeBuild" Inputs="@(TestTarget)" Outputs="%(Identity)\null">
+
+        <!-- batch values to properties -->
+        <PropertyGroup>
+            <_ProjectName>%(TestTarget.ProjectName)</_ProjectName>
+            <_ProjectFile>%(TestTarget.ProjectFile)</_ProjectFile>
+            <_ProjectFile Condition=" '$(_ProjectFile)' == '' ">..\$(_ProjectName)\$(_ProjectName).csproj</_ProjectFile>
+            <_TargetFramework>%(TestTarget.TargetFramework)</_TargetFramework>
+        </PropertyGroup>
+
+        <!-- output for the TFM/RID -->
+        <ItemGroup>
+            <PublishProjectReference Include="$(_ProjectFile)">
+                <SetTargetFramework>TargetFramework=$(_TargetFramework)</SetTargetFramework>
+                <ProjectTargetPath>$(_ProjectName)\$(_TargetFramework)</ProjectTargetPath>
+            </PublishProjectReference>
+        </ItemGroup>
+    </Target>
+
+</Project>

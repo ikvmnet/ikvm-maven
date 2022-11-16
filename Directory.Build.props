@@ -1,8 +1,6 @@
 <Project>
     <PropertyGroup>
         <LangVersion Condition=" '$(LangVersion)' == '' ">10.0</LangVersion>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
-        <ImplicitUsings>disable</ImplicitUsings>
     </PropertyGroup>
 
     <ItemGroup>
