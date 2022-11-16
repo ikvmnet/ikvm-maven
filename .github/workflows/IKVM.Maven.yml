@@ -12,7 +12,7 @@ on:
 
 jobs:
   build-ikvm-maven:
-    name: Build IKVM.Maven (Windows)
+    name: Build IKVM.Maven
     runs-on: windows-latest
     steps:
     - name: Checkout Source
@@ -20,14 +20,12 @@ jobs:
       with:
         fetch-depth: 0
         submodules: recursive
-    - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9.13
-      with:
-        versionSpec: 5.x
-    - name: Execute GitVersion
-      uses: gittools/actions/gitversion/execute@v0.9.13
-      with:
-        useConfigFile: true
+    - name: Move Temporary Directory
+      shell: pwsh
+      run: Add-Content $env:GITHUB_ENV "`nTMP=${{ runner.temp }}`nTEMP=${{ runner.temp }}`nTMPDIR=${{ runner.temp }}"
+    - name: Setup .NET
+      shell: pwsh
+      run: Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=${{ runner.temp }}\dotnet"
     - name: Setup .NET 3.1
       uses: actions/setup-dotnet@v2
       with:
@@ -36,7 +34,15 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: 6.0.x
-    - name: Setup NuGet
+    - name: Install GitVersion
+      uses: gittools/actions/gitversion/setup@v0.9.13
+      with:
+        versionSpec: 5.x
+    - name: Execute GitVersion
+      uses: gittools/actions/gitversion/execute@v0.9.13
+      with:
+        useConfigFile: true
+    - name: Move NuGet Directory
       shell: pwsh
       run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}\nuget\packages"
     - name: Add NuGet Source (GitHub)
@@ -58,23 +64,29 @@ jobs:
     - name: Build Artifacts
       run: |
         msbuild /m:1 `
-          /p:BuildInParallel=false `
+          /p:Configuration="Release" `
+          /p:Platform="Any CPU" `
+          /p:Version=${env:GitVersion_FullSemVer} `
+          /p:AssemblyVersion=${env:GitVersion_AssemblySemVer} `
+          /p:InformationalVersion=${env:GitVersion_InformationalVersion} `
+          /p:FileVersion=${env:GitVersion_AssemblySemFileVer} `
+          /p:PackageVersion=${env:GitVersion_NuGetVersionV2} `
+          /p:RepositoryUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}.git" `
+          /p:PackageProjectUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}" `
+          /p:BuildInParallel=true `
           /p:CreateHardLinksForAdditionalFilesIfPossible=true `
           /p:CreateHardLinksForCopyAdditionalFilesIfPossible=true `
           /p:CreateHardLinksForCopyFilesToOutputDirectoryIfPossible=true `
           /p:CreateHardLinksForCopyLocalIfPossible=true `
           /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
-          /p:Configuration="Release" `
-          /p:Platform="Any CPU" `
-          /p:Version=${env:GitVersion_FullSemVer} `
-          /p:AssemblyVersion=${env:GitVersion_AssemblyFileVer} `
-          /p:InformationalVersion=${env:GitVersion_InformationalVersion} `
-          /p:FileVersion=${env:GitVersion_AssemblySemFileVer} `
-          /p:PackageVersion=${env:GitVersion_NuGetVersionV2} `
-          /p:RepositoryUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}.git" `
-          /p:PackageProjectUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}" `
           IKVM.Maven.artifacts.msbuildproj
+    - name: Upload MSBuild Log
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v3
+      with:
+        name: msbuild.binlog
+        path: msbuild.binlog
     - name: Upload NuGet Packages
       uses: actions/upload-artifact@v3
       with:
