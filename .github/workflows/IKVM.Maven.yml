@@ -110,7 +110,15 @@ jobs:
         sys:
         - windows
         - linux
-    name: Test (${{ matrix.sys }})
+        tfm:
+        - net48
+        - netcoreapp3.1
+        - net6.0
+        - net7.0
+        exclude:
+        - tfm: net48
+          sys: linux
+    name: Test (${{ matrix.sys }}:${{ matrix.tfm }})
     needs:
     - build
     runs-on: ${{ fromJSON('{"windows":["windows-2022"],"linux":["ubuntu-22.04"]}')[matrix.sys] }}
@@ -149,12 +157,12 @@ jobs:
       working-directory: build
     - name: Execute Tests
       shell: pwsh
-      run: gci .\build\tests\ -Recurse -Filter '*.Tests.dll' | group { $_.Directory.BaseName } | %{ dotnet test $_.Group --blame -v 3 --results-directory .\TestResults --logger "trx;LogFileName=$($_.Name).trx" }
+      run: gci .\build\tests\${{ matrix.tfm }} -Recurse -Filter '*.Tests.dll' | group { $_.Directory.BaseName } | %{ dotnet test $_.Group --blame -v 3 --results-directory .\TestResults --logger "trx;LogFileName=$($_.Name).trx" }
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: TestResults-${{ matrix.sys }}
+        name: TestResults-${{ matrix.sys }}-${{ matrix.tfm }}
         path: TestResults
   release:
     name: Release
