@@ -153,7 +153,7 @@ jobs:
         path: dist
     - name: Restore Tests
       run: tar xzvf tests.tar.gz
-      working-directory: build
+      working-directory: dist
     - name: Execute Tests
       timeout-minutes: 120
       shell: pwsh
