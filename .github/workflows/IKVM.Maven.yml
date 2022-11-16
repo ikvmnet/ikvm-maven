@@ -1,4 +1,4 @@
-name: IKVM.Mavn
+name: IKVM.Maven
 
 on:
   push:
