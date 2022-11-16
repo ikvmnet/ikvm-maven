@@ -159,14 +159,9 @@ jobs:
       timeout-minutes: 120
       shell: pwsh
       run: |
-        # assign powershell variables
         $tfm = "${{ matrix.tfm }}"
         $sys = "${{ matrix.sys }}"
-
-        # scan for test assemblies
         $tests = $(gci .\build\tests\*\$tfm -Recurse -Filter '*.Tests.dll')
-
-        # if a query was specified, add to test command
         if ($tests) {
             Add-Content $env:GITHUB_ENV "`nRET=TestResults--$tfm--$sys"
             dotnet test -f $tfm --blame -v 2 --results-directory "TestResults" --logger:"console;verbosity=detailed" --logger:trx --collect "Code Coverage" $tests
