@@ -18,7 +18,7 @@
     </PropertyGroup>
 
     <PropertyGroup Label="Version Info">
-        <DefaultMajorVersion>8</DefaultMajorVersion>
+        <DefaultMajorVersion>1</DefaultMajorVersion>
         <Version Condition=" '$(Version)' == '' ">$(DefaultMajorVersion).0.0-dev</Version>
         <AssemblyVersion Condition=" '$(AssemblyVersion)' == '' ">$(DefaultMajorVersion).0.0.0</AssemblyVersion>
         <FileVersion Condition=" '$(FileVersion)' == '' ">$(DefaultMajorVersion).0.0.0</FileVersion>
