@@ -156,8 +156,21 @@ jobs:
       run: tar xzvf tests.tar.gz
       working-directory: build
     - name: Execute Tests
+      timeout-minutes: 120
       shell: pwsh
-      run: gci .\build\tests\${{ matrix.tfm }} -Recurse -Filter '*.Tests.dll' | group { $_.Directory.BaseName } | %{ dotnet test $_.Group --blame -v 3 --results-directory .\TestResults --logger "trx;LogFileName=$($_.Name).trx" }
+      run: |
+        # assign powershell variables
+        $tfm = "${{ matrix.tfm }}"
+        $sys = "${{ matrix.sys }}"
+
+        # scan for test assemblies
+        $tests = $(gci .\build\tests\*\$tfm -Recurse -Filter '*.Tests.dll')
+
+        # if a query was specified, add to test command
+        if ($tests) {
+            Add-Content $env:GITHUB_ENV "`nRET=TestResults--$tfm--$sys"
+            dotnet test -f $tfm --blame -v 2 --results-directory "TestResults" --logger:"console;verbosity=detailed" --logger:trx --collect "Code Coverage" $tests
+        }
     - name: Upload Test Results
       if: always()
       uses: actions/upload-artifact@v3
