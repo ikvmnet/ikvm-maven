@@ -109,7 +109,6 @@ jobs:
       matrix:
         sys:
         - windows
-        - linux
         tfm:
         - net48
         - netcoreapp3.1
