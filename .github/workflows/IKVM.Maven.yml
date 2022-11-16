@@ -106,7 +106,7 @@ jobs:
         sys:
         - windows
         - linux
-    name: Test ({{ matrix.sys }})
+    name: Test (${{ matrix.sys }})
     needs:
     - build
     runs-on: ${{ fromJSON('{"windows":["windows-2022"],"linux":["ubuntu-22.04"]}')[matrix.sys] }}
@@ -150,7 +150,7 @@ jobs:
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: TestResults-{{ matrix.sys }}
+        name: TestResults-${{ matrix.sys }}
         path: TestResults
   release:
     name: Release
