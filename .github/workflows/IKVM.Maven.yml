@@ -167,10 +167,10 @@ jobs:
             dotnet test -f $tfm --blame -v 2 --results-directory "TestResults" --logger:"console;verbosity=detailed" --logger:trx --collect "Code Coverage" $tests
         }
     - name: Upload Test Results
-      if: always()
+      if: always() && startsWith(env.RET, 'TestResults--')
       uses: actions/upload-artifact@v3
       with:
-        name: TestResults-${{ matrix.sys }}-${{ matrix.tfm }}
+        name: ${{ env.RET }}
         path: TestResults
   release:
     name: Release
