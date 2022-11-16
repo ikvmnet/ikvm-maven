@@ -12,8 +12,8 @@ on:
 
 jobs:
   build:
-    name: Build IKVM.Maven
-    runs-on: windows-latest
+    name: Build
+    runs-on: windows-2022
     steps:
     - name: Checkout Source
       uses: actions/checkout@v3
@@ -149,14 +149,14 @@ jobs:
     - name: Upload Test Results
       uses: actions/upload-artifact@v3
       with:
-        name: TestResults-windows
+        name: TestResults-{{ matrix.sys }}
         path: TestResults
   release:
     name: Release
     if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     needs:
     - test
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout Source
       uses: actions/checkout@v3
