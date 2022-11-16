@@ -20,10 +20,6 @@
         </TargetsForPublish>
         <TargetsForPublish Include="$(SolutionFile)">
             <Targets>IKVM_Maven_Sdk_Tasks_Tests:Publish</Targets>
-            <Properties>$(TestProperties);TargetFramework=net472;PublishDir=$(ArtifactStagingDirectory)\tests\IKVM.Maven.Sdk.Tasks.Tests\net472</Properties>
-        </TargetsForPublish>
-        <TargetsForPublish Include="$(SolutionFile)">
-            <Targets>IKVM_Maven_Sdk_Tasks_Tests:Publish</Targets>
             <Properties>$(TestProperties);TargetFramework=net48;PublishDir=$(ArtifactStagingDirectory)\tests\IKVM.Maven.Sdk.Tasks.Tests\net48</Properties>
         </TargetsForPublish>
         <TargetsForPublish Include="$(SolutionFile)">
@@ -35,8 +31,12 @@
             <Properties>$(TestProperties);TargetFramework=net6.0;PublishDir=$(ArtifactStagingDirectory)\tests\IKVM.Maven.Sdk.Tasks.Tests\net6.0</Properties>
         </TargetsForPublish>
         <TargetsForPublish Include="$(SolutionFile)">
+            <Targets>IKVM_Maven_Sdk_Tasks_Tests:Publish</Targets>
+            <Properties>$(TestProperties);TargetFramework=net7.0;PublishDir=$(ArtifactStagingDirectory)\tests\IKVM.Maven.Sdk.Tasks.Tests\net7.0</Properties>
+        </TargetsForPublish>
+        <TargetsForPublish Include="$(SolutionFile)">
             <Targets>IKVM_Maven_Sdk_Tests:Publish</Targets>
-            <Properties>$(TestProperties);TargetFramework=net6.0;PublishDir=$(ArtifactStagingDirectory)\tests\IKVM.Maven.Sdk.Tests\net6.0</Properties>
+            <Properties>$(TestProperties);TargetFramework=net7.0;PublishDir=$(ArtifactStagingDirectory)\tests\IKVM.Maven.Sdk.Tests\net7.0</Properties>
         </TargetsForPublish>
     </ItemGroup>
 
