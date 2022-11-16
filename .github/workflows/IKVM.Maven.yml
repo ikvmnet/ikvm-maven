@@ -1,10 +1,12 @@
-name: IKVM.Maven
+name: IKVM.Mavn
 
 on:
   push:
     branches:
     - main
+    - hotfix/*
     - develop
+    - release/*
   pull_request:
     branches:
     - main
