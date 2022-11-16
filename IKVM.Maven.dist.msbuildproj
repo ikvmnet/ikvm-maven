@@ -10,11 +10,11 @@
 
     <ItemGroup>
         <TargetsForPublish Include="$(SolutionFile)">
-            <Targets>dist\dist-nuget:Publish</Targets>
+            <Targets>dist%5Cdist-nuget:Publish</Targets>
             <Properties>PublishDir=$(DistDir)\nuget</Properties>
         </TargetsForPublish>
         <TargetsForPublish Include="$(SolutionFile)">
-            <Targets>dist\dist-tests:Publish</Targets>
+            <Targets>dist%5Cdist-tests:Publish</Targets>
             <Properties>PublishDir=$(DistDir)\tests</Properties>
         </TargetsForPublish>
     </ItemGroup>
