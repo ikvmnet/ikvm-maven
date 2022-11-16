@@ -152,7 +152,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: tests
-        path: build
+        path: dist
     - name: Restore Tests
       run: tar xzvf tests.tar.gz
       working-directory: build
