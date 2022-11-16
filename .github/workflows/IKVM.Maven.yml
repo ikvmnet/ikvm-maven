@@ -41,11 +41,11 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9
+      uses: gittools/actions/gitversion/setup@v0.9.15
       with:
         versionSpec: 5.x
     - name: Execute GitVersion
-      uses: gittools/actions/gitversion/execute@v0.9
+      uses: gittools/actions/gitversion/execute@v0.9.15
       with:
         useConfigFile: true
     - name: Move NuGet Directory
@@ -183,12 +183,12 @@ jobs:
       with:
         fetch-depth: 0
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0.9
+      uses: gittools/actions/gitversion/setup@v0.9.15
       with:
         versionSpec: 5.x
     - name: Execute GitVersion
       id: GitVersion
-      uses: gittools/actions/gitversion/execute@v0.9
+      uses: gittools/actions/gitversion/execute@v0.9.15
       with:
         useConfigFile: true
     - name: Download NuGet Packages
