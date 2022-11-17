@@ -242,4 +242,5 @@ ModelManifest.xml
 .fake/
 
 # Ignore build output
-build/
+/dist/
+/msbuild.binlog
