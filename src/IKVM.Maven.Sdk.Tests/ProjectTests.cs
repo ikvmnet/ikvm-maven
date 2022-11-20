@@ -82,7 +82,7 @@ namespace IKVM.Maven.Sdk.Tests
                         new XElement("add",
                             new XAttribute("key", "nuget.org"),
                             new XAttribute("value", "https://api.nuget.org/v3/index.json")))))
-                .Save(Path.Combine(@"PackProject", "nuget.config"));
+                .Save(Path.Combine(@"Project", "nuget.config"));
 
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"Project", "Exe", "ProjectExe.csproj"));
