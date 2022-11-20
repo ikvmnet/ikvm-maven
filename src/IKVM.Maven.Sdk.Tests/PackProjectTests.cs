@@ -76,9 +76,6 @@ namespace IKVM.Maven.Sdk.Tests
                             new XAttribute("key", "dev"),
                             new XAttribute("value", Path.GetFullPath(@"nuget"))),
                         new XElement("add",
-                            new XAttribute("key", "ikvm"),
-                            new XAttribute("value", "https://nuget.pkg.github.com/ikvm-revived/index.json")),
-                        new XElement("add",
                             new XAttribute("key", "nuget.org"),
                             new XAttribute("value", "https://api.nuget.org/v3/index.json")))))
                 .Save(Path.Combine(@"PackProject", "nuget.config"));
