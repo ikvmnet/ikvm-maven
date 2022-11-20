@@ -2,7 +2,7 @@
     <PropertyGroup>
         <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     </PropertyGroup>
-    
+
     <Import Project="$(MSBuildThisFileDirectory)..\..\targets\generated.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\targets\generated.props')" />
 
     <PropertyGroup>
@@ -12,14 +12,16 @@
     <PropertyGroup>
         <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</IkvmMavenSdkTaskFolder>
         <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</IkvmMavenSdkTaskFolder>
+        <IkvmMavenSdkTaskFactory Condition=" '$(MSBuildRuntimeType)' == 'Core' "></IkvmMavenSdkTaskFactory>
+        <IkvmMavenSdkTaskFactory Condition=" '$(MSBuildRuntimeType)' != 'Core' ">TaskHostFactory</IkvmMavenSdkTaskFactory>
         <IkvmMavenSdkTaskAssembly>$(IkvmMavenSdkDir)tasks\$(IkvmMavenSdkTaskFolder)\IKVM.Maven.Sdk.Tasks.dll</IkvmMavenSdkTaskAssembly>
     </PropertyGroup>
 
-    <UsingTask TaskName="MavenReferenceItemImport" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="TaskHostFactory" />
-    <UsingTask TaskName="MavenReferenceItemPrepare" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="TaskHostFactory" />
-    <UsingTask TaskName="MavenReferenceItemResolve" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="TaskHostFactory" />
-    <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="TaskHostFactory" />
-    <UsingTask TaskName="MavenWriteProjectObjectModelFile" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="TaskHostFactory" />
+    <UsingTask TaskName="MavenReferenceItemImport" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
+    <UsingTask TaskName="MavenReferenceItemPrepare" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
+    <UsingTask TaskName="MavenReferenceItemResolve" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
+    <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
+    <UsingTask TaskName="MavenWriteProjectObjectModelFile" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
 
     <ItemDefinitionGroup>
         <MavenReference>
