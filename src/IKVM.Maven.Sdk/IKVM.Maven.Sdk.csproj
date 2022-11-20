@@ -19,19 +19,22 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="IKVM.Core.MSBuild" Version="0.1.10">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
+        <PackageReference Include="IKVM" Version="8.4.0-develop0770" />
+        <PackageReference Include="IKVM.MSBuild" Version="8.4.0-develop0770" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Content Include="buildTransitive\**\*" PackagePath="buildTransitive\%(RecursiveDir)%(Filename)%(Extension)" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\..\LICENSE.md" Pack="true" PackagePath="." />
         <None Include="..\..\README.md" Pack="true" PackagePath="." />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Include="IKVM.Core.MSBuild" Version="0.1.4" />
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.4.0-develop0770" />
-        <PackageReference Include="IKVM.MSBuild" Version="8.4.0-develop0770" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(TargetFramework)' == '' ">
@@ -53,6 +56,10 @@
         <ItemGroup>
             <_PackageFiles Include="$(IntermediateOutputPath)generated.props" PackagePath="targets\generated.props" />
         </ItemGroup>
+    </Target>
+
+    <Target Name="GetPackageOutputPath" DependsOnTargets="_GetAbsoluteOutputPathsForPack" Returns="$(PackageOutputAbsolutePath)">
+
     </Target>
 
 </Project>
