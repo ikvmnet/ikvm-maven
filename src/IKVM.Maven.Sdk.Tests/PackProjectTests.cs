@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 
 using Buildalyzer;
 using Buildalyzer.Environment;
@@ -39,119 +39,86 @@ namespace IKVM.Maven.Sdk.Tests
 
             public override void Initialize(IEventSource eventSource)
             {
-                eventSource.AnyEventRaised += (sender, evt) => context.WriteLine($"{evt.Message}");
+                eventSource.AnyEventRaised += (sender, evt) => context.WriteLine(evt.Message);
             }
 
         }
 
         public TestContext TestContext { get; set; }
 
-        /// <summary>
-        /// Creates an analyzer for the given project.
-        /// </summary>
-        /// <param name="projectFile"></param>
-        /// <param name="additionalPackageDir"></param>
-        /// <returns></returns>
-        IProjectAnalyzer CreateAnalyzer(string projectFile, string additionalPackageDir)
+        [TestMethod]
+        public void CanPackProject()
         {
+            var properties = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "IKVM.Maven.Sdk.Tests.properties")).Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
+
             var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests_PackProject", "nuget", "packages");
             if (Directory.Exists(nugetPackageRoot))
                 Directory.Delete(nugetPackageRoot, true);
             Directory.CreateDirectory(nugetPackageRoot);
 
-            var nugetSources = new List<string>();
-            nugetSources.Add("https://api.nuget.org/v3/index.json");
-            nugetSources.Add(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "nuget"));
-            if (additionalPackageDir is not null)
-                nugetSources.Add(additionalPackageDir);
+            var ikvmCachePath = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests_PackProject", "ikvm", "cache");
+            if (Directory.Exists(ikvmCachePath))
+                Directory.Delete(ikvmCachePath, true);
 
-            var properties = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "IKVM.Maven.Sdk.Tests.properties")).Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
+            var ikvmExportCachePath = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests_PackProject", "ikvm", "expcache");
+            if (Directory.Exists(ikvmExportCachePath))
+                Directory.Delete(ikvmExportCachePath, true);
+
+            new XDocument(
+                new XElement("configuration",
+                    new XElement("config",
+                        new XElement("add",
+                            new XAttribute("key", "globalPackagesFolder"),
+                            new XAttribute("value", nugetPackageRoot))),
+                    new XElement("packageSources",
+                        new XElement("clear"),
+                        new XElement("add",
+                            new XAttribute("key", "dev"),
+                            new XAttribute("value", Path.GetFullPath(@"nuget"))),
+                        new XElement("add",
+                            new XAttribute("key", "ikvm"),
+                            new XAttribute("value", "https://nuget.pkg.github.com/ikvm-revived/index.json")),
+                        new XElement("add",
+                            new XAttribute("key", "nuget.org"),
+                            new XAttribute("value", "https://api.nuget.org/v3/index.json")))))
+                .Save(Path.Combine(@"PackProject", "nuget.config"));
+
             var manager = new AnalyzerManager();
-            var analyzer = manager.GetProject(projectFile);
-            analyzer.AddBuildLogger(new TargetLogger(TestContext));
+            var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackProject", "Lib", "PackProjectLib.csproj"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
             analyzer.SetGlobalProperty("ImportDirectoryBuildTargets", "false");
+            analyzer.SetGlobalProperty("IkvmCacheDir", ikvmCachePath + Path.DirectorySeparatorChar);
+            analyzer.SetGlobalProperty("IkvmExportCacheDir", ikvmExportCachePath + Path.DirectorySeparatorChar);
             analyzer.SetGlobalProperty("PackageVersion", properties["PackageVersion"]);
-            analyzer.SetGlobalProperty("RestoreSources", string.Join("%3B", nugetSources));
             analyzer.SetGlobalProperty("RestorePackagesPath", nugetPackageRoot + Path.DirectorySeparatorChar);
+            analyzer.SetGlobalProperty("CreateHardLinksForAdditionalFilesIfPossible", "true");
+            analyzer.SetGlobalProperty("CreateHardLinksForCopyAdditionalFilesIfPossible", "true");
+            analyzer.SetGlobalProperty("CreateHardLinksForCopyFilesToOutputDirectoryIfPossible", "true");
+            analyzer.SetGlobalProperty("CreateHardLinksForCopyLocalIfPossible", "true");
+            analyzer.SetGlobalProperty("CreateHardLinksForPublishFilesIfPossible", "true");
 
-            // allow NuGet to locate packages in existing global packages folder if set
-            // else fallback to standard location
-            if (Environment.GetEnvironmentVariable("NUGET_PACKAGES") is string nugetPackagesDir)
+            analyzer.AddBuildLogger(new TargetLogger(TestContext) { Verbosity = LoggerVerbosity.Detailed });
+
+            foreach (var configuration in new[] { "Debug", "Release" })
             {
-                if (Directory.Exists(nugetPackagesDir) == false)
-                    Directory.CreateDirectory(nugetPackagesDir);
+                var results = analyzer.Build(new EnvironmentOptions()
+                {
+                    DesignTime = false,
+                    Restore = true,
+                    GlobalProperties =
+                    {
+                        ["Configuration"] = configuration,
+                    },
+                    TargetsToBuild =
+                    {
+                        "Pack"
+                    }
+                });
 
-                analyzer.SetGlobalProperty("RestoreAdditionalProjectFallbackFolders", nugetPackagesDir);
-            }
-
-            return analyzer;
-        }
-
-        /// <summary>
-        /// Gets the directory of the test assembly.
-        /// </summary>
-        /// <returns></returns>
-        string GetThisDir()
-        {
-            return Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location);
-        }
-
-        [TestMethod]
-        public void Can_generate_and_consume_nuget_package()
-        {
-            // build nuget package from PackProjectLib
-            var libAnalyzer = CreateAnalyzer(Path.Combine(GetThisDir(), "PackProject", "Lib", "PackProjectLib.csproj"), null);
-            var libOptions = new EnvironmentOptions();
-            libOptions.DesignTime = false;
-            libOptions.GlobalProperties["Configuration"] = "Release";
-            libOptions.TargetsToBuild.Clear();
-            libOptions.TargetsToBuild.Add("Restore");
-            libOptions.TargetsToBuild.Add("Clean");
-            libOptions.TargetsToBuild.Add("Build");
-            libOptions.TargetsToBuild.Add("Pack");
-            var libResults = libAnalyzer.Build(libOptions);
-            libResults.OverallSuccess.Should().Be(true);
-
-            // build exe which references lib which references nuget package
-            var buildAnalyzer = CreateAnalyzer(Path.Combine(GetThisDir(), "PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(GetThisDir(), "PackProject", "Lib", "bin", "Release"));
-            var buildOptions = new EnvironmentOptions();
-            buildOptions.DesignTime = false;
-            buildOptions.GlobalProperties["Configuration"] = "Release";
-            buildOptions.TargetsToBuild.Clear();
-            buildOptions.TargetsToBuild.Add("Restore");
-            buildOptions.TargetsToBuild.Add("Clean");
-            buildOptions.TargetsToBuild.Add("Build");
-            var buildResults = buildAnalyzer.Build(buildOptions);
-            buildResults.OverallSuccess.Should().Be(true);
-
-            foreach (var tfmrid in new[] {
-                "net461/win7-x64",
-                "net48/win7-x64",
-                "netcoreapp3.1/win7-x64",
-                "net6.0/win7-x64",
-                "netcoreapp3.1/linux-x64",
-                "net6.0/linux-x64" })
-            {
-                var _ = tfmrid.Split('/');
-                var tfm = _[0];
-                var rid = _[1];
-
-                TestContext.WriteLine("Publishing with TargetFramework {0} and RuntimeIdentifier {1}.", tfm, rid);
-
-                // publish exe which references lib which references nuget package
-                var pubAnalyzer = CreateAnalyzer(Path.Combine(GetThisDir(), "PackageReferenceProject", "Exe", "PackageReferenceProjectExe.csproj"), Path.Combine(GetThisDir(), "PackProject", "Lib", "bin", "Release"));
-                var pubOptions = new EnvironmentOptions();
-                pubOptions.GlobalProperties["Configuration"] = "Release";
-                pubOptions.GlobalProperties["TargetFramework"] = tfm;
-                pubOptions.GlobalProperties["RuntimeIdentifier"] = rid;
-                pubOptions.DesignTime = false;
-                pubOptions.TargetsToBuild.Clear();
-                pubOptions.TargetsToBuild.Add("Publish");
-                var pubResults = pubAnalyzer.Build(pubOptions);
-                pubResults.OverallSuccess.Should().Be(true);
+                results.OverallSuccess.Should().Be(true);
             }
         }
+
     }
 
 }

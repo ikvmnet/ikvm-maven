@@ -1,7 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net461;net48;netcoreapp3.1;net6.0</TargetFrameworks>
-        <RuntimeIdentifiers>win7-x64;linux-x64</RuntimeIdentifiers>
+        <TargetFrameworks>net461;net472;net48;netcoreapp3.1;net6.0;net7.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,5 +11,5 @@
         <MavenReference Include="org.apache.maven:maven-core" Version="3.8.6" />
         <MavenReference Include="com.yahoo.vespa:documentapi" Version="8.12.48" />
     </ItemGroup>
-    
+
 </Project>
