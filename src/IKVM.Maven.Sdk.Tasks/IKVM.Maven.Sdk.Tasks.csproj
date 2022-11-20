@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="IKVM" Version="8.4.0-develop0770" />
+        <PackageReference Include="IKVM.Core.MSBuild" Version="0.1.5" />
         <PackageReference Include="Microsoft.Build" Version="16.9.0" PrivateAssets="All" />
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" PrivateAssets="All" />
         <PackageReference Include="NuGet.Common" Version="6.2.1" />
