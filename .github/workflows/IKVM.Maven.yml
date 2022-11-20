@@ -174,7 +174,7 @@ jobs:
         path: TestResults
   release:
     name: Release
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     needs:
     - test
     runs-on: ubuntu-22.04
@@ -202,7 +202,7 @@ jobs:
         name: nuget
         path: dist/nuget
     - name: Create Release
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
+      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+release'
       uses: ncipollo/release-action@v1.11.2
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
@@ -226,7 +226,7 @@ jobs:
         AZUREDEVOPS_REPOS: https://pkgs.dev.azure.com/ikvm-revived/ikvm/_packaging/ikvm-ci/nuget/v3/index.json
         AZUREDEVOPS_TOKEN: ${{ secrets.AZUREDEVOPS_PAT }}
     - name: Push NuGet
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
+      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+release'
       shell: pwsh
       run: dotnet nuget push dist/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
       env:
