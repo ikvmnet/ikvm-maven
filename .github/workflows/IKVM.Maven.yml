@@ -15,7 +15,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: windows-2022
+    runs-on: ubuntu-22.04
     steps:
     - name: Checkout Source
       uses: actions/checkout@v3
@@ -27,7 +27,7 @@ jobs:
       run: Add-Content $env:GITHUB_ENV "`nTMP=${{ runner.temp }}`nTEMP=${{ runner.temp }}`nTMPDIR=${{ runner.temp }}"
     - name: Setup .NET
       shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=${{ runner.temp }}\dotnet"
+      run: Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=${{ runner.temp }}/dotnet"
     - name: Setup .NET 3.1
       uses: actions/setup-dotnet@v3
       with:
@@ -50,7 +50,7 @@ jobs:
         useConfigFile: true
     - name: Move NuGet Directory
       shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}\nuget\packages"
+      run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}/nuget/packages"
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
@@ -60,12 +60,13 @@ jobs:
     - name: Cache NuGet
       uses: actions/cache@v3
       with:
-        path: ${{ runner.temp }}\nuget\packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**\*.csproj', '**\*.msbuildproj') }}-1
+        path: ${{ runner.temp }}/nuget/packages
+        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.msbuildproj') }}-1
         restore-keys: ${{ runner.os }}-nuget-
     - name: NuGet Restore
       run: dotnet restore IKVM.Maven.sln
     - name: Build
+      shell: pwsh
       run: |
         dotnet msbuild /m /bl `
           /p:Configuration="Release" `
