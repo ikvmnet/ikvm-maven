@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 using Buildalyzer;
@@ -49,6 +50,10 @@ namespace IKVM.Maven.Sdk.Tests
         [TestMethod]
         public void CanPackProject()
         {
+            // can't do all TFMs on Linux yet
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+                return;
+
             var properties = File.ReadAllLines(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), "IKVM.Maven.Sdk.Tests.properties")).Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
             var nugetPackageRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests_PackProject", "nuget", "packages");
