@@ -133,6 +133,9 @@ jobs:
         mkdir $dir\dotnet
         mkdir $dir\nuget
         mkdir $dir\nuget\packages
+        mkdir $dir\job
+        mkdir $dir\job\dist
+        Add-Content $env:GITHUB_ENV "`nJOBPATH=$dir\job"
         Add-Content $env:GITHUB_ENV "`nTMP=$dir\temp`nTEMP=$dir\temp`nTMPDIR=$dir\temp"
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
         Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir\nuget\packages"
@@ -146,6 +149,9 @@ jobs:
         mkdir $dir/dotnet
         mkdir $dir/nuget
         mkdir $dir/nuget/packages
+        mkdir $dir/job
+        mkdir $dir/job/dist
+        Add-Content $env:GITHUB_ENV "`nJOBPATH=$dir/job"
         Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
         Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir/nuget/packages"
@@ -181,11 +187,12 @@ jobs:
       run: |
         $tfm = "${{ matrix.tfm }}"
         $sys = "${{ matrix.sys }}"
-        $tests = $(gci .\dist\tests\*\$tfm -Recurse -Filter '*.Tests.dll')
+        $tests = $(gci ./tests/*/$tfm -Recurse -Filter '*.Tests.dll')
         if ($tests) {
             Add-Content $env:GITHUB_ENV "`nRET=TestResults--$tfm--$sys"
             dotnet test -f $tfm --blame -v 2 --results-directory "TestResults" --logger:"console;verbosity=detailed" --logger:trx --collect "Code Coverage" $tests
         }
+      working-directory: ${{ env.JOBPATH }}/dist
     - name: Upload Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
       uses: actions/upload-artifact@v3
