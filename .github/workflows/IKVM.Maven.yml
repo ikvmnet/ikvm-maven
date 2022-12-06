@@ -134,7 +134,6 @@ jobs:
         mkdir $dir\nuget
         mkdir $dir\nuget\packages
         mkdir $dir\job
-        mkdir $dir\job\dist
         Add-Content $env:GITHUB_ENV "`nJOBPATH=$dir\job"
         Add-Content $env:GITHUB_ENV "`nTMP=$dir\temp`nTEMP=$dir\temp`nTMPDIR=$dir\temp"
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
@@ -150,7 +149,6 @@ jobs:
         mkdir $dir/nuget
         mkdir $dir/nuget/packages
         mkdir $dir/job
-        mkdir $dir/job/dist
         Add-Content $env:GITHUB_ENV "`nJOBPATH=$dir/job"
         Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
@@ -180,7 +178,7 @@ jobs:
         path: dist
     - name: Restore Tests
       run: tar xzvf tests.tar.gz
-      working-directory: dist
+      working-directory: ${{ env.JOBPATH }}
     - name: Execute Tests
       timeout-minutes: 240
       shell: pwsh
@@ -192,7 +190,7 @@ jobs:
             Add-Content $env:GITHUB_ENV "`nRET=TestResults--$tfm--$sys"
             dotnet test -f $tfm --blame -v 2 --results-directory "TestResults" --logger:"console;verbosity=detailed" --logger:trx --collect "Code Coverage" $tests
         }
-      working-directory: ${{ env.JOBPATH }}/dist
+      working-directory: ${{ env.JOBPATH }}
     - name: Upload Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
       uses: actions/upload-artifact@v3
