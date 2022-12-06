@@ -176,7 +176,7 @@ jobs:
       run: tar xzvf tests.tar.gz
       working-directory: dist
     - name: Execute Tests
-      timeout-minutes: 120
+      timeout-minutes: 240
       shell: pwsh
       run: |
         $tfm = "${{ matrix.tfm }}"
