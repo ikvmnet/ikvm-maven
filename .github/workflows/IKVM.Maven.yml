@@ -123,9 +123,32 @@ jobs:
     - build
     runs-on: ${{ fromJSON('{"windows":["windows-2022"],"linux":["ubuntu-22.04"]}')[matrix.sys] }}
     steps:
-    - name: Setup .NET
+    - name: Set Paths (Windows)
+      if: runner.os == 'Windows'
       shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=${{ runner.temp }}/dotnet"
+      run: |
+        $dir="C:\run"
+        mkdir $dir
+        mkdir $dir\temp
+        mkdir $dir\dotnet
+        mkdir $dir\nuget
+        mkdir $dir\nuget\packages
+        Add-Content $env:GITHUB_ENV "`nTMP=$dir\temp`nTEMP=$dir\temp`nTMPDIR=$dir\temp"
+        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
+        Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir\nuget\packages"
+    - name: Set Paths (Linux)
+      if: runner.os == 'Linux'
+      shell: pwsh
+      run: |
+        $dir="${{ runner.temp }}/run"
+        mkdir $dir
+        mkdir $dir/temp
+        mkdir $dir/dotnet
+        mkdir $dir/nuget
+        mkdir $dir/nuget/packages
+        Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
+        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
+        Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir/nuget/packages"
     - name: Setup .NET 3.1
       uses: actions/setup-dotnet@v3
       with:
@@ -138,9 +161,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-    - name: Setup NuGet
-      shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}\nuget\packages"
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
