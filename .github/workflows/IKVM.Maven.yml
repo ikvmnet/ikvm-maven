@@ -175,7 +175,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: tests
-        path: dist
+        path: ${{ env.JOBPATH }}
     - name: Restore Tests
       run: tar xzvf tests.tar.gz
       working-directory: ${{ env.JOBPATH }}
@@ -196,7 +196,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.RET }}
-        path: TestResults
+        path: ${{ env.JOBPATH }}/TestResults
   release:
     name: Release
     if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
