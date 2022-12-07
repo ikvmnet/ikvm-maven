@@ -180,7 +180,7 @@ jobs:
       run: tar xzvf tests.tar.gz
       working-directory: ${{ env.JOBPATH }}
     - name: Execute Tests
-      timeout-minutes: 240
+      timeout-minutes: 480
       shell: pwsh
       run: |
         $tfm = "${{ matrix.tfm }}"
