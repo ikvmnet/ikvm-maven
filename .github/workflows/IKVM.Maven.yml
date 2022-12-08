@@ -109,6 +109,7 @@ jobs:
       matrix:
         sys:
         - windows
+        - linux
         tfm:
         - net48
         - netcoreapp3.1
@@ -122,9 +123,36 @@ jobs:
     - build
     runs-on: ${{ fromJSON('{"windows":["windows-2022"],"linux":["ubuntu-22.04"]}')[matrix.sys] }}
     steps:
-    - name: Setup .NET
+    - name: Set Paths (Windows)
+      if: runner.os == 'Windows'
       shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=${{ runner.temp }}/dotnet"
+      run: |
+        $dir="C:\run"
+        mkdir $dir
+        mkdir $dir\temp
+        mkdir $dir\dotnet
+        mkdir $dir\nuget
+        mkdir $dir\nuget\packages
+        mkdir $dir\job
+        Add-Content $env:GITHUB_ENV "`nJOBPATH=$dir\job"
+        Add-Content $env:GITHUB_ENV "`nTMP=$dir\temp`nTEMP=$dir\temp`nTMPDIR=$dir\temp"
+        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
+        Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir\nuget\packages"
+    - name: Set Paths (Linux)
+      if: runner.os == 'Linux'
+      shell: pwsh
+      run: |
+        $dir="${{ runner.temp }}/run"
+        mkdir $dir
+        mkdir $dir/temp
+        mkdir $dir/dotnet
+        mkdir $dir/nuget
+        mkdir $dir/nuget/packages
+        mkdir $dir/job
+        Add-Content $env:GITHUB_ENV "`nJOBPATH=$dir/job"
+        Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
+        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
+        Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir/nuget/packages"
     - name: Setup .NET 3.1
       uses: actions/setup-dotnet@v3
       with:
@@ -137,9 +165,6 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
-    - name: Setup NuGet
-      shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}\nuget\packages"
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
@@ -150,30 +175,31 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: tests
-        path: dist
+        path: ${{ env.JOBPATH }}
     - name: Restore Tests
       run: tar xzvf tests.tar.gz
-      working-directory: dist
+      working-directory: ${{ env.JOBPATH }}
     - name: Execute Tests
-      timeout-minutes: 120
+      timeout-minutes: 480
       shell: pwsh
       run: |
         $tfm = "${{ matrix.tfm }}"
         $sys = "${{ matrix.sys }}"
-        $tests = $(gci .\dist\tests\*\$tfm -Recurse -Filter '*.Tests.dll')
+        $tests = $(gci ./tests/*/$tfm -Recurse -Filter '*.Tests.dll')
         if ($tests) {
             Add-Content $env:GITHUB_ENV "`nRET=TestResults--$tfm--$sys"
             dotnet test -f $tfm --blame -v 2 --results-directory "TestResults" --logger:"console;verbosity=detailed" --logger:trx --collect "Code Coverage" $tests
         }
+      working-directory: ${{ env.JOBPATH }}
     - name: Upload Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.RET }}
-        path: TestResults
+        path: ${{ env.JOBPATH }}/TestResults
   release:
     name: Release
-    if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'
     needs:
     - test
     runs-on: ubuntu-22.04
@@ -201,7 +227,7 @@ jobs:
         name: nuget
         path: dist/nuget
     - name: Create Release
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
+      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+release'
       uses: ncipollo/release-action@v1.11.2
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
@@ -225,7 +251,7 @@ jobs:
         AZUREDEVOPS_REPOS: https://pkgs.dev.azure.com/ikvm-revived/ikvm/_packaging/ikvm-ci/nuget/v3/index.json
         AZUREDEVOPS_TOKEN: ${{ secrets.AZUREDEVOPS_PAT }}
     - name: Push NuGet
-      if: github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.event.head_commit.message == '+prerelease'
+      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+release'
       shell: pwsh
       run: dotnet nuget push dist/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
       env:
