@@ -146,7 +146,7 @@ namespace IKVM.Maven.Sdk.Tasks
             try
             {
                 var repositories = MavenRepositoryItemMetadata.Load(Repositories);
-                var items = MavenReferenceItemMetadata.Load(References);
+                var items = MavenReferenceItemMetadata.Import(References);
                 ResolvedReferences = ResolveReferences(repositories, items).Select(ToTaskItem).ToArray();
                 return true;
             }

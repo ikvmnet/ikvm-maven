@@ -1,10 +1,16 @@
-﻿using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+using com.sun.tools.javac.util;
 
 using IKVM.Maven.Sdk.Tasks.Resources;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
+using org.apache.maven.model;
 using org.eclipse.aether.util.artifact;
 
 namespace IKVM.Maven.Sdk.Tasks
@@ -40,7 +46,7 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             try
             {
-                var items = MavenReferenceItemMetadata.Load(Items);
+                var items = MavenReferenceItemMetadata.Import(Items);
 
                 // assign other metadata
                 foreach (var item in items)

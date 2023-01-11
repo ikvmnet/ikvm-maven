@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 
 using Microsoft.Build.Framework;
 
@@ -48,20 +47,17 @@ namespace IKVM.Maven.Sdk.Tasks
         /// </summary>
         /// <param name="tasks"></param>
         /// <returns></returns>
-        public static MavenReferenceItem[] Load(IEnumerable<ITaskItem> tasks)
+        public static MavenReferenceItem[] Import(IEnumerable<ITaskItem> tasks)
         {
             if (tasks is null)
                 throw new ArgumentNullException(nameof(tasks));
 
-            // normalize itemspecs into a dictionary
-            var map = new Dictionary<string, MavenReferenceItem>();
-            foreach (var task in tasks)
-                map[task.ItemSpec] = new MavenReferenceItem();
+            var list = new List<MavenReferenceItem>();
 
             // populate the properties of each item
             foreach (var task in tasks)
             {
-                var item = map[task.ItemSpec];
+                var item = new MavenReferenceItem();
                 item.ItemSpec = task.ItemSpec;
                 item.GroupId = task.GetMetadata(MavenReferenceItemMetadata.GroupId);
                 item.ArtifactId = task.GetMetadata(MavenReferenceItemMetadata.ArtifactId);
@@ -70,10 +66,11 @@ namespace IKVM.Maven.Sdk.Tasks
                 item.Optional = string.Equals(task.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
                 item.Scope = task.GetMetadata(MavenReferenceItemMetadata.Scope);
                 item.ReferenceSource = task.GetMetadata(MavenReferenceItemMetadata.ReferenceSource);
+                list.Add(item);
             }
 
             // return the resulting imported references
-            return map.Values.ToArray();
+            return list.ToArray();
         }
 
     }
