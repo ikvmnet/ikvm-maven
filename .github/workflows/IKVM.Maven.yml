@@ -227,7 +227,7 @@ jobs:
         name: nuget
         path: dist/nuget
     - name: Create Release
-      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+release'
+      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+push'
       uses: ncipollo/release-action@v1.11.2
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
@@ -251,7 +251,7 @@ jobs:
         AZUREDEVOPS_REPOS: https://pkgs.dev.azure.com/ikvm-revived/ikvm/_packaging/ikvm-ci/nuget/v3/index.json
         AZUREDEVOPS_TOKEN: ${{ secrets.AZUREDEVOPS_PAT }}
     - name: Push NuGet
-      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+release'
+      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+push'
       shell: pwsh
       run: dotnet nuget push dist/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
       env:
