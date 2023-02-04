@@ -61,6 +61,11 @@ namespace IKVM.Maven.Sdk.Tasks
             return Equals(obj as MavenReferenceItem);
         }
 
+        /// <summary>
+        /// Returns <c>true</c> if the this item is equal to the other item.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns></returns>
         public bool Equals(MavenReferenceItem other)
         {
             return other is not null &&
@@ -74,6 +79,10 @@ namespace IKVM.Maven.Sdk.Tasks
                 ReferenceSource == other.ReferenceSource;
         }
 
+        /// <summary>
+        /// Generates a unique hash code describing this item.
+        /// </summary>
+        /// <returns></returns>
         public override int GetHashCode()
         {
             int hashCode = 1928079503;
