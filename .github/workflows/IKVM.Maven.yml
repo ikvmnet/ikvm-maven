@@ -199,7 +199,7 @@ jobs:
         path: ${{ env.JOBPATH }}/TestResults
   release:
     name: Release
-    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || github.event.head_commit.message == '+push'
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')
     needs:
     - test
     runs-on: ubuntu-22.04
