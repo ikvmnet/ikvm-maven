@@ -54,8 +54,10 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
         void ReadAliases(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
             var l = new java.util.ArrayList();
-            foreach (var i in json["aliases"].ToObject<DefaultArtifact[]>(serializer))
-                l.add(i);
+
+            if (json["aliases"] is JArray a)
+                foreach (var i in a.ToObject<DefaultArtifact[]>(serializer))
+                    l.add(i);
 
             node.setAliases(l);
         }
@@ -63,8 +65,10 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
         void ReadChildren(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
             var l = new java.util.ArrayList();
-            foreach (var i in json["children"].ToObject<DefaultDependencyNode[]>(serializer))
-                l.add(i);
+
+            if (json["children"] is JArray a)
+                foreach (var i in a.ToObject<DefaultDependencyNode[]>(serializer))
+                    l.add(i);
 
             node.setChildren(l);
         }
@@ -81,21 +85,29 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
 
         void ReadManagedBits(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
-            node.setManagedBits(json["managedBits"].Value<int>());
+            if (json["managedBits"] is not JValue v)
+                return;
+
+            node.setManagedBits((int)v);
         }
 
         void ReadRepositories(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
             var l = new java.util.ArrayList();
-            foreach (var i in json["repositories"].ToObject<RemoteRepository[]>(serializer))
-                l.add(i);
+
+            if (json["repositories"] is JArray a)
+                foreach (var i in a.ToObject<RemoteRepository[]>(serializer))
+                    l.add(i);
 
             node.setRepositories(l);
         }
 
         void ReadVersion(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
-            node.setVersion(json["version"].ToObject<org.eclipse.aether.version.Version>(serializer));
+            if (json["version"] is not JToken v)
+                return;
+
+            node.setVersion(v.ToObject<org.eclipse.aether.version.Version>(serializer));
         }
 
         void ReadVersionConstraint(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
