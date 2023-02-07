@@ -30,31 +30,39 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var o = value as org.eclipse.aether.version.VersionConstraint;
-            if (o == null)
+            // type must be a VersionConstrant
+            if (value is not org.eclipse.aether.version.VersionConstraint o)
             {
                 writer.WriteNull();
                 return;
             }
 
+            // constraint can be a Version
             if (o.getVersion() is org.eclipse.aether.version.Version c)
+            {
                 writer.WriteValue(c.toString());
-            else if (o.getRange() is org.eclipse.aether.version.VersionRange r)
+                return;
+            }
+
+            // constraint can be a VersionRange
+            if (o.getRange() is org.eclipse.aether.version.VersionRange r)
             {
                 var l = r.getLowerBound();
                 var u = r.getUpperBound();
                 var s = new StringBuilder();
                 if (l != null)
                     s.Append(l.isInclusive() ? "[" : "(").Append(l.getVersion().toString());
-                if (l != null || r != null)
+                if (l != null || u != null)
                     s.Append(",");
-                if (r != null)
+                if (u != null)
                     s.Append(u.getVersion().toString()).Append(u.isInclusive() ? "]" : ")");
 
                 writer.WriteValue(s.ToString());
+                return;
             }
-            else
-                writer.WriteNull();
+
+            // fallback
+            writer.WriteNull();
         }
 
     }
