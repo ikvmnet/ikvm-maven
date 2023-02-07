@@ -75,20 +75,16 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
 
         void ReadData(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
-            if (json["data"] is not JArray a)
-                return;
-
-            foreach (var o in a)
-                if (o is JObject i)
-                    node.setData(i["key"].ToObject<object>(serializer), i["value"].ToObject<object>(serializer));
+            if (json["data"] is JArray a)
+                foreach (var o in a)
+                    if (o is JObject i)
+                        node.setData(i["key"].ToObject<object>(serializer), i["value"].ToObject<object>(serializer));
         }
 
         void ReadManagedBits(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
-            if (json["managedBits"] is not JValue v)
-                return;
-
-            node.setManagedBits((int)v);
+            if (json["managedBits"] is JValue v && v.Type == JTokenType.Integer)
+                node.setManagedBits((int)v);
         }
 
         void ReadRepositories(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
@@ -104,15 +100,14 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
 
         void ReadVersion(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
-            if (json["version"] is not JToken v)
-                return;
-
-            node.setVersion(v.ToObject<org.eclipse.aether.version.Version>(serializer));
+            if (json["version"] is JToken v)
+                node.setVersion(v.ToObject<org.eclipse.aether.version.Version>(serializer));
         }
 
         void ReadVersionConstraint(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
-            node.setVersionConstraint(json["versionConstraint"].ToObject<org.eclipse.aether.version.VersionConstraint>(serializer));
+            if (json["versionConstraint"] is JToken t)
+                node.setVersionConstraint(t.ToObject<org.eclipse.aether.version.VersionConstraint>(serializer));
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
