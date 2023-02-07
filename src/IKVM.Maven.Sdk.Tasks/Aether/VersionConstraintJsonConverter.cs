@@ -52,7 +52,7 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
                 var s = new StringBuilder();
                 if (l != null)
                     s.Append(l.isInclusive() ? "[" : "(").Append(l.getVersion().toString());
-                if (l != null || u != null)
+                if (l != null && u != null)
                     s.Append(",");
                 if (u != null)
                     s.Append(u.getVersion().toString()).Append(u.isInclusive() ? "]" : ")");
