@@ -47,15 +47,22 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
             // constraint can be a VersionRange
             if (o.getRange() is org.eclipse.aether.version.VersionRange r)
             {
+                var s = new StringBuilder();
+
                 var l = r.getLowerBound();
                 var u = r.getUpperBound();
-                var s = new StringBuilder();
+
                 if (l != null)
                     s.Append(l.isInclusive() ? "[" : "(").Append(l.getVersion().toString());
-                if (l != null || u != null)
-                    s.Append(",");
+                else
+                    s.Append("(");
+
+                s.Append(",");
+
                 if (u != null)
                     s.Append(u.getVersion().toString()).Append(u.isInclusive() ? "]" : ")");
+                else
+                    s.Append(")");
 
                 writer.WriteValue(s.ToString());
                 return;
