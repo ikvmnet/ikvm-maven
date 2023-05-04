@@ -40,6 +40,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0.9.15
       with:
@@ -115,6 +119,7 @@ jobs:
         - netcoreapp3.1
         - net6.0
         - net7.0
+        - net8.0
         exclude:
         - tfm: net48
           sys: linux
@@ -165,6 +170,10 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 7.0.x
+    - name: Setup .NET 8.0
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 8.0.x
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
