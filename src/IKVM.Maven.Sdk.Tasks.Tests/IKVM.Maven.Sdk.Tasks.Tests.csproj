@@ -4,7 +4,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="FluentAssertions" Version="6.9.0" />
+        <PackageReference Include="FluentAssertions" Version="6.11.0" />
         <PackageReference Include="Microsoft.CodeCoverage" Version="17.4.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
         <PackageReference Include="Moq" Version="4.18.4" />
@@ -22,6 +22,13 @@
         <None Update="Test.project.assets.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="IKVM.Core.MSBuild" Version="0.1.28">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 
 </Project>

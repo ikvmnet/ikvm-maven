@@ -20,8 +20,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.4.4" />
-        <PackageReference Include="IKVM.MSBuild" Version="8.4.4" />
+        <PackageReference Include="IKVM" Version="8.5.1" />
+        <PackageReference Include="IKVM.MSBuild" Version="8.5.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -42,6 +42,13 @@
             <SetTargetFramework>TargetFramework=netcoreapp3.1</SetTargetFramework>
             <ProjectPackagePath>tasks\netcoreapp3.1</ProjectPackagePath>
         </PublishProjectReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Update="IKVM.Core.MSBuild" Version="0.1.28">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
     </ItemGroup>
 
     <Target Name="MakeGeneratedPropsFile" Outputs="$(IntermediateOutputPath)generated.props" BeforeTargets="_GetPackageFiles">
