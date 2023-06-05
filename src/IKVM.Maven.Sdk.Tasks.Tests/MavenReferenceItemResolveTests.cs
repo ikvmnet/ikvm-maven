@@ -270,11 +270,14 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         [TestMethod]
         public void ShouldUnifyAndIncludeIndirectDependencies()
         {
+            var cacheFile = Path.GetTempFileName();
+
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
             engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
             t.Repositories = new[] { GetCentralRepositoryItem() };
 
             var i1 = new TaskItem("org.apache.tika:tika-parsers-standard-package:2.8.0");

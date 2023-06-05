@@ -76,9 +76,25 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
         void ReadData(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
         {
             if (json["data"] is JArray a)
-                foreach (var o in a)
-                    if (o is JObject i)
-                        node.setData(i["key"].ToObject<object>(serializer), i["value"].ToObject<object>(serializer));
+                foreach (JObject o in a)
+                    ReadDataItem(json, serializer, node, o);
+        }
+
+        void ReadDataItem(JObject json, JsonSerializer serializer, DefaultDependencyNode node, JObject item)
+        {
+            var key = item["key"].ToObject<object>(serializer);
+            var valueType = (string)item["valueType"];
+            var value = item["value"];
+
+            node.setData(key, ReadDataValue(serializer, valueType, value));
+        }
+
+        object ReadDataValue(JsonSerializer serializer, string valueType, JToken value)
+        {
+            if (valueType == "dependencyNode")
+                return serializer.Deserialize<DefaultDependencyNode>(value.CreateReader());
+            else
+                return serializer.Deserialize(value.CreateReader());
         }
 
         void ReadManagedBits(JObject json, JsonSerializer serializer, DefaultDependencyNode node)
@@ -188,8 +204,21 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
                 writer.WriteStartObject();
                 writer.WritePropertyName("key");
                 serializer.Serialize(writer, n.getKey());
-                writer.WritePropertyName("value");
-                serializer.Serialize(writer, n.getValue());
+
+                if (n.getValue() is DefaultDependencyNode node)
+                {
+                    writer.WritePropertyName("valueType");
+                    writer.WriteValue("dependencyNode");
+
+                    writer.WritePropertyName("value");
+                    serializer.Serialize(writer, n.getValue());
+                }
+                else
+                {
+                    writer.WritePropertyName("value");
+                    serializer.Serialize(writer, n.getValue());
+                }
+
                 writer.WriteEndObject();
             }
 

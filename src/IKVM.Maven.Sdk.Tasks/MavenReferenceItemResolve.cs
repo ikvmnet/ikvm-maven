@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using com.sun.xml.@internal.rngom.binary.visitor;
-
 using IKVM.Maven.Sdk.Tasks.Aether;
 using IKVM.Maven.Sdk.Tasks.Resources;
 
@@ -250,7 +248,7 @@ namespace IKVM.Maven.Sdk.Tasks
             }
 
             // collect the full dependency graph
-            var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.COMPILE, JavaScopes.PROVIDED);
+            var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.PROVIDED);
             if (IncludeTestScope)
                 filter = DependencyFilterUtils.orFilter(DependencyFilterUtils.classpathFilter(JavaScopes.TEST));
             var result = maven.RepositorySystem.resolveDependencies(
