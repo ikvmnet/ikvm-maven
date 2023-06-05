@@ -25,6 +25,21 @@ Optionally, use an arbitrary value for the item specification, and explicitely s
 </ItemGroup>
 ```
 
+## Underspecified Dependencies
+
+It is fairly common for Java developers to underspecify dependencies within Maven. For instance, if their library is often used
+as a dependency of another aggregate package, or another library, at runtime, they can be reasonably certain classes they rely on will exist.
+Also, if they do not exist, but the specific code path that requires dependent classes is never hit, users won't experience any issue.
+
+However, since IKVM is statically compiling assemblies, we need to be able to properly track dependencies between
+each assembly we might be building. We can't fully build Library A if it depends on missing classes from Library B.
+As such, IKVM.Maven.Sdk requires that Maven dependencies be fully specified.
+
+But, we aren't the authors of Maven artifacts. Nor can we provide local overrides for missing Maven dependencies, as the
+Maven artifacts need to be available to any user who might indirectly add a reference through a NuGet package. Therefor,
+if you encounter an underspecified or missing dependency in Maven, the proper place to fix it is in Maven. Report the missing
+dependency to the authors of the Maven library you are attempting to use.
+
 ## Transitive Dependencies
 
 The `<MavenReference />` item group operates similar to a `dependency` in Maven. All transitive dependencies are
