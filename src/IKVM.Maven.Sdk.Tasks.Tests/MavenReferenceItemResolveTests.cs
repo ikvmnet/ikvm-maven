@@ -147,6 +147,30 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
+        public void CanResolveMetadataPackage()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.tika:tika-parsers:2.8.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.tika");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "tika-parsers");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.8.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            //t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:annotations:8.12.48");
+        }
+
+        [TestMethod]
         public void Can_resolve_maven_references_with_cache()
         {
             var cacheFile = Path.GetTempFileName();
