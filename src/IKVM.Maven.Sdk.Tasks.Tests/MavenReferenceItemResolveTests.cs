@@ -293,6 +293,10 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             // ensure we unified slf4j
             t.ResolvedReferences.Should().ContainSingle(i => i.ItemSpec.StartsWith("maven$org.slf4j:slf4j-api:"));
             t.ResolvedReferences.Should().ContainSingle(i => i.ItemSpec == "maven$org.slf4j:slf4j-api:2.0.7");
+
+            // check for dep that goes missing
+            var fontbox = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.pdfbox:fontbox:2.0.28");
+            fontbox.GetMetadata("References").Split(';').Should().Contain("maven$commons-logging:commons-logging:1.2");
         }
 
     }

@@ -3,7 +3,7 @@ minor-version-bump-message: '\+semver:\s?(minor)'
 patch-version-bump-message: '\+semver:\s?(patch)'
 branches:
   develop:
-    regex: ^dev(elop)?(ment)?$
+    regex: ^develop$
     tag: develop
   release:
     regex: ^release?[/-]
