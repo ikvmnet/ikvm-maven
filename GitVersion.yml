@@ -3,12 +3,11 @@ minor-version-bump-message: '\+semver:\s?(minor)'
 patch-version-bump-message: '\+semver:\s?(patch)'
 branches:
   develop:
-    regex: ^develop?$
+    regex: ^develop$
     tag: develop
   release:
     regex: ^release?[/-]
     tag: prerelease
   hotfix:
-    mode: ContinuousDeployment
     regex: ^hotfix?[/-]
     tag: prerelease

@@ -3,14 +3,16 @@ name: IKVM.Maven
 on:
   push:
     branches:
-    - main
-    - hotfix/*
     - develop
+    - hotfix/*
     - release/*
   pull_request:
     branches:
     - main
     - develop
+  release:
+    types:
+    - created
 
 jobs:
   build:
@@ -227,7 +229,7 @@ jobs:
         name: nuget
         path: dist/nuget
     - name: Create Release
-      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+push'
+      if: github.ref_type == 'tag'
       uses: ncipollo/release-action@v1.11.2
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
@@ -243,7 +245,7 @@ jobs:
         GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push NuGet
-      if: github.ref == 'refs/heads/main' || github.event.head_commit.message == '+push'
+      if: github.ref_type == 'tag'
       shell: pwsh
       run: dotnet nuget push dist/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
       env:
