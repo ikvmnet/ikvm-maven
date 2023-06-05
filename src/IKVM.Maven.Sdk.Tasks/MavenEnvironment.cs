@@ -246,6 +246,7 @@ namespace IKVM.Maven.Sdk.Tasks
             session.setDependencyGraphTransformer(CreateDependencyGraphTransformer());
             session.setTransferListener(new MavenTransferListener(log, noError));
             session.setRepositoryListener(new MavenRepositoryListener(log));
+            session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, "true");
             return session;
         }
 

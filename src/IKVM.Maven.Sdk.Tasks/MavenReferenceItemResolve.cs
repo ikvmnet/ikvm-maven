@@ -25,6 +25,7 @@ using org.eclipse.aether.repository;
 using org.eclipse.aether.resolution;
 using org.eclipse.aether.util.artifact;
 using org.eclipse.aether.util.filter;
+using org.eclipse.aether.util.graph.transformer;
 
 namespace IKVM.Maven.Sdk.Tasks
 {
@@ -35,10 +36,13 @@ namespace IKVM.Maven.Sdk.Tasks
     public class MavenReferenceItemResolve : Task
     {
 
+        const int CACHE_FILE_VERSION = 2;
+
         static readonly JsonSerializer serializer = new()
         {
             Converters =
             {
+                new BooleanConverter(),
                 new DefaultArtifactJsonConverter(),
                 new DefaultDependencyNodeJsonConverter(),
                 new DependencyJsonConverter(),
@@ -244,7 +248,7 @@ namespace IKVM.Maven.Sdk.Tasks
             }
 
             // collect the full dependency graph
-            var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.COMPILE, JavaScopes.PROVIDED);
+            var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.PROVIDED);
             if (IncludeTestScope)
                 filter = DependencyFilterUtils.orFilter(DependencyFilterUtils.classpathFilter(JavaScopes.TEST));
             var result = maven.RepositorySystem.resolveDependencies(
@@ -259,7 +263,7 @@ namespace IKVM.Maven.Sdk.Tasks
 
             TryWriteCacheFile(new MavenResolveCacheFile()
             {
-                Version = 1,
+                Version = CACHE_FILE_VERSION,
                 Dependencies = dependencies,
                 Repositories = repositories.ToArray(),
                 Graph = root,
@@ -287,7 +291,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 return null;
 
             // current version
-            if (cacheFile.Version != 1)
+            if (cacheFile.Version != CACHE_FILE_VERSION)
                 return null;
 
             // nothing was cached
@@ -427,6 +431,7 @@ namespace IKVM.Maven.Sdk.Tasks
             var result = maven.RepositorySystem.resolveDependencies(
                 session,
                 new DependencyRequest(root, DependencyFilterUtils.classpathFilter(scopes.ToArray())));
+
             foreach (ArtifactResult resultItem in (IEnumerable)result.getArtifactResults())
                 if (GetIkvmReferenceItemForArtifact(output, resultItem.getArtifact()) is IkvmReferenceItem ikvmItem)
                     yield return ikvmItem;
@@ -444,14 +449,17 @@ namespace IKVM.Maven.Sdk.Tasks
             if (node is null)
                 throw new ArgumentNullException(nameof(node));
 
-            // if artifact, obtain IkvmReferenceItem from artifact
-            var artifact = node.getArtifact();
-            var ikvmItem = artifact != null ? GetIkvmReferenceItemForArtifact(output, artifact) : null;
+            // resolve to winner of a conflict instead
+            node = GetEffectiveNode(node);
 
             // walk tree and ensure IkvmReferenceItem exists for each child
-            foreach (DependencyNode child in (IEnumerable)node.getChildren())
+            foreach (DependencyNode child in GetEffectiveChildren(node))
                 if (child.getDependency().getScope() is JavaScopes.COMPILE or JavaScopes.PROVIDED)
                     CollectIkvmReferenceItems(output, child);
+
+            // if artifact, obtain IkvmReferenceItem from artifact
+            var artifact = node.getArtifact();
+            var ikvmItem = artifact != null ? GetOrCreateIkvmReferenceItemForArtifact(output, artifact) : null;
 
             // if we've got an actual item, traverse it's dependencies to assign references
             if (ikvmItem != null)
@@ -467,7 +475,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <param name="artifact"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        IkvmReferenceItem GetIkvmReferenceItemForArtifact(Dictionary<string, IkvmReferenceItem> output, Artifact artifact)
+        IkvmReferenceItem GetOrCreateIkvmReferenceItemForArtifact(Dictionary<string, IkvmReferenceItem> output, Artifact artifact)
         {
             if (output is null)
                 throw new ArgumentNullException(nameof(output));
@@ -479,16 +487,16 @@ namespace IKVM.Maven.Sdk.Tasks
             if (extension != "jar")
                 return null;
 
+            var ikvmItem = GetIkvmReferenceItemForArtifact(output, artifact);
+            if (ikvmItem != null)
+                return ikvmItem;
+
             // pull items out of artifact
             var groupId = artifact.getGroupId();
             var artifactId = artifact.getArtifactId();
             var classifier = artifact.getClassifier();
             var version = artifact.getVersion();
-
-            // find or create the IkvmReferenceItem for the artifact
             var ikvmItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
-            if (output.TryGetValue(ikvmItemSpec, out var ikvmItem))
-                return ikvmItem;
 
             // create a new item
             ikvmItem = new IkvmReferenceItem() { ItemSpec = ikvmItemSpec, ReferenceOutputAssembly = false, Private = false };
@@ -521,6 +529,39 @@ namespace IKVM.Maven.Sdk.Tasks
         }
 
         /// <summary>
+        /// Gets the <see cref="IkvmReferenceItem"/> associated with the given artifact.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="artifact"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        IkvmReferenceItem GetIkvmReferenceItemForArtifact(IReadOnlyDictionary<string, IkvmReferenceItem> output, Artifact artifact)
+        {
+            if (output is null)
+                throw new ArgumentNullException(nameof(output));
+            if (artifact is null)
+                throw new ArgumentNullException(nameof(artifact));
+
+            // we only process JAR artifacts
+            var extension = artifact.getExtension();
+            if (extension != "jar")
+                return null;
+
+            // pull items out of artifact
+            var groupId = artifact.getGroupId();
+            var artifactId = artifact.getArtifactId();
+            var classifier = artifact.getClassifier();
+            var version = artifact.getVersion();
+
+            // find or create the IkvmReferenceItem for the artifact
+            var ikvmItemSpec = GetIkvmItemSpec(groupId, artifactId, classifier, version);
+            if (output.TryGetValue(ikvmItemSpec, out var ikvmItem))
+                return ikvmItem;
+
+            return null;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="output"></param>
@@ -533,11 +574,15 @@ namespace IKVM.Maven.Sdk.Tasks
             if (node is null)
                 throw new ArgumentNullException(nameof(node));
 
-            foreach (DependencyNode child in (IEnumerable)node.getChildren())
+            // resolve to winner of a conflict instead
+            node = GetEffectiveNode(node);
+
+            // each child of node
+            foreach (var child in GetEffectiveChildren(node))
             {
                 // if the child node is a direct artifact
                 if (child.getArtifact() is Artifact artifact)
-                    if (GetIkvmReferenceItemForArtifact(output, artifact) is IkvmReferenceItem reference)
+                    if (GetOrCreateIkvmReferenceItemForArtifact(output, artifact) is IkvmReferenceItem reference)
                         yield return reference;
 
                 // recurse into child
@@ -545,6 +590,24 @@ namespace IKVM.Maven.Sdk.Tasks
                     yield return reference;
             }
         }
+
+        /// <summary>
+        /// Gets the effective node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        DependencyNode GetEffectiveNode(DependencyNode node)
+        {
+            var n = (DependencyNode)node.getData().getOrDefault(ConflictResolver.NODE_DATA_WINNER, node);
+            return n == node ? n : GetEffectiveNode(n);
+        }
+
+        /// <summary>
+        /// Gets the effective children of a node.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        IEnumerable<DependencyNode> GetEffectiveChildren(DependencyNode node) => ((IEnumerable)GetEffectiveNode(node).getChildren()).Cast<DependencyNode>().Select(GetEffectiveNode);
 
         /// <summary>
         /// Returns a normalized version of a <see cref="MavenReferenceItem"/> itemspec.

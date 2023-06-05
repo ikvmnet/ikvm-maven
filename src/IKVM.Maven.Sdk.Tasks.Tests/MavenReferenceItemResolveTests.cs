@@ -267,6 +267,38 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             r2.GetMetadata("References").Split(';').Should().Contain("maven$org.junit.platform:junit-platform-commons:1.9.1");
         }
 
+        [TestMethod]
+        public void ShouldUnifyAndIncludeIndirectDependencies()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.tika:tika-parsers-standard-package:2.8.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.tika");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "tika-parsers-standard-package");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.8.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            // ensure we unified slf4j
+            t.ResolvedReferences.Should().ContainSingle(i => i.ItemSpec.StartsWith("maven$org.slf4j:slf4j-api:"));
+            t.ResolvedReferences.Should().ContainSingle(i => i.ItemSpec == "maven$org.slf4j:slf4j-api:2.0.7");
+
+            // check for dep that goes missing
+            var fontbox = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.pdfbox:fontbox:2.0.28");
+            fontbox.GetMetadata("References").Split(';').Should().Contain("maven$commons-logging:commons-logging:1.2");
+        }
+
     }
 
 }
