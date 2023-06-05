@@ -23,7 +23,7 @@
             SkipNonexistentTargets="true"
             BuildInParallel="$(BuildInParallel)"
             Properties="%(_MSBuildProjectReferenceExistent.SetConfiguration);%(_MSBuildProjectReferenceExistent.SetPlatform);%(_MSBuildProjectReferenceExistent.SetTargetFramework)"
-            Condition=" '%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' And '@(ProjectReferenceWithConfiguration)' != '' And '$(BuildingProject)' == 'true' And '@(_MSBuildProjectReferenceExistent)' != '' "
+            Condition=" '%(_MSBuildProjectReferenceExistent.BuildReference)' == 'true' And '@(ProjectReferenceWithConfiguration)' != '' And '@(_MSBuildProjectReferenceExistent)' != '' "
             ContinueOnError="$(ContinueOnError)"
             RemoveProperties="%(_MSBuildProjectReferenceExistent.GlobalPropertiesToRemove);$(_GlobalPropertiesToRemoveFromProjectReferences)">
             <Output TaskParameter="TargetOutputs" ItemName="_MavenReferenceItemFromProjectReferences" />

@@ -250,7 +250,7 @@ namespace IKVM.Maven.Sdk.Tasks
             }
 
             // collect the full dependency graph
-            var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.COMPILE, JavaScopes.PROVIDED);
+            var filter = DependencyFilterUtils.classpathFilter(JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.PROVIDED);
             if (IncludeTestScope)
                 filter = DependencyFilterUtils.orFilter(DependencyFilterUtils.classpathFilter(JavaScopes.TEST));
             var result = maven.RepositorySystem.resolveDependencies(
