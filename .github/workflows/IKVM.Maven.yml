@@ -231,11 +231,9 @@ jobs:
       if: github.ref_type == 'tag'
       uses: ncipollo/release-action@v1.11.2
       with:
-        tag: ${{ steps.GitVersion.outputs.semVer }}
+        tag: ${{ github.ref_name }}
         artifacts: dist/nuget/*.nupkg,dist/nuget/*.snupkg
         draft: false
-        generateReleaseNotes: true
-        prerelease: ${{ github.ref == 'refs/heads/develop' }}
         token: ${{ secrets.GITHUB_TOKEN }}
     - name: Push NuGet (GitHub)
       shell: pwsh
