@@ -22,6 +22,7 @@ using org.eclipse.aether.spi.connector;
 using org.eclipse.aether.spi.connector.transport;
 using org.eclipse.aether.transport.file;
 using org.eclipse.aether.transport.http;
+using org.eclipse.aether.util.graph.selector;
 using org.eclipse.aether.util.graph.transformer;
 using org.eclipse.aether.util.repository;
 using org.sonatype.plexus.components.cipher;
@@ -244,6 +245,7 @@ namespace IKVM.Maven.Sdk.Tasks
             session.setMirrorSelector(CreateMirrorSelector());
             session.setAuthenticationSelector(CreateAuthenticationSelector());
             session.setDependencyGraphTransformer(CreateDependencyGraphTransformer());
+            session.setDependencySelector(new AndDependencySelector(new ScopeDependencySelector("test")));
             session.setTransferListener(new MavenTransferListener(log, noError));
             session.setRepositoryListener(new MavenRepositoryListener(log));
             session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, "true");
