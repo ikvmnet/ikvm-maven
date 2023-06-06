@@ -268,7 +268,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void ShouldUnifyAndIncludeIndirectDependencies()
+        public void ShouldIncludeUnifiedVersions()
         {
             var cacheFile = Path.GetTempFileName();
 

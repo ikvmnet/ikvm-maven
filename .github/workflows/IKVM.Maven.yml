@@ -3,16 +3,10 @@ name: IKVM.Maven
 on:
   push:
     branches:
-    - develop
-    - hotfix/*
-    - release/*
+    - main
   pull_request:
     branches:
     - main
-    - develop
-  release:
-    types:
-    - created
 
 jobs:
   build:

@@ -244,8 +244,7 @@ namespace IKVM.Maven.Sdk.Tasks
             session.setProxySelector(CreateProxySelector());
             session.setMirrorSelector(CreateMirrorSelector());
             session.setAuthenticationSelector(CreateAuthenticationSelector());
-            session.setDependencyGraphTransformer(CreateDependencyGraphTransformer());
-            session.setDependencySelector(new AndDependencySelector(new ScopeDependencySelector("test")));
+            session.setDependencySelector(new AndDependencySelector(new ScopeDependencySelector("test"), new OptionalDependencySelector(), new ExclusionDependencySelector()));
             session.setTransferListener(new MavenTransferListener(log, noError));
             session.setRepositoryListener(new MavenRepositoryListener(log));
             session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, "true");
