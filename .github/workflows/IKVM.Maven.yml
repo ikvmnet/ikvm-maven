@@ -195,6 +195,7 @@ jobs:
         path: ${{ env.JOBPATH }}/TestResults
   release:
     name: Release
+    if: github.event_name != 'pull_request'
     needs:
     - test
     runs-on: ubuntu-22.04
@@ -222,7 +223,7 @@ jobs:
         name: nuget
         path: dist/nuget
     - name: Create Release
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: github.ref_type == 'tag'
       uses: ncipollo/release-action@v1
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
@@ -238,7 +239,7 @@ jobs:
         GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Push NuGet
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: github.ref_type == 'tag'
       shell: pwsh
       run: dotnet nuget push dist/nuget/*.nupkg --source $env:NUGET_REPOS --api-key $env:NUGET_TOKEN --skip-duplicate
       env:
