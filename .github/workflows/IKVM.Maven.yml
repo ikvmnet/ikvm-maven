@@ -7,6 +7,9 @@ on:
   pull_request:
     branches:
     - main
+  release:
+    types:
+    - created
 
 jobs:
   build:
@@ -39,7 +42,7 @@ jobs:
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
       with:
-        versionSpec: 5.x
+        versionSpec: 5.11
     - name: Execute GitVersion
       uses: gittools/actions/gitversion/execute@v0
       with:
@@ -211,7 +214,7 @@ jobs:
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
       with:
-        versionSpec: 5.x
+        versionSpec: 5.11
     - name: Execute GitVersion
       id: GitVersion
       uses: gittools/actions/gitversion/execute@v0

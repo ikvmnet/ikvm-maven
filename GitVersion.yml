@@ -1,8 +1,8 @@
-mode: Mainline
 major-version-bump-message: '\+semver:\s?(major)'
 minor-version-bump-message: '\+semver:\s?(minor)'
 patch-version-bump-message: '\+semver:\s?(patch)'
 branches:
   develop:
-    regex: ^develop$
-    tag: prerelease
+    regex: ^main$
+    tag: pre
+    
