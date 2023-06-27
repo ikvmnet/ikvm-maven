@@ -268,7 +268,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void ShouldUnifyAndIncludeIndirectDependencies()
+        public void ShouldIncludeUnifiedVersions()
         {
             var cacheFile = Path.GetTempFileName();
 
@@ -297,6 +297,33 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             // check for dep that goes missing
             var fontbox = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.pdfbox:fontbox:2.0.28");
             fontbox.GetMetadata("References").Split(';').Should().Contain("maven$commons-logging:commons-logging:1.2");
+        }
+
+        [TestMethod]
+        public void ShouldIncludeProvidedDependencies()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.xerial:sqlite-jdbc:3.42.0.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.xerial");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "sqlite-jdbc");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "3.42.0.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.graalvm.sdk:graal-sdk:22.3.2");
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.xerial:sqlite-jdbc:3.42.0.0");
+            pkg.GetMetadata("References").Split(';').Should().Contain("maven$org.graalvm.sdk:graal-sdk:22.3.2");
         }
 
     }
