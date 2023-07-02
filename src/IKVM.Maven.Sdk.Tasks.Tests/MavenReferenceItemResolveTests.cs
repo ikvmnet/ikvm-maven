@@ -29,7 +29,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void Can_resolve_maven_references()
+        public void CanResolve()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
@@ -61,7 +61,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void Can_resolve_maven_references_with_classifier()
+        public void CanResolveWithClassifier()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
@@ -89,7 +89,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void Can_resolve_maven_references_with_major_version_only()
+        public void CanResolveWithMajorVersionOnly()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
@@ -119,7 +119,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void Can_resolve_maven_references_through_packaging_type_pom()
+        public void CanResolvePackagingTypePom()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
@@ -147,7 +147,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void Can_resolve_maven_references_with_cache()
+        public void CanResolveWithCache()
         {
             var cacheFile = Path.GetTempFileName();
 
@@ -206,7 +206,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void Can_resolve_maven_references_with_version_override()
+        public void CanResolveWithVersionOverride()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
@@ -237,7 +237,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void Can_resolve_maven_references_with_transitive_dependencies()
+        public void CanResolveWithTransitiveDependencies()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
@@ -324,6 +324,33 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.graalvm.sdk:graal-sdk:22.3.2");
             var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.xerial:sqlite-jdbc:3.42.0.0");
             pkg.GetMetadata("References").Split(';').Should().Contain("maven$org.graalvm.sdk:graal-sdk:22.3.2");
+        }
+
+        [TestMethod]
+        public void CanResolveApacheFop()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.xmlgraphics:fop:2.8");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.xmlgraphics");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "fop");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.8");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
+            pkg.GetMetadata("References").Split(';').Should().Contain("maven$javax.media:jai-core:1.1.3");
         }
 
     }
