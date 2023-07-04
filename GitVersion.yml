@@ -7,7 +7,9 @@ branches:
   main:
     regex: ^main$
     tag: pre
+    increment: Patch
   develop:
     regex: ^develop$
     tag: dev
+    increment: Minor
     
