@@ -2,7 +2,10 @@ major-version-bump-message: '\+semver:\s?(major)'
 minor-version-bump-message: '\+semver:\s?(minor)'
 patch-version-bump-message: '\+semver:\s?(patch)'
 branches:
-  develop:
+  main:
     regex: ^main$
     tag: pre
+  develop:
+    regex: ^develop$
+    tag: dev
     
