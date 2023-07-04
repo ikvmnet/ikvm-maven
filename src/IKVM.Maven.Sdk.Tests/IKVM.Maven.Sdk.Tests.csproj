@@ -31,13 +31,6 @@
         </PackageProjectReference>
     </ItemGroup>
 
-    <ItemGroup>
-      <PackageReference Update="IKVM.Core.MSBuild" Version="0.1.28">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
-    </ItemGroup>
-
     <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
 
     <!-- Generate a file the Tests can use to retrieve various MSBuild properties. -->
