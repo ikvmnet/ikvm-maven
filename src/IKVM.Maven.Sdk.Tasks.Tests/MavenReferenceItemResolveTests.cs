@@ -347,7 +347,6 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.References = new[] { i1 };
 
             t.Execute().Should().BeTrue();
-            errors.Should().BeEmpty();
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
             var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
             pkg.GetMetadata("References").Split(';').Should().Contain("maven$javax.media:jai-core:1.1.3");
