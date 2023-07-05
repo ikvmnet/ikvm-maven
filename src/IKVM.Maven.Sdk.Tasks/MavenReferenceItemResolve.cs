@@ -189,7 +189,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(items));
 
             var maven = new IkvmMavenEnvironment(repositories, Log);
-            var session = maven.CreateRepositorySystemSession(false);
+            var session = maven.CreateRepositorySystemSession(true);
 
             // root of the runtime dependency graph
             var graph = ResolveCompileDependencyGraph(maven, session, repositories, items);

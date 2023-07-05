@@ -68,14 +68,14 @@ namespace IKVM.Maven.Sdk.Tasks
 
             if (noError == false)
             {
-                if (transferEvent.getException() is System.Exception e && e is not MetadataNotFoundException)
+jmn                if (transferEvent.getException() is Exception e && e is not MetadataNotFoundException)
                     log.LogErrorFromException(e, true, true, null);
                 else
                     log.LogErrorFromResources("Error.MavenTransferFailed", transferEvent.getResource().getResourceName());
             }
             else
             {
-                if (transferEvent.getException() is System.Exception e && e is not MetadataNotFoundException)
+                if (transferEvent.getException() is Exception e && e is not MetadataNotFoundException)
                     log.LogWarningFromException(e, true);
                 else
                     log.LogWarningFromResources("Error.MavenTransferFailed", transferEvent.getResource().getResourceName());
@@ -89,14 +89,14 @@ namespace IKVM.Maven.Sdk.Tasks
 
             if (noError == false)
             {
-                if (transferEvent.getException() is System.Exception e)
+                if (transferEvent.getException() is Exception e)
                     log.LogErrorFromException(e, true, true, null);
                 else
                     log.LogErrorFromResources("Error.MavenTransferCorrupted", transferEvent.getResource().getResourceName());
             }
             else
             {
-                if (transferEvent.getException() is System.Exception e)
+                if (transferEvent.getException() is Exception e)
                     log.LogWarningFromException(e, true);
                 else
                     log.LogWarningFromResources("Error.MavenTransferCorrupted", transferEvent.getResource().getResourceName());
