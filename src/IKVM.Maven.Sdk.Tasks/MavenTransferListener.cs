@@ -68,7 +68,7 @@ namespace IKVM.Maven.Sdk.Tasks
 
             if (noError == false)
             {
-jmn                if (transferEvent.getException() is Exception e && e is not MetadataNotFoundException)
+                if (transferEvent.getException() is Exception e && e is not MetadataNotFoundException)
                     log.LogErrorFromException(e, true, true, null);
                 else
                     log.LogErrorFromResources("Error.MavenTransferFailed", transferEvent.getResource().getResourceName());
