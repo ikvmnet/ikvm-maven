@@ -110,10 +110,10 @@ jobs:
       matrix:
         sys:
         - windows
-        - linux
+        - linux-x64
+        - osx-x64
         tfm:
         - net48
-        - netcoreapp3.1
         - net6.0
         - net7.0
         exclude:
@@ -122,7 +122,7 @@ jobs:
     name: Test (${{ matrix.sys }}:${{ matrix.tfm }})
     needs:
     - build
-    runs-on: ${{ fromJSON('{"windows":["windows-2022"],"linux":["ubuntu-22.04"]}')[matrix.sys] }}
+    runs-on: ${{ fromJSON('{"windows":["windows-2022"],"linux-x64":["ubuntu-22.04"],"osx-x64":["macosx-12"]}')[matrix.sys] }}
     steps:
     - name: Set Paths (Windows)
       if: runner.os == 'Windows'
@@ -140,7 +140,7 @@ jobs:
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
         Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir\nuget\packages"
     - name: Set Paths (Linux)
-      if: runner.os == 'Linux'
+      if: runner.os == 'Linux' || runner.os == 'macOS'
       shell: pwsh
       run: |
         $dir="${{ runner.temp }}/run"
@@ -154,10 +154,6 @@ jobs:
         Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
         Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$dir/nuget/packages"
-    - name: Setup .NET 3.1
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 3.1.x
     - name: Setup .NET 6.0
       uses: actions/setup-dotnet@v3
       with:

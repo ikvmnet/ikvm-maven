@@ -7,7 +7,6 @@
 
     <ItemGroup>
         <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net48" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net48" />
-        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|netcoreapp3.1" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="netcoreapp3.1" />
         <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net6.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net6.0" />
         <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net7.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net7.0" />
         <TestTarget Include="IKVM.Maven.Sdk.Tests|net7.0" ProjectName="IKVM.Maven.Sdk.Tests" TargetFramework="net7.0" />

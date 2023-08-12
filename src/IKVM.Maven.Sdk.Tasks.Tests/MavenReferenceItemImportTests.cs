@@ -32,10 +32,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemImport();
             t.BuildEngine = engine.Object;
 
-            t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "netcoreapp3.1", null).Should().HaveCount(4);
-            t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net5.0", null).Should().HaveCount(4);
             t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net6.0", null).Should().HaveCount(4);
-            t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net461", null).Should().HaveCount(4);
             t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net472", null).Should().HaveCount(4);
             t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net48", null).Should().HaveCount(4);
         }

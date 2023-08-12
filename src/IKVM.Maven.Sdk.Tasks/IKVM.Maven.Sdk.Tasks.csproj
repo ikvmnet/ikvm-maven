@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
+        <TargetFrameworks>net472;net6.0</TargetFrameworks>
     </PropertyGroup>
 
     <ItemGroup>
@@ -8,7 +8,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.6.1" />
+        <PackageReference Include="IKVM" Version="8.7.0-dev.282" />
         <PackageReference Include="Microsoft.Build" Version="16.9.0" PrivateAssets="All" />
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" PrivateAssets="All" />
         <PackageReference Include="NuGet.Common" Version="6.2.1" />

@@ -10,7 +10,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">netcoreapp3.1</IkvmMavenSdkTaskFolder>
+        <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">net6.0</IkvmMavenSdkTaskFolder>
         <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</IkvmMavenSdkTaskFolder>
         <IkvmMavenSdkTaskFactory Condition=" '$(MSBuildRuntimeType)' == 'Core' "></IkvmMavenSdkTaskFactory>
         <IkvmMavenSdkTaskFactory Condition=" '$(MSBuildRuntimeType)' != 'Core' ">TaskHostFactory</IkvmMavenSdkTaskFactory>
