@@ -93,22 +93,14 @@ jobs:
       with:
         name: nuget
         path: dist/nuget
-    - name: Package Tests (IKVM.Maven.Sdk.Tasks.Tests)
-      run: tar czvf C:\tests--IKVM.Maven.Sdk.Tasks.Tests.tar.gz tests\IKVM.Maven.Sdk.Tasks.Tests
+    - name: Package Tests
+      run: tar czvf C:\tests.tar.gz tests
       working-directory: dist
-    - name: Upload Tests (IKVM.Maven.Sdk.Tasks.Tests)
+    - name: Upload Tests
       uses: actions/upload-artifact@v3
       with:
-        name: tests--IKVM.Maven.Sdk.Tasks.Tests
-        path: C:\tests--IKVM.Maven.Sdk.Tasks.Tests.tar.gz
-    - name: Package Tests (IKVM.Maven.Sdk.Tests)
-      run: tar czvf C:\tests--IKVM.Maven.Sdk.Tests.tar.gz tests\IKVM.Maven.Sdk.Tests
-      working-directory: dist
-    - name: Upload Tests (IKVM.Maven.Sdk.Tests)
-      uses: actions/upload-artifact@v3
-      with:
-        name: tests--IKVM.Maven.Sdk.Tests
-        path: C:\tests--IKVM.Maven.Sdk.Tests.tar.gz
+        name: tests
+        path: C:\tests.tar.gz
     - name: Package Documentation
       shell: pwsh
       run: Compress-Archive -Path doc\* -DestinationPath C:\doc.zip
@@ -134,6 +126,8 @@ jobs:
         exclude:
         - tfm: net48
           sys: linux
+        - tfm: net48
+          sys: osx-x64
         include:
         - run: IKVM.Maven.Sdk.Tests
           tfm: net7.0
@@ -144,35 +138,11 @@ jobs:
         - run: IKVM.Maven.Sdk.Tests
           tfm: net7.0
           sys: osx-x64
-    name: Test (${{ matrix.sys }}:${{ matrix.tfm }})
+    name: Test (${{ matrix.run }}:${{ matrix.tfm }}:${{ matrix.sys }})
     needs:
     - build
     runs-on: ${{ fromJSON('{"win-x64":["windows-2022"],"linux-x64":["ubuntu-22.04"],"osx-x64":["macos-12"]}')[matrix.sys] }}
     steps:
-    - name: Set Paths (Windows)
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: |
-        $dir="C:\w"
-        mkdir $dir
-        mkdir $dir\temp
-        mkdir $dir\dotnet
-        mkdir $dir\work
-        Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir\work"
-        Add-Content $env:GITHUB_ENV "`nTMP=$dir\temp`nTEMP=$dir\temp`nTMPDIR=$dir\temp"
-        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
-    - name: Set Paths (Linux/OS X)
-      if: runner.os == 'Linux' || runner.os == 'macOS'
-      shell: pwsh
-      run: |
-        $dir="${{ runner.temp }}/w"
-        mkdir $dir
-        mkdir $dir/temp
-        mkdir $dir/dotnet
-        mkdir $dir/work
-        Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir/work"
-        Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
-        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
     - name: Setup .NET 6.0
       uses: actions/setup-dotnet@v3
       with:
@@ -201,15 +171,9 @@ jobs:
     - name: Download Tests
       uses: actions/download-artifact@v3
       with:
-        name: tests--${{ steps.test-name.outputs.result }}
-        path: ${{ env.WORKPATH }}
+        name: tests
     - name: Restore Tests
-      run: tar xzvf tests--${{ steps.test-name.outputs.result }}.tar.gz
-      working-directory: ${{ env.WORKPATH  }}
-    - name: Delete Tests
-      shell: pwsh
-      run: ri tests--${{ steps.test-name.outputs.result }}.tar.gz
-      working-directory: ${{ env.WORKPATH  }}
+      run: tar xzvf tests.tar.gz
     - name: Execute Tests
       timeout-minutes: 120
       shell: pwsh
@@ -258,17 +222,16 @@ jobs:
             
             dotnet test @argl $tests[0].FullName
         }
-      working-directory: ${{ env.WORKPATH }}
     - name: Archive Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
-      run: tar czvf ${{ env.TMPDIR }}/TestResults.tar.gz TestResults
+      run: tar czvf TestResults.tar.gz TestResults
       working-directory: ${{ env.WORKPATH  }}
     - name: Upload Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.RET }}
-        path: ${{ env.TMPDIR }}/TestResults.tar.gz
+        path: TestResults.tar.gz
   release:
     name: Release
     if: github.event_name != 'pull_request'
