@@ -95,7 +95,7 @@ jobs:
         path: dist/nuget
     - name: Package Tests (IKVM.Maven.Sdk.Tasks.Tests)
       run: tar czvf C:\tests--IKVM.Maven.Sdk.Tasks.Tests.tar.gz tests\IKVM.Maven.Sdk.Tasks.Tests
-      working-directory: dist
+      working-directory: dist/tests
     - name: Upload Tests (IKVM.Maven.Sdk.Tasks.Tests)
       uses: actions/upload-artifact@v3
       with:
@@ -103,7 +103,7 @@ jobs:
         path: C:\tests--IKVM.Maven.Sdk.Tasks.Tests.tar.gz
     - name: Package Tests (IKVM.Maven.Sdk.Tests)
       run: tar czvf C:\tests--IKVM.Maven.Sdk.Tests.tar.gz tests\IKVM.Maven.Sdk.Tests
-      working-directory: dist
+      working-directory: dist/tests
     - name: Upload Tests (IKVM.Maven.Sdk.Tests)
       uses: actions/upload-artifact@v3
       with:
