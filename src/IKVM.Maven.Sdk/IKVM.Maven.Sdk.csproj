@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.7.0-dev.282" />
+        <PackageReference Include="IKVM" Version="8.7.0-dev.530" />
     </ItemGroup>
 
     <ItemGroup>
@@ -32,22 +32,21 @@
         <None Include="..\..\README.md" Pack="true" PackagePath="." />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFramework)' == '' ">
+    <ItemGroup>
         <PublishProjectReference Include="..\IKVM.Maven.Sdk.Tasks\IKVM.Maven.Sdk.Tasks.csproj">
             <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
-            <ProjectPackagePath>tasks\net472</ProjectPackagePath>
+            <PublishTargetPath Condition=" '$(TargetFramework)' == 'net472' ">tasks</PublishTargetPath>
+            <CopyToOutputDirectory Condition=" '$(TargetFramework)' == 'net472' ">PreserveNewest</CopyToOutputDirectory>
+            <PublishPackagePath>tasks\net472</PublishPackagePath>
+            <Pack>true</Pack>
         </PublishProjectReference>
         <PublishProjectReference Include="..\IKVM.Maven.Sdk.Tasks\IKVM.Maven.Sdk.Tasks.csproj">
             <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
-            <ProjectPackagePath>tasks\net6.0</ProjectPackagePath>
+            <PublishTargetPath Condition=" '$(TargetFramework)' == 'net6.0' ">tasks</PublishTargetPath>
+            <CopyToOutputDirectory Condition=" '$(TargetFramework)' == 'net6.0' ">PreserveNewest</CopyToOutputDirectory>
+            <PublishPackagePath>tasks\net6.0</PublishPackagePath>
+            <Pack>true</Pack>
         </PublishProjectReference>
-    </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Update="IKVM.Core.MSBuild" Version="0.1.28">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
     </ItemGroup>
 
     <Target Name="MakeGeneratedPropsFile" Outputs="$(IntermediateOutputPath)generated.props" BeforeTargets="_GetPackageFiles">
