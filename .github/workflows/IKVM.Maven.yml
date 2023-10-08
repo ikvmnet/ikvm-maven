@@ -125,7 +125,7 @@ jobs:
         - net7.0
         exclude:
         - tfm: net48
-          sys: linux
+          sys: linux-x64
         - tfm: net48
           sys: osx-x64
         include:
