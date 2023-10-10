@@ -65,13 +65,13 @@ namespace IKVM.Maven.Sdk.Tests
             Properties = File.ReadAllLines("IKVM.Maven.Sdk.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
             // temporary directory
-            TempRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests", Guid.NewGuid().ToString());
+            TempRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests", "ProjectTests", "Temp");
             if (Directory.Exists(TempRoot))
                 Directory.Delete(TempRoot, true);
             Directory.CreateDirectory(TempRoot);
 
             // work directory
-            WorkRoot = Path.Combine(context.TestRunResultsDirectory, "IKVM.Maven.Sdk.Tests", "ProjectTests");
+            WorkRoot = Path.Combine(context.TestRunResultsDirectory, "IKVM.Maven.Sdk.Tests", "ProjectTests", "Work");
             if (Directory.Exists(WorkRoot))
                 Directory.Delete(WorkRoot, true);
             Directory.CreateDirectory(WorkRoot);
@@ -190,8 +190,10 @@ namespace IKVM.Maven.Sdk.Tests
             options.GlobalProperties["TargetFramework"] = tfm;
             options.GlobalProperties["RuntimeIdentifier"] = rid;
             options.TargetsToBuild.Clear();
+            options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Build");
             options.TargetsToBuild.Add("Publish");
+            options.Arguments.Add("/v:diag");
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
