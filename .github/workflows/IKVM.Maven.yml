@@ -224,13 +224,13 @@ jobs:
         }
     - name: Archive Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
-      run: tar czvf C:\TestResults.tar.gz TestResults
+      run: tar czvf TestResults.tar.gz TestResults
     - name: Upload Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.RET }}
-        path: C:\TestResults.tar.gz
+        path: TestResults.tar.gz
   release:
     name: Release
     if: github.event_name != 'pull_request'
