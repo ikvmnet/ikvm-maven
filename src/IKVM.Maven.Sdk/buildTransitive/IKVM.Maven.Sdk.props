@@ -3,10 +3,10 @@
         <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
     </PropertyGroup>
 
-    <Import Project="$(MSBuildThisFileDirectory)..\..\targets\generated.props" Condition="Exists('$(MSBuildThisFileDirectory)..\..\targets\generated.props')" />
+    <Import Project="$(MSBuildThisFileDirectory)..\targets\generated.props" Condition="Exists('$(MSBuildThisFileDirectory)..\targets\generated.props')" />
 
     <PropertyGroup>
-        <IkvmMavenSdkDir>$(MSBuildThisFileDirectory)..\..\</IkvmMavenSdkDir>
+        <IkvmMavenSdkDir>$(MSBuildThisFileDirectory)..\</IkvmMavenSdkDir>
     </PropertyGroup>
 
     <PropertyGroup>
