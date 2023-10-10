@@ -61,6 +61,10 @@ namespace IKVM.Maven.Sdk.Tests
         [ClassInitialize]
         public static void Init(TestContext context)
         {
+            // skip tests for non-Windows platforms, since our project produces Framework output
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+                return;
+
             // properties to load into test build
             Properties = File.ReadAllLines("IKVM.Maven.Sdk.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
