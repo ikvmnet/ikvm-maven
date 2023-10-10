@@ -200,8 +200,10 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         name: tests
+        path: ${{ env.WORKPATH }}
     - name: Restore Tests
       run: tar xzvf tests.tar.gz
+      working-directory: ${{ env.WORKPATH }}
     - name: Execute Tests
       timeout-minutes: 120
       shell: pwsh
