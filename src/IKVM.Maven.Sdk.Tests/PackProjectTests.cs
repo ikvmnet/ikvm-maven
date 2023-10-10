@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
 using Buildalyzer;
@@ -137,6 +138,10 @@ namespace IKVM.Maven.Sdk.Tests
         [TestMethod]
         public void CanPackProject()
         {
+            // skip tests for non-Windows platforms, since our project produces Framework output
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+                return;
+
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackProject", "Lib", "PackProjectLib.csproj"));
             analyzer.AddBuildLogger(new TargetLogger(TestContext));
