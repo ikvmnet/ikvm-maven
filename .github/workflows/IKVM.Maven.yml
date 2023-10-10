@@ -143,6 +143,34 @@ jobs:
     - build
     runs-on: ${{ fromJSON('{"win-x64":["windows-2022"],"linux-x64":["ubuntu-22.04"],"osx-x64":["macos-12"]}')[matrix.sys] }}
     steps:
+    - name: Set Paths (Windows)
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: |
+        $dir="C:\w"
+        mkdir $dir
+        mkdir $dir\temp
+        mkdir $dir\dotnet
+        mkdir $dir\work
+        Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir\work"
+        Add-Content $env:GITHUB_ENV "`nTMP=$dir\temp`nTEMP=$dir\temp`nTMPDIR=$dir\temp"
+        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir\dotnet"
+    - name: Set Paths (Linux/OS X)
+      if: runner.os == 'Linux' || runner.os == 'macOS'
+      shell: pwsh
+      run: |
+        $dir="${{ runner.temp }}/w"
+        mkdir $dir
+        mkdir $dir/temp
+        mkdir $dir/dotnet
+        mkdir $dir/work
+        Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir/work"
+        Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
+        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
+    - name: Install ProcDump
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: choco install procdump -y; Add-Content $env:GITHUB_PATH "$env:ProgramData\chocolatey\bin\"
     - name: Setup .NET 6.0
       uses: actions/setup-dotnet@v3
       with:
@@ -222,15 +250,17 @@ jobs:
             
             dotnet test @argl $tests[0].FullName
         }
+      working-directory: ${{ env.WORKPATH }}
     - name: Archive Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
-      run: tar czvf TestResults.tar.gz TestResults
+      run: tar czvf ${{ env.TMPDIR }}/TestResults.tar.gz TestResults
+      working-directory: ${{ env.WORKPATH }}
     - name: Upload Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
       uses: actions/upload-artifact@v3
       with:
         name: ${{ env.RET }}
-        path: TestResults.tar.gz
+        path: ${{ env.TMPDIR }}/TestResults.tar.gz
   release:
     name: Release
     if: github.event_name != 'pull_request'
