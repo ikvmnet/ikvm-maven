@@ -54,9 +54,9 @@ jobs:
     - name: Execute GitVersion
       uses: gittools/actions/gitversion/execute@v0
       with:
-        targetPath: ${{ env.WORKPATH }}\ikvm-maven
+        targetPath: ${{ env.WORKPATH }}/ikvm-maven
         useConfigFile: true
-        configFilePath: ${{ env.WORKPATH }}\ikvm-maven\GitVersion.yml
+        configFilePath: ${{ env.WORKPATH }}/ikvm-maven/GitVersion.yml
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
@@ -92,7 +92,7 @@ jobs:
           /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
           IKVM.Maven.dist.msbuildproj
-      working-directory: ${{ env.WORKPATH }}\ikvm-maven
+      working-directory: ${{ env.WORKPATH }}/kvm-maven
     - name: Upload MSBuild Log
       if: ${{ always() }}
       uses: actions/upload-artifact@v3
