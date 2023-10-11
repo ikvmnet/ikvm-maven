@@ -92,12 +92,13 @@ jobs:
           /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
           IKVM.Maven.dist.msbuildproj
+      working-directory: ${{ env.WORKPATH }}\ikvm-maven
     - name: Upload MSBuild Log
       if: ${{ always() }}
       uses: actions/upload-artifact@v3
       with:
         name: msbuild.binlog
-        path: ${{ env.WORKPATH }}\ikvm-maven\msbuild.binlog
+        path: ${{ env.WORKPATH }}/ikvm-maven/msbuild.binlog
     - name: Upload NuGet Packages
       uses: actions/upload-artifact@v3
       with:
