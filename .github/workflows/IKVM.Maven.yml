@@ -27,7 +27,7 @@ jobs:
         mkdir $WORKPATH\dotnet
         mkdir $WORKPATH\nuget
         mkdir $WORKPATH\nuget\packages
-        mkdir $WORKPATH\ikvm
+        mkdir $WORKPATH\ikvm-maven
         Add-Content $env:GITHUB_ENV "`nWORKPATH=$WORKPATH"
         Add-Content $env:GITHUB_ENV "`nTMP=$WORKPATH\temp`nTEMP=$WORKPATH\temp`nTMPDIR=$WORKPATH\temp"
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$WORKPATH\dotnet"
