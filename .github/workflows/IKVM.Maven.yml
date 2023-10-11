@@ -18,17 +18,27 @@ jobs:
     name: Build
     runs-on: windows-2022
     steps:
+    - name: Set Paths (Windows)
+      shell: pwsh
+      run: |
+        $WORKPATH="C:\w"
+        mkdir $WORKPATH
+        mkdir $WORKPATH\temp
+        mkdir $WORKPATH\dotnet
+        mkdir $WORKPATH\nuget
+        mkdir $WORKPATH\nuget\packages
+        mkdir $WORKPATH\ikvm
+        Add-Content $env:GITHUB_ENV "`nWORKPATH=$WORKPATH"
+        Add-Content $env:GITHUB_ENV "`nTMP=$WORKPATH\temp`nTEMP=$WORKPATH\temp`nTMPDIR=$WORKPATH\temp"
+        Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$WORKPATH\dotnet"
+        Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$WORKPATH\nuget\packages"
+        New-Item -Path "$env:GITHUB_WORKSPACE\work" -ItemType SymbolicLink -Value "$WORKPATH\ikvm-maven"
     - name: Checkout Source
       uses: actions/checkout@v3
       with:
+        path: work
         fetch-depth: 0
         submodules: recursive
-    - name: Move Temporary Directory
-      shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nTMP=${{ runner.temp }}`nTEMP=${{ runner.temp }}`nTMPDIR=${{ runner.temp }}"
-    - name: Setup .NET
-      shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=${{ runner.temp }}\dotnet"
     - name: Setup .NET 6.0
       uses: actions/setup-dotnet@v3
       with:
@@ -40,14 +50,13 @@ jobs:
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v0
       with:
-        versionSpec: 5.11
+        versionSpec: 5.x
     - name: Execute GitVersion
       uses: gittools/actions/gitversion/execute@v0
       with:
+        targetPath: ${{ env.WORKPATH }}\ikvm-maven
         useConfigFile: true
-    - name: Move NuGet Directory
-      shell: pwsh
-      run: Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=${{ runner.temp }}\nuget\packages"
+        configFilePath: ${{ env.WORKPATH }}\ikvm-maven\GitVersion.yml
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
@@ -57,11 +66,12 @@ jobs:
     - name: Cache NuGet
       uses: actions/cache@v3
       with:
-        path: ${{ runner.temp }}\nuget\packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**\*.csproj', '**\*.msbuildproj') }}-1
+        path: ${{ env.NUGET_PACKAGES }}
+        key: ${{ runner.os }}-nuget-${{ hashFiles('IKVM.Maven.sln', 'src\**\*.csproj', 'src\**\*.msbuildproj') }}
         restore-keys: ${{ runner.os }}-nuget-
     - name: NuGet Restore
       run: dotnet restore IKVM.Maven.sln
+      working-directory: ${{ env.WORKPATH }}/ikvm-maven
     - name: Build
       run: |
         dotnet msbuild /m /bl `
@@ -87,15 +97,15 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: msbuild.binlog
-        path: msbuild.binlog
+        path: ${{ env.WORKPATH }}\ikvm-maven\msbuild.binlog
     - name: Upload NuGet Packages
       uses: actions/upload-artifact@v3
       with:
         name: nuget
-        path: dist/nuget
+        path: ${{ env.WORKPATH }}/ikvm-maven/dist/nuget
     - name: Package Tests
       run: tar czvf C:\tests.tar.gz tests
-      working-directory: dist
+      working-directory: ${{ env.WORKPATH }}/ikvm-maven/dist
     - name: Upload Tests
       uses: actions/upload-artifact@v3
       with:
@@ -104,7 +114,7 @@ jobs:
     - name: Package Documentation
       shell: pwsh
       run: Compress-Archive -Path doc\* -DestinationPath C:\doc.zip
-      working-directory: .
+      working-directory: ${{ env.WORKPATH }}/ikvm-maven
     - name: Upload Documentation
       uses: actions/upload-artifact@v3
       with:
@@ -143,6 +153,13 @@ jobs:
     - build
     runs-on: ${{ fromJSON('{"win-x64":["windows-2022"],"linux-x64":["ubuntu-22.04"],"osx-x64":["macos-12"]}')[matrix.sys] }}
     steps:
+    - name: Free Disk Space (Linux)
+      if: runner.os == 'Linux'
+      uses: jlumbroso/free-disk-space@main
+      with:
+        dotnet: false
+        swap-storage: false
+        large-packages: false
     - name: Set Paths (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
