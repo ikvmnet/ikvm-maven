@@ -92,7 +92,7 @@ jobs:
           /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
           IKVM.Maven.dist.msbuildproj
-      working-directory: ${{ env.WORKPATH }}/kvm-maven
+      working-directory: ${{ env.WORKPATH }}/ikvm-maven
     - name: Upload MSBuild Log
       if: ${{ always() }}
       uses: actions/upload-artifact@v3
