@@ -69,6 +69,12 @@ jobs:
         path: ${{ env.NUGET_PACKAGES }}
         key: ${{ runner.os }}-nuget-${{ hashFiles('IKVM.Maven.sln', 'src\**\*.csproj', 'src\**\*.msbuildproj') }}
         restore-keys: ${{ runner.os }}-nuget-
+    - name: Cache Maven
+      uses: actions/cache@v3
+      with:
+        path: ~\.m2\repository
+        key: ${{ runner.os }}-nuget-${{ hashFiles('IKVM.Maven.sln', 'src\**\*.csproj', 'src\**\*.msbuildproj') }}
+        restore-keys: ${{ runner.os }}-maven-
     - name: NuGet Restore
       run: dotnet restore IKVM.Maven.sln
       working-directory: ${{ env.WORKPATH }}/ikvm-maven
