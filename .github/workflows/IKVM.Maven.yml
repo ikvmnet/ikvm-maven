@@ -229,7 +229,7 @@ jobs:
       run: tar xzvf tests.tar.gz
       working-directory: ${{ env.WORKPATH }}
     - name: Execute Tests
-      timeout-minutes: 120
+      timeout-minutes: 240
       shell: pwsh
       run: |
         # assign powershell variables

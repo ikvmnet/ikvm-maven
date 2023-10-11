@@ -5,8 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-using com.sun.xml.@internal.rngom.binary.visitor;
-
 using IKVM.Maven.Sdk.Tasks.Aether;
 using IKVM.Maven.Sdk.Tasks.Resources;
 
