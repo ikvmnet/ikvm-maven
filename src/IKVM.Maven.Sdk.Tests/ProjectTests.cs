@@ -136,34 +136,62 @@ namespace IKVM.Maven.Sdk.Tests
         public TestContext TestContext { get; set; }
 
         [DataTestMethod]
-        [DataRow("net472", "win-x86")]
-        [DataRow("net472", "win-x64")]
-        [DataRow("net48", "win-x86")]
-        [DataRow("net48", "win-x64")]
-        [DataRow("net6.0", "win-x86")]
-        [DataRow("net6.0", "win-x64")]
-        [DataRow("net6.0", "linux-x64")]
-        [DataRow("net6.0", "linux-arm")]
-        [DataRow("net6.0", "linux-arm64")]
-        [DataRow("net6.0", "linux-musl-x64")]
-        [DataRow("net6.0", "linux-musl-arm")]
-        [DataRow("net6.0", "linux-musl-arm64")]
-        [DataRow("net6.0", "osx-x64")]
-        [DataRow("net6.0", "osx-arm64")]
-        [DataRow("net7.0", "win-x86")]
-        [DataRow("net7.0", "win-x64")]
-        [DataRow("net7.0", "linux-x64")]
-        [DataRow("net7.0", "linux-arm")]
-        [DataRow("net7.0", "linux-arm64")]
-        [DataRow("net7.0", "linux-musl-x64")]
-        [DataRow("net7.0", "linux-musl-arm")]
-        [DataRow("net7.0", "linux-musl-arm64")]
-        [DataRow("net7.0", "osx-x64")]
-        [DataRow("net7.0", "osx-arm64")]
-        public void CanBuildProject(string tfm, string rid)
+        [DataRow(EnvironmentPreference.Core, "net472", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net472", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net48", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net48", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "win-arm64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "linux-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "linux-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "linux-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "linux-musl-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "linux-musl-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "linux-musl-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "osx-x64", "{0}", "lib{0}.dylib")]
+        [DataRow(EnvironmentPreference.Core, "net6.0", "osx-arm64", "{0}", "lib{0}.dylib")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "win-arm64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "linux-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "linux-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "linux-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "linux-musl-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "linux-musl-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "linux-musl-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "osx-x64", "{0}", "lib{0}.dylib")]
+        [DataRow(EnvironmentPreference.Core, "net7.0", "osx-arm64", "{0}", "lib{0}.dylib")]
+        [DataRow(EnvironmentPreference.Framework, "net472", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net472", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net48", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net48", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "win-arm64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "linux-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "linux-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "linux-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "linux-musl-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "linux-musl-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "linux-musl-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "osx-x64", "{0}", "lib{0}.dylib")]
+        [DataRow(EnvironmentPreference.Framework, "net6.0", "osx-arm64", "{0}", "lib{0}.dylib")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "win-x86", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "win-x64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "win-arm64", "{0}.exe", "{0}.dll")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "linux-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "linux-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "linux-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "linux-musl-x64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "linux-musl-arm", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "linux-musl-arm64", "{0}", "lib{0}.so")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "osx-x64", "{0}", "lib{0}.dylib")]
+        [DataRow(EnvironmentPreference.Framework, "net7.0", "osx-arm64", "{0}", "lib{0}.dylib")]
+        public void CanBuildProject(EnvironmentPreference env, string tfm, string rid, string exe, string lib)
         {
             // skip framework tests for non-Windows platforms
-            if (tfm == "net472" || tfm == "net48")
+            if (env == EnvironmentPreference.Framework || tfm == "net472" || tfm == "net48")
                 if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
                     return;
 
@@ -185,6 +213,7 @@ namespace IKVM.Maven.Sdk.Tests
             analyzer.SetGlobalProperty("Configuration", "Release");
 
             var options = new EnvironmentOptions();
+            options.Preference = env;
             options.DesignTime = false;
             options.Restore = false;
             options.GlobalProperties["TargetFramework"] = tfm;
@@ -195,6 +224,46 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Add("Publish");
             options.Arguments.Add("/v:diag");
             analyzer.Build(options).OverallSuccess.Should().Be(true);
+
+            var binDir = Path.Combine("Project", "Exe", "bin", "Release", tfm, rid);
+
+            // check in build output and publish output
+            foreach (var i in new[] { "", "publish" })
+            {
+                var outDir = Path.Combine(binDir, i);
+
+                // main artifiacts generated by project
+                File.Exists(Path.Combine(outDir, string.Format(exe, "ProjectExe"))).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "ProjectLib.dll")).Should().BeTrue();
+
+                // generated assemblies
+                File.Exists(Path.Combine(outDir, "maven.core.dll")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "maven.model.dll")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "org.apache.commons.io.dll")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "org.apache.commons.logging.dll")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "org.slf4j.dll")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "xml.apis.dll")).Should().BeTrue();
+
+                // ikvm libraries
+                File.Exists(Path.Combine(outDir, "IKVM.Runtime.dll")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "IKVM.Java.dll")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, string.Format(lib, "ikvm"))).Should().BeTrue();
+
+                // ikvm image direcetories
+                Directory.Exists(Path.Combine(outDir, "ikvm")).Should().BeTrue();
+                Directory.Exists(Path.Combine(outDir, "ikvm", rid)).Should().BeTrue();
+                Directory.Exists(Path.Combine(outDir, "ikvm", rid, "bin")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "ikvm", rid, "TRADEMARK")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "ikvm", rid, "lib", "tzdb.dat")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "ikvm", rid, "lib", "tzmappings")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "ikvm", rid, "lib", "currency.data")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "ikvm", rid, "lib", "security", "java.policy")).Should().BeTrue();
+                File.Exists(Path.Combine(outDir, "ikvm", rid, "lib", "security", "java.security")).Should().BeTrue();
+
+                // ikvm image native libraries
+                foreach (var libName in new[] { "awt", "fdlibm", "iava", "jvm", "management", "net", "nio", "sunec", "unpack", "verify" })
+                    File.Exists(Path.Combine(outDir, "ikvm", rid, "bin", string.Format(lib, libName))).Should().BeTrue();
+            }
         }
 
     }

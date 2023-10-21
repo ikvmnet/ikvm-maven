@@ -139,8 +139,10 @@ namespace IKVM.Maven.Sdk.Tests
 
         public TestContext TestContext { get; set; }
 
-        [TestMethod]
-        public void CanPackProject()
+        [DataTestMethod]
+        [DataRow(EnvironmentPreference.Core)]
+        [DataRow(EnvironmentPreference.Framework)]
+        public void CanPackProject(EnvironmentPreference env)
         {
             // skip tests for non-Windows platforms, since our project produces Framework output
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
@@ -163,6 +165,7 @@ namespace IKVM.Maven.Sdk.Tests
             analyzer.SetGlobalProperty("CreateHardLinksForPublishFilesIfPossible", "true");
 
             var options = new EnvironmentOptions();
+            options.Preference = env;
             options.DesignTime = false;
             options.Restore = false;
             options.TargetsToBuild.Clear();
