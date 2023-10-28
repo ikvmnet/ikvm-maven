@@ -157,6 +157,7 @@ jobs:
           tfm: net7.0
           sys: osx-x64
     name: Test (${{ matrix.run }}:${{ matrix.tfm }}:${{ matrix.sys }})
+    timeout-minutes: 240
     needs:
     - build
     runs-on: ${{ fromJSON('{"win-x64":["windows-2022"],"linux-x64":["ubuntu-22.04"],"osx-x64":["macos-12"]}')[matrix.sys] }}
