@@ -171,7 +171,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Pack");
-            options.Arguments.Add("/v:diag");
+            options.Arguments.Add("/v:d");
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
