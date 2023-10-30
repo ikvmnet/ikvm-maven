@@ -647,8 +647,8 @@ namespace IKVM.Maven.Sdk.Tasks
             try
             {
                 var v = new DefaultArtifactVersion(version);
-                var major = v.getMajorVersion() <= ushort.MaxValue ? v.getMajorVersion() : ushort.MaxValue;
-                var minor = v.getMinorVersion() <= ushort.MaxValue ? v.getMinorVersion() : ushort.MaxValue;
+                var major = Math.Min(v.getMajorVersion(), ushort.MaxValue);
+                var minor = Math.Min(v.getMinorVersion(), ushort.MaxValue);
                 return new Version(major, minor);
             }
             catch (Exception)
