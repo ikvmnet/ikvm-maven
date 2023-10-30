@@ -312,14 +312,18 @@ jobs:
       with:
         name: nuget
         path: dist/nuget
+    - name: Download Documentation
+      uses: actions/download-artifact@v3
+      with:
+        name: doc
+        path: dist
     - name: Create Release
       if: github.ref_type == 'tag'
       uses: ncipollo/release-action@v1
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
         allowUpdates: true
-        artifacts: dist/nuget/*.nupkg,dist/nuget/*.snupkg
-        draft: false
+        artifacts: dist/nuget/*.nupkg,dist/nuget/*.snupkg,dist/doc.zip
         makeLatest: true
         token: ${{ secrets.GITHUB_TOKEN }}
     - name: Push NuGet (GitHub)
