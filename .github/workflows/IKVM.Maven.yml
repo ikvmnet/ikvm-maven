@@ -323,6 +323,7 @@ jobs:
       with:
         tag: ${{ steps.GitVersion.outputs.semVer }}
         allowUpdates: true
+        omitBodyDuringUpdate: true
         artifacts: dist/nuget/*.nupkg,dist/nuget/*.snupkg,dist/doc.zip
         makeLatest: true
         token: ${{ secrets.GITHUB_TOKEN }}
