@@ -199,7 +199,7 @@ namespace IKVM.Maven.Sdk.Tasks
             CollectIkvmReferenceItems(output, graph);
 
             // resolve compile and runtime items and ensure they are copied
-            var privateScopes = new List<string>() { JavaScopes.COMPILE, JavaScopes.RUNTIME };
+            var privateScopes = new List<string>() { JavaScopes.RUNTIME };
             if (IncludeTestScope)
                 privateScopes.Add(JavaScopes.TEST);
             foreach (var ikvmItem in ResolveIkvmReferenceItemsForScopes(output, maven, session, graph, privateScopes))
@@ -454,7 +454,7 @@ namespace IKVM.Maven.Sdk.Tasks
 
             // walk tree and ensure IkvmReferenceItem exists for each child
             foreach (DependencyNode child in GetEffectiveChildren(node))
-                if (child.getDependency().getScope() is JavaScopes.COMPILE or JavaScopes.PROVIDED)
+                if (child.getDependency().getScope() is JavaScopes.COMPILE or JavaScopes.PROVIDED or JavaScopes.RUNTIME)
                     CollectIkvmReferenceItems(output, child);
 
             // if artifact, obtain IkvmReferenceItem from artifact
