@@ -385,7 +385,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
-        public void ProvidedDependencyShouldBeNotPrivateAndNotReferenced()
+        public void ProvidedDependencyShouldBeNotPrivateAndReferenced()
         {
             var cacheFile = Path.GetTempFileName();
 
@@ -411,6 +411,32 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
             pkg.GetMetadata("Private").Should().Be("false");
             pkg.GetMetadata("ReferenceOutputAssembly").Should().Be("true");
+        }
+
+        [TestMethod]
+        public void SystemDependencyShouldBeExcluded()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("javax.inject:javax.inject:1");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "javax.inject");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "javax.inject");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "system");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().NotContain(i => i.ItemSpec == "maven$javax.inject:javax.inject:1");
         }
 
         [TestMethod]
