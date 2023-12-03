@@ -453,8 +453,11 @@ namespace IKVM.Maven.Sdk.Tasks
             node = GetEffectiveNode(node);
 
             // walk tree and ensure IkvmReferenceItem exists for each child
+            var scopes = new HashSet<string>() { JavaScopes.COMPILE, JavaScopes.RUNTIME, JavaScopes.PROVIDED };
+            if (IncludeTestScope)
+                scopes.Add(JavaScopes.TEST);
             foreach (DependencyNode child in GetEffectiveChildren(node))
-                if (child.getDependency().getScope() is JavaScopes.COMPILE or JavaScopes.PROVIDED or JavaScopes.RUNTIME)
+                if (scopes.Contains(child.getDependency().getScope()))
                     CollectIkvmReferenceItems(output, child);
 
             // if artifact, obtain IkvmReferenceItem from artifact
@@ -466,6 +469,36 @@ namespace IKVM.Maven.Sdk.Tasks
                 foreach (var ikvmReference in CollectIkvmReferenceItemReferences(output, node))
                     if (ikvmItem.References.Contains(ikvmReference) == false)
                         ikvmItem.References.Add(ikvmReference);
+        }
+
+        /// <summary>
+        /// Recursively populates the output collection with IkvmReferenceItems.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="node"></param>
+        /// <returns></returns>
+        IEnumerable<IkvmReferenceItem> CollectIkvmReferenceItemReferences(Dictionary<string, IkvmReferenceItem> output, DependencyNode node)
+        {
+            if (output is null)
+                throw new ArgumentNullException(nameof(output));
+            if (node is null)
+                throw new ArgumentNullException(nameof(node));
+
+            // resolve to winner of a conflict instead
+            node = GetEffectiveNode(node);
+
+            // each child of node
+            foreach (var child in GetEffectiveChildren(node))
+            {
+                // if the child node is a direct artifact
+                if (child.getArtifact() is Artifact artifact)
+                    if (GetOrCreateIkvmReferenceItemForArtifact(output, artifact) is IkvmReferenceItem reference)
+                        yield return reference;
+
+                // recurse into child
+                foreach (var reference in CollectIkvmReferenceItemReferences(output, child))
+                    yield return reference;
+            }
         }
 
         /// <summary>
@@ -559,36 +592,6 @@ namespace IKVM.Maven.Sdk.Tasks
                 return ikvmItem;
 
             return null;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="output"></param>
-        /// <param name="node"></param>
-        /// <returns></returns>
-        IEnumerable<IkvmReferenceItem> CollectIkvmReferenceItemReferences(Dictionary<string, IkvmReferenceItem> output, DependencyNode node)
-        {
-            if (output is null)
-                throw new ArgumentNullException(nameof(output));
-            if (node is null)
-                throw new ArgumentNullException(nameof(node));
-
-            // resolve to winner of a conflict instead
-            node = GetEffectiveNode(node);
-
-            // each child of node
-            foreach (var child in GetEffectiveChildren(node))
-            {
-                // if the child node is a direct artifact
-                if (child.getArtifact() is Artifact artifact)
-                    if (GetOrCreateIkvmReferenceItemForArtifact(output, artifact) is IkvmReferenceItem reference)
-                        yield return reference;
-
-                // recurse into child
-                foreach (var reference in CollectIkvmReferenceItemReferences(output, child))
-                    yield return reference;
-            }
         }
 
         /// <summary>
