@@ -95,7 +95,7 @@ namespace IKVM.Maven.Sdk.Tasks
         const string SettingsSecurityXml = "settings-security.xml";
         const string DefaultRepositoryType = "default";
 
-        static readonly string DefaultRepositoryPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), ".m2");
+        static readonly string DefaultRepositoryPath = Path.Combine(java.lang.System.getProperty("user.home"), ".m2");
 
         readonly TaskLoggingHelper log;
         readonly string repositoryPath;
@@ -131,24 +131,48 @@ namespace IKVM.Maven.Sdk.Tasks
         public List Repositories => repositories;
 
         /// <summary>
+        /// Handles a settings problem.
+        /// </summary>
+        /// <param name="problem"></param>
+        void HandleSettingsProblem(SettingsProblem problem)
+        {
+            if (problem.getSeverity() == SettingsProblem.Severity.WARNING)
+                log.LogWarning(problem.getMessage());
+            else if (problem.getSeverity() == SettingsProblem.Severity.ERROR)
+                log.LogError(problem.getMessage());
+            else if (problem.getSeverity() == SettingsProblem.Severity.FATAL)
+                log.LogCriticalMessage(null, null, null, null, 0, 0, 0, 0, problem.getMessage(), null);
+        }
+
+        /// <summary>
         /// Reads the Maven settings.
         /// </summary>
         /// <returns></returns>
         Settings ReadSettings()
         {
-            // initialize a request for the settings
             var request = new DefaultSettingsBuildingRequest();
             request.setUserSettingsFile(new File(Path.Combine(repositoryPath, SettingsXml)));
 
             var builder = new DefaultSettingsBuilderFactory().newInstance();
-            var settings = builder.build(request).getEffectiveSettings();
+            var settingsResult = builder.build(request);
+            if (settingsResult.getProblems() is List settingsProblem)
+                for (var i = settingsProblem.iterator(); i.hasNext();)
+                    HandleSettingsProblem((SettingsProblem)i.next());
 
-            // decrypt security sensitive areas of Maven settings
-            var securityDispatcher = new SecDispatcher(Path.Combine(repositoryPath, SettingsSecurityXml));
-            var settingsDecrypter = new DefaultSettingsDecrypter(securityDispatcher);
-            var rlt = settingsDecrypter.decrypt(new DefaultSettingsDecryptionRequest(settings));
-            settings.setServers(rlt.getServers());
-            settings.setProxies(rlt.getProxies());
+            // get currently effective settings
+            var settings = settingsResult.getEffectiveSettings();
+
+            // use settings-security.xml to decrypt loaded settings
+            var secDispatcher = new SecDispatcher(Path.Combine(repositoryPath, SettingsSecurityXml));
+            var secDecrypter = new DefaultSettingsDecrypter(secDispatcher);
+            var secResult = secDecrypter.decrypt(new DefaultSettingsDecryptionRequest(settings));
+            if (secResult.getProblems() is List secProblems)
+                for (var i = secProblems.iterator(); i.hasNext();)
+                    HandleSettingsProblem((SettingsProblem)i.next());
+
+            // apply decrypted settings
+            settings.setServers(secResult.getServers());
+            settings.setProxies(secResult.getProxies());
 
             return settings;
         }
@@ -191,8 +215,7 @@ namespace IKVM.Maven.Sdk.Tasks
             {
                 var builder = new AuthenticationBuilder();
                 builder.addUsername(proxy.getUsername()).addPassword(proxy.getPassword());
-                selector.add(new org.eclipse.aether.repository.Proxy(
-                    proxy.getProtocol(), proxy.getHost(), proxy.getPort(), builder.build()), proxy.getNonProxyHosts());
+                selector.add(new org.eclipse.aether.repository.Proxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), builder.build()), proxy.getNonProxyHosts());
             }
 
             return selector;
