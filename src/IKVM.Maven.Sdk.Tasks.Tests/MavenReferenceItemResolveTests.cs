@@ -28,6 +28,17 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             return item;
         }
 
+        /// <summary>
+        /// Creates a task item for the local repository.
+        /// </summary>
+        /// <returns></returns>
+        static ITaskItem GetLocalRepositoryItem()
+        {
+            var item = new TaskItem("local");
+            item.SetMetadata("Url", java.nio.file.Paths.get("./repository").toAbsolutePath().toUri().toString());
+            return item;
+        }
+
         [TestMethod]
         public void CanResolve()
         {
@@ -464,6 +475,31 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
             var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
             pkg.GetMetadata("References").Split(';').Should().Contain("maven$javax.media:jai-core:1.1.3");
+        }
+
+        [TestMethod]
+        public void CanResolveFromLocalRepository()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem(), GetLocalRepositoryItem() };
+
+            var i1 = new TaskItem("hellotest:hellotest:1.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "hellotest");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "hellotest");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$hellotest:hellotest:1.0");
         }
 
     }

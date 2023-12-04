@@ -15,7 +15,7 @@ namespace IKVM.Maven.Sdk.Tests
 {
 
     [TestClass]
-    public partial class ProjectTests
+    public class LocalRepoProjectTests
     {
 
         public static Dictionary<string, string> Properties { get; set; }
@@ -37,13 +37,13 @@ namespace IKVM.Maven.Sdk.Tests
             Properties = File.ReadAllLines("IKVM.Maven.Sdk.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
             // temporary directory
-            TempRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests", "ProjectTests", "Temp");
+            TempRoot = Path.Combine(Path.GetTempPath(), "IKVM.Maven.Sdk.Tests", "LocalRepoProjectTests", "Temp");
             if (Directory.Exists(TempRoot))
                 Directory.Delete(TempRoot, true);
             Directory.CreateDirectory(TempRoot);
 
             // work directory
-            WorkRoot = Path.Combine(context.TestRunResultsDirectory, "IKVM.Maven.Sdk.Tests", "ProjectTests", "Work");
+            WorkRoot = Path.Combine(context.TestRunResultsDirectory, "IKVM.Maven.Sdk.Tests", "LocalRepoProjectTests", "Work");
             if (Directory.Exists(WorkRoot))
                 Directory.Delete(WorkRoot, true);
             Directory.CreateDirectory(WorkRoot);
@@ -71,10 +71,10 @@ namespace IKVM.Maven.Sdk.Tests
                         new XElement("add",
                             new XAttribute("key", "dev"),
                             new XAttribute("value", Path.Combine(Path.GetDirectoryName(typeof(ProjectTests).Assembly.Location), @"nuget"))))))
-                .Save(Path.Combine(@"Project", "nuget.config"));
+                .Save(Path.Combine(@"LocalRepoProject", "nuget.config"));
 
             var manager = new AnalyzerManager();
-            var analyzer = manager.GetProject(Path.Combine(@"Project", "Exe", "ProjectExe.csproj"));
+            var analyzer = manager.GetProject(Path.Combine(@"LocalRepoProject", "Exe", "ProjectExe.csproj"));
             analyzer.AddBuildLogger(new MSBuildTestLogger(context));
             analyzer.AddBinaryLogger(Path.Combine(WorkRoot, "msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
@@ -168,7 +168,7 @@ namespace IKVM.Maven.Sdk.Tests
                     return;
 
             var manager = new AnalyzerManager();
-            var analyzer = manager.GetProject(Path.Combine(@"Project", "Exe", "ProjectExe.csproj"));
+            var analyzer = manager.GetProject(Path.Combine(@"LocalRepoProject", "Exe", "ProjectExe.csproj"));
             analyzer.AddBuildLogger(new MSBuildTestLogger(TestContext));
             analyzer.AddBinaryLogger(Path.Combine(WorkRoot, $"{tfm}-{rid}-msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
@@ -194,10 +194,10 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Build");
             options.TargetsToBuild.Add("Publish");
-            options.Arguments.Add("/v:d");
+            options.Arguments.Add("/v:diag");
             analyzer.Build(options).OverallSuccess.Should().Be(true);
 
-            var binDir = Path.Combine("Project", "Exe", "bin", "Release", tfm, rid);
+            var binDir = Path.Combine("LocalRepoProject", "Exe", "bin", "Release", tfm, rid);
 
             // check in build output and publish output
             foreach (var i in new[] { "", "publish" })
@@ -209,12 +209,7 @@ namespace IKVM.Maven.Sdk.Tests
                 File.Exists(Path.Combine(outDir, "ProjectLib.dll")).Should().BeTrue();
 
                 // generated assemblies
-                File.Exists(Path.Combine(outDir, "maven.core.dll")).Should().BeTrue();
-                File.Exists(Path.Combine(outDir, "maven.model.dll")).Should().BeTrue();
-                File.Exists(Path.Combine(outDir, "org.apache.commons.io.dll")).Should().BeTrue();
-                File.Exists(Path.Combine(outDir, "org.apache.commons.logging.dll")).Should().BeFalse();
-                File.Exists(Path.Combine(outDir, "org.slf4j.dll")).Should().BeTrue();
-                File.Exists(Path.Combine(outDir, "xml.apis.dll")).Should().BeFalse();
+                File.Exists(Path.Combine(outDir, "hellotest.dll")).Should().BeTrue();
 
                 // ikvm libraries
                 File.Exists(Path.Combine(outDir, "IKVM.Runtime.dll")).Should().BeTrue();

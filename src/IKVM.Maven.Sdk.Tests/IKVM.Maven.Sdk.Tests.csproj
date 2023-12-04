@@ -8,6 +8,8 @@
     <ItemGroup>
         <Compile Remove="Project\**\*" />
         <None Include="Project\**\*" CopyToOutputDirectory="PreserveNewest" />
+        <Compile Remove="LocalRepoProject\**\*" />
+        <None Include="LocalRepoProject\**\*" CopyToOutputDirectory="PreserveNewest" />
         <Compile Remove="PackProject\**\*" />
         <None Include="PackProject\**\*" CopyToOutputDirectory="PreserveNewest" />
         <Compile Remove="PackageReferenceProject\**\*" />
@@ -28,6 +30,18 @@
         <PackageProjectReference Include="..\IKVM.Maven.Sdk\IKVM.Maven.Sdk.csproj">
             <PackageTargetPath>nuget</PackageTargetPath>
         </PackageProjectReference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Update="LocalRepoProject\repository\hellotest\1.0\hellotest-1.0.jar">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="LocalRepoProject\repository\hellotest\1.0\hellotest-1.0.pom">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="LocalRepoProject\repository\hellotest\maven-metadata-local.xml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <Import Project="Sdk.targets" Sdk="Microsoft.NET.Sdk" />
@@ -52,5 +66,5 @@
             $(GetCopyToOutputDirectoryItemsDependsOn);
         </GetCopyToOutputDirectoryItemsDependsOn>
     </PropertyGroup>
-    
+
 </Project>

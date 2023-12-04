@@ -21,31 +21,6 @@ namespace IKVM.Maven.Sdk.Tests
     public class PackProjectTests
     {
 
-        /// <summary>
-        /// Forwards MSBuild events to the test context.
-        /// </summary>
-        class TargetLogger : Logger
-        {
-
-            readonly TestContext context;
-
-            /// <summary>
-            /// Initializes a new instance.
-            /// </summary>
-            /// <param name="context"></param>
-            /// <exception cref="ArgumentNullException"></exception>
-            public TargetLogger(TestContext context)
-            {
-                this.context = context ?? throw new ArgumentNullException(nameof(context));
-            }
-
-            public override void Initialize(IEventSource eventSource)
-            {
-                eventSource.AnyEventRaised += (sender, evt) => context.WriteLine(evt.Message);
-            }
-
-        }
-
         public static Dictionary<string, string> Properties { get; set; }
 
         public static string TempRoot { get; set; }
@@ -107,7 +82,7 @@ namespace IKVM.Maven.Sdk.Tests
 
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(@"PackProject", "Lib", "PackProjectLib.csproj"));
-            analyzer.AddBuildLogger(new TargetLogger(context));
+            analyzer.AddBuildLogger(new MSBuildTestLogger(context));
             analyzer.AddBinaryLogger(Path.Combine(WorkRoot, "msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
             analyzer.SetGlobalProperty("ImportDirectoryBuildTargets", "false");
@@ -150,7 +125,7 @@ namespace IKVM.Maven.Sdk.Tests
 
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackProject", "Lib", "PackProjectLib.csproj"));
-            analyzer.AddBuildLogger(new TargetLogger(TestContext));
+            analyzer.AddBuildLogger(new MSBuildTestLogger(TestContext));
             analyzer.AddBinaryLogger(Path.Combine(WorkRoot, $"msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
             analyzer.SetGlobalProperty("ImportDirectoryBuildTargets", "false");
