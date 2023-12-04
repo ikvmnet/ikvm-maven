@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net472;net48;net6.0;net7.0</TargetFrameworks>
+        <MavenAdditionalRepositories>local=file:///$(MSBuildThisFileDirectory.Replace('\', '/'))../repository</MavenAdditionalRepositories>
     </PropertyGroup>
 
     <ItemGroup>
@@ -10,6 +11,7 @@
     <ItemGroup>
         <MavenReference Include="org.apache.maven:maven-core" Version="3.8.6" />
         <MavenReference Include="com.yahoo.vespa:documentapi" Version="8.12.48" />
+        <MavenReference Include="hellotest:hellotest" Version="1.0" />
     </ItemGroup>
 
 </Project>

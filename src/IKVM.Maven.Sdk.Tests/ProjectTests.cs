@@ -215,6 +215,7 @@ namespace IKVM.Maven.Sdk.Tests
                 File.Exists(Path.Combine(outDir, "org.apache.commons.logging.dll")).Should().BeFalse();
                 File.Exists(Path.Combine(outDir, "org.slf4j.dll")).Should().BeTrue();
                 File.Exists(Path.Combine(outDir, "xml.apis.dll")).Should().BeFalse();
+                File.Exists(Path.Combine(outDir, "hellotest.dll")).Should().BeTrue();
 
                 // ikvm libraries
                 File.Exists(Path.Combine(outDir, "IKVM.Runtime.dll")).Should().BeTrue();
