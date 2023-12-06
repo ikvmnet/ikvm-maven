@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -52,6 +53,12 @@ namespace IKVM.Maven.Sdk.Tasks
                 new VersionConstraintJsonConverter(),
             }
         };
+
+        static MavenReferenceItemResolve()
+        {
+            IKVM.Runtime.Tracer.SetTraceLevel("jni", System.Diagnostics.TraceLevel.Verbose);
+            Trace.Listeners.Add(new ConsoleTraceListener());
+        }
 
         /// <summary>
         /// Initializes a new instance.
