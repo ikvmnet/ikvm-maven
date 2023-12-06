@@ -54,10 +54,29 @@ namespace IKVM.Maven.Sdk.Tasks
             }
         };
 
+        static MSBuildLogTraceListener listener;
+
         static MavenReferenceItemResolve()
         {
             IKVM.Runtime.Tracer.SetTraceLevel("jni", System.Diagnostics.TraceLevel.Verbose);
-            Trace.Listeners.Add(new ConsoleTraceListener());
+            Trace.Listeners.Add(listener = new MSBuildLogTraceListener());
+        }
+
+        class MSBuildLogTraceListener : TraceListener
+        {
+
+            public Task task;
+
+            public override void Write(string message)
+            {
+                task.Log.LogMessage(message);
+            }
+
+            public override void WriteLine(string message)
+            {
+                task.Log.LogMessage(message);
+            }
+
         }
 
         /// <summary>
@@ -66,7 +85,7 @@ namespace IKVM.Maven.Sdk.Tasks
         public MavenReferenceItemResolve() :
             base(SR.ResourceManager, "MAVEN:")
         {
-
+            listener.task = this;
         }
 
         /// <summary>
