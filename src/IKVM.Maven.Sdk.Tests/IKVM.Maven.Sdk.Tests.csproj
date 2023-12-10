@@ -10,8 +10,6 @@
         <None Include="Project\**\*" CopyToOutputDirectory="PreserveNewest" />
         <Compile Remove="PackProject\**\*" />
         <None Include="PackProject\**\*" CopyToOutputDirectory="PreserveNewest" />
-        <Compile Remove="PackageReferenceProject\**\*" />
-        <None Include="PackageReferenceProject\**\*" CopyToOutputDirectory="PreserveNewest" />
     </ItemGroup>
 
     <ItemGroup>
