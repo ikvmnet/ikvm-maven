@@ -30,7 +30,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Deployed {repositoryEvent.getArtifact()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Deployed {repositoryEvent.getArtifact()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void artifactDeploying(RepositoryEvent repositoryEvent)
@@ -38,7 +38,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Deploying {repositoryEvent.getArtifact()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Deploying {repositoryEvent.getArtifact()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void artifactDescriptorInvalid(RepositoryEvent repositoryEvent)
@@ -46,7 +46,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Invalid artifact descriptor for {repositoryEvent.getArtifact()}: {repositoryEvent.getException().getMessage()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Invalid artifact descriptor for {repositoryEvent.getArtifact()}: {repositoryEvent.getException().getMessage()}", MessageImportance.Low);
         }
 
         public override void artifactDescriptorMissing(RepositoryEvent repositoryEvent)
@@ -54,7 +54,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Missing artifact descriptor for {repositoryEvent.getArtifact()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Missing artifact descriptor for {repositoryEvent.getArtifact()}", MessageImportance.Low);
         }
 
         public override void artifactInstalled(RepositoryEvent repositoryEvent)
@@ -62,7 +62,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Installed {repositoryEvent.getArtifact()} to {repositoryEvent.getFile()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Installed {repositoryEvent.getArtifact()} to {repositoryEvent.getFile()}", MessageImportance.Low);
         }
 
         public override void artifactInstalling(RepositoryEvent repositoryEvent)
@@ -70,7 +70,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Installing {repositoryEvent.getArtifact()} to {repositoryEvent.getFile()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Installing {repositoryEvent.getArtifact()} to {repositoryEvent.getFile()}", MessageImportance.Low);
         }
 
         public override void artifactResolved(RepositoryEvent repositoryEvent)
@@ -78,7 +78,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Resolved artifact {repositoryEvent.getArtifact()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Resolved artifact {repositoryEvent.getArtifact()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void artifactDownloading(RepositoryEvent repositoryEvent)
@@ -86,7 +86,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Downloading artifact {repositoryEvent.getArtifact()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Downloading artifact {repositoryEvent.getArtifact()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void artifactDownloaded(RepositoryEvent repositoryEvent)
@@ -94,7 +94,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Downloaded artifact {repositoryEvent.getArtifact()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Downloaded artifact {repositoryEvent.getArtifact()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void artifactResolving(RepositoryEvent repositoryEvent)
@@ -102,7 +102,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Resolving artifact {repositoryEvent.getArtifact()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Resolving artifact {repositoryEvent.getArtifact()}", MessageImportance.Low);
         }
 
         public override void metadataDeployed(RepositoryEvent repositoryEvent)
@@ -110,7 +110,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Deployed {repositoryEvent.getMetadata()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Deployed {repositoryEvent.getMetadata()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void metadataDeploying(RepositoryEvent repositoryEvent)
@@ -118,7 +118,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Deploying {repositoryEvent.getMetadata()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Deploying {repositoryEvent.getMetadata()} to {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void metadataInstalled(RepositoryEvent repositoryEvent)
@@ -126,7 +126,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Installed {repositoryEvent.getMetadata()} to {repositoryEvent.getFile()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Installed {repositoryEvent.getMetadata()} to {repositoryEvent.getFile()}", MessageImportance.Low);
         }
 
         public override void metadataInstalling(RepositoryEvent repositoryEvent)
@@ -134,7 +134,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Installing {repositoryEvent.getMetadata()} to {repositoryEvent.getFile()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Installing {repositoryEvent.getMetadata()} to {repositoryEvent.getFile()}", MessageImportance.Low);
         }
 
         public override void metadataInvalid(RepositoryEvent repositoryEvent)
@@ -142,7 +142,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Invalid metadata {repositoryEvent.getMetadata()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Invalid metadata {repositoryEvent.getMetadata()}", MessageImportance.Low);
         }
 
         public override void metadataResolved(RepositoryEvent repositoryEvent)
@@ -150,7 +150,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Resolved metadata {repositoryEvent.getMetadata()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Resolved metadata {repositoryEvent.getMetadata()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
         public override void metadataResolving(RepositoryEvent repositoryEvent)
@@ -158,7 +158,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (repositoryEvent is null)
                 throw new ArgumentNullException(nameof(repositoryEvent));
 
-            log.LogMessageFromText($"Resolving metadata {repositoryEvent.getMetadata()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
+            log.LogMessageFromText($"MAVEN: Resolving metadata {repositoryEvent.getMetadata()} from {repositoryEvent.getRepository()}", MessageImportance.Low);
         }
 
     }
