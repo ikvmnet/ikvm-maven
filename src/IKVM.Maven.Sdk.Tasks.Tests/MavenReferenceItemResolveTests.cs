@@ -154,6 +154,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.References = new[] { i1 };
 
             t.Execute().Should().BeTrue();
+            foreach (var e in errors)
+                TestContext.WriteLine("ERROR: " + e.Message);
             errors.Should().BeEmpty();
 
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.yahoo.vespa:annotations:8.12.48");
