@@ -5,6 +5,9 @@ using org.slf4j;
 namespace IKVM.Maven.Sdk.Tasks
 {
 
+    /// <summary>
+    /// SLF4J LoggerFactory implementation.
+    /// </summary>
     class SLF4JContextLoggerFactory : org.slf4j.ILoggerFactory
     {
 

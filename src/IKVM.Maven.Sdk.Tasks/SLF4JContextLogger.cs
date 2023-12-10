@@ -6,6 +6,9 @@ using org.slf4j;
 namespace IKVM.Maven.Sdk.Tasks
 {
 
+    /// <summary>
+    /// SLF4J logger implementation which passes messages to the active proxy for the thread.
+    /// </summary>
     class SLF4JContextLogger : org.slf4j.Logger
     {
 
@@ -18,12 +21,12 @@ namespace IKVM.Maven.Sdk.Tasks
         }
 
         [ThreadStatic]
-        static ISLF4JLoggerProxy context;
+        static ISLF4JLoggerProxy proxy;
 
         /// <summary>
         /// Holds the previous context to restore upon exit.
         /// </summary>
-        class ExitContext : IDisposable
+        class ProxyContext : IDisposable
         {
 
             readonly ISLF4JLoggerProxy previous;
@@ -32,7 +35,7 @@ namespace IKVM.Maven.Sdk.Tasks
             /// Initializes a new instance.
             /// </summary>
             /// <param name="previous"></param>
-            public ExitContext(ISLF4JLoggerProxy previous)
+            public ProxyContext(ISLF4JLoggerProxy previous)
             {
                 this.previous = previous;
             }
@@ -42,13 +45,13 @@ namespace IKVM.Maven.Sdk.Tasks
             /// </summary>
             public void Dispose()
             {
-                context = previous;
+                proxy = previous;
             }
 
         }
 
         /// <summary>
-        /// Enters a new log context.
+        /// Enters a new log proxy.
         /// </summary>
         /// <typeparam name="TProxy"></typeparam>
         /// <param name="proxy"></param>
@@ -56,9 +59,9 @@ namespace IKVM.Maven.Sdk.Tasks
         public static IDisposable Enter<TProxy>(TProxy proxy)
             where TProxy : ISLF4JLoggerProxy
         {
-            var previous = context;
-            context = proxy;
-            return new ExitContext(previous);
+            var previous = SLF4JContextLogger.proxy;
+            SLF4JContextLogger.proxy = proxy;
+            return new ProxyContext(previous);
         }
 
         readonly string name;
@@ -80,305 +83,305 @@ namespace IKVM.Maven.Sdk.Tasks
 
         public void trace(string str)
         {
-            context?.trace(this, str);
+            proxy?.trace(this, str);
         }
 
         public void trace(string str, object obj)
         {
-            context?.trace(this, str, obj);
+            proxy?.trace(this, str, obj);
         }
 
         public void trace(string str, object obj1, object obj2)
         {
-            context?.trace(this, str, obj1, obj2);
+            proxy?.trace(this, str, obj1, obj2);
         }
 
         public void trace(string str, params object[] objarr)
         {
-            context?.trace(this, str, objarr);
+            proxy?.trace(this, str, objarr);
         }
 
         public void trace(string str, Exception t)
         {
-            context?.trace(this, str, t);
+            proxy?.trace(this, str, t);
         }
 
         public void trace(Marker m, string str)
         {
-            context?.trace(this, m, str);
+            proxy?.trace(this, m, str);
         }
 
         public void trace(Marker m, string str, object obj)
         {
-            context?.trace(this, m, str, obj);
+            proxy?.trace(this, m, str, obj);
         }
 
         public void trace(Marker m, string str, object obj1, object obj2)
         {
-            context?.trace(this, m, str, obj1, obj2);
+            proxy?.trace(this, m, str, obj1, obj2);
         }
 
         public void trace(Marker m, string str, params object[] objarr)
         {
-            context?.trace(this, m, str, objarr);
+            proxy?.trace(this, m, str, objarr);
         }
 
         public void trace(Marker m, string str, Exception t)
         {
-            context?.trace(this, m, str, t);
+            proxy?.trace(this, m, str, t);
         }
 
         public void debug(string str)
         {
-            context?.debug(this, str);
+            proxy?.debug(this, str);
         }
 
         public void debug(string str, object obj)
         {
-            context?.debug(this, str, obj);
+            proxy?.debug(this, str, obj);
         }
 
         public void debug(string str, object obj1, object obj2)
         {
-            context?.debug(this, str, obj1, obj2);
+            proxy?.debug(this, str, obj1, obj2);
         }
 
         public void debug(string str, params object[] objarr)
         {
-            context?.debug(this, str, objarr);
+            proxy?.debug(this, str, objarr);
         }
 
         public void debug(string str, Exception t)
         {
-            context?.debug(this, str, t);
+            proxy?.debug(this, str, t);
         }
 
         public void debug(Marker m, string str)
         {
-            context?.debug(this, m, str);
+            proxy?.debug(this, m, str);
         }
 
         public void debug(Marker m, string str, object obj)
         {
-            context?.debug(this, m, str, obj);
+            proxy?.debug(this, m, str, obj);
         }
 
         public void debug(Marker m, string str, object obj1, object obj2)
         {
-            context?.debug(this, m, str, obj1, obj2);
+            proxy?.debug(this, m, str, obj1, obj2);
         }
 
         public void debug(Marker m, string str, params object[] objarr)
         {
-            context?.debug(this, m, str, objarr);
+            proxy?.debug(this, m, str, objarr);
         }
 
         public void debug(Marker m, string str, Exception t)
         {
-            context?.debug(this, m, str, t);
+            proxy?.debug(this, m, str, t);
         }
 
         public void info(string str)
         {
-            context?.info(this, str);
+            proxy?.info(this, str);
         }
 
         public void info(string str, object obj)
         {
-            context?.info(this, str, obj);
+            proxy?.info(this, str, obj);
         }
 
         public void info(string str, object obj1, object obj2)
         {
-            context?.info(this, str, obj1, obj2);
+            proxy?.info(this, str, obj1, obj2);
         }
 
         public void info(string str, params object[] objarr)
         {
-            context?.info(this, str, objarr);
+            proxy?.info(this, str, objarr);
         }
 
         public void info(string str, Exception t)
         {
-            context?.info(this, str, t);
+            proxy?.info(this, str, t);
         }
 
         public void info(Marker m, string str)
         {
-            context?.info(this, m, str);
+            proxy?.info(this, m, str);
         }
 
         public void info(Marker m, string str, object obj)
         {
-            context?.info(this, m, str, obj);
+            proxy?.info(this, m, str, obj);
         }
 
         public void info(Marker m, string str, object obj1, object obj2)
         {
-            context?.info(this, m, str, obj1, obj2);
+            proxy?.info(this, m, str, obj1, obj2);
         }
 
         public void info(Marker m, string str, params object[] objarr)
         {
-            context?.info(this, m, str, objarr);
+            proxy?.info(this, m, str, objarr);
         }
 
         public void info(Marker m, string str, Exception t)
         {
-            context?.info(this, m, str, t);
+            proxy?.info(this, m, str, t);
         }
 
         public bool isDebugEnabled()
         {
-            return context?.isDebugEnabled(this) ?? false;
+            return proxy?.isDebugEnabled(this) ?? false;
         }
 
         public bool isDebugEnabled(Marker m)
         {
-            return context?.isDebugEnabled(this, m) ?? false;
+            return proxy?.isDebugEnabled(this, m) ?? false;
         }
 
         public bool isErrorEnabled()
         {
-            return context?.isErrorEnabled(this) ?? false;
+            return proxy?.isErrorEnabled(this) ?? false;
         }
 
         public bool isErrorEnabled(Marker m)
         {
-            return context?.isErrorEnabled(this, m) ?? false;
+            return proxy?.isErrorEnabled(this, m) ?? false;
         }
 
         public bool isInfoEnabled()
         {
-            return context?.isInfoEnabled(this) ?? false;
+            return proxy?.isInfoEnabled(this) ?? false;
         }
 
         public bool isInfoEnabled(Marker m)
         {
-            return context?.isInfoEnabled(this, m) ?? false;
+            return proxy?.isInfoEnabled(this, m) ?? false;
         }
 
         public bool isTraceEnabled()
         {
-            return context?.isTraceEnabled(this) ?? false;
+            return proxy?.isTraceEnabled(this) ?? false;
         }
 
         public bool isTraceEnabled(Marker m)
         {
-            return context?.isTraceEnabled(this, m) ?? false;
+            return proxy?.isTraceEnabled(this, m) ?? false;
         }
 
         public bool isWarnEnabled()
         {
-            return context?.isWarnEnabled(this) ?? false;
+            return proxy?.isWarnEnabled(this) ?? false;
         }
 
         public bool isWarnEnabled(Marker m)
         {
-            return context?.isWarnEnabled(this, m) ?? false;
+            return proxy?.isWarnEnabled(this, m) ?? false;
         }
 
         public void warn(string str)
         {
-            context?.warn(this, str);
+            proxy?.warn(this, str);
         }
 
         public void warn(string str, object obj)
         {
-            context?.warn(this, str, obj);
+            proxy?.warn(this, str, obj);
         }
 
         public void warn(string str, params object[] objarr)
         {
-            context?.warn(this, str, objarr);
+            proxy?.warn(this, str, objarr);
         }
 
         public void warn(string str, object obj1, object obj2)
         {
-            context?.warn(this, str, obj1, obj2);
+            proxy?.warn(this, str, obj1, obj2);
         }
 
         public void warn(string str, Exception t)
         {
-            context?.warn(this, str, t);
+            proxy?.warn(this, str, t);
         }
 
         public void warn(Marker m, string str)
         {
-            context?.warn(this, m, str);
+            proxy?.warn(this, m, str);
         }
 
         public void warn(Marker m, string str, object obj)
         {
-            context?.warn(this, m, str, obj);
+            proxy?.warn(this, m, str, obj);
         }
 
         public void warn(Marker m, string str, object obj1, object obj2)
         {
-            context?.warn(this, m, str, obj1, obj2);
+            proxy?.warn(this, m, str, obj1, obj2);
         }
 
         public void warn(Marker m, string str, params object[] objarr)
         {
-            context?.warn(this, m, str, objarr);
+            proxy?.warn(this, m, str, objarr);
         }
 
         public void warn(Marker m, string str, Exception t)
         {
-            context?.warn(this, m, str, t);
+            proxy?.warn(this, m, str, t);
         }
 
         public void error(string str)
         {
-            context?.error(this, str);
+            proxy?.error(this, str);
         }
 
         public void error(string str, object obj)
         {
-            context?.error(this, str, obj);
+            proxy?.error(this, str, obj);
         }
 
         public void error(string str, object obj1, object obj2)
         {
-            context?.error(this, str, obj1, obj2);
+            proxy?.error(this, str, obj1, obj2);
         }
 
         public void error(string str, params object[] objarr)
         {
-            context?.error(this, str, objarr);
+            proxy?.error(this, str, objarr);
         }
 
         public void error(string str, Exception t)
         {
-            context?.error(this, str, t);
+            proxy?.error(this, str, t);
         }
 
         public void error(Marker m, string str)
         {
-            context?.error(this, m, str);
+            proxy?.error(this, m, str);
         }
 
         public void error(Marker m, string str, object obj)
         {
 
-            context?.error(this, m, str, obj);
+            proxy?.error(this, m, str, obj);
         }
 
         public void error(Marker m, string str, object obj1, object obj2)
         {
 
-            context?.error(this, m, str, obj1, obj2);
+            proxy?.error(this, m, str, obj1, obj2);
         }
 
         public void error(Marker m, string str, params object[] objarr)
         {
 
-            context?.error(this, m, str, objarr);
+            proxy?.error(this, m, str, objarr);
         }
 
         public void error(Marker m, string str, Exception t)
         {
-            context?.error(this, m, str, t);
+            proxy?.error(this, m, str, t);
         }
 
     }
