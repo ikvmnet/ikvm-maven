@@ -23,6 +23,18 @@
     </ItemGroup>
 
     <ItemGroup>
+        <None Update="Project\repository\hellotest\1.0\hellotest-1.0.jar">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Project\repository\hellotest\1.0\hellotest-1.0.pom">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Project\repository\hellotest\maven-metadata-local.xml">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageProjectReference Include="..\IKVM.Maven.Sdk\IKVM.Maven.Sdk.csproj">
             <PackageTargetPath>nuget</PackageTargetPath>
         </PackageProjectReference>
