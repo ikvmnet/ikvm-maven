@@ -228,6 +228,8 @@ jobs:
       timeout-minutes: 240
       shell: pwsh
       run: |
+        gci .\tests\ -Recurse
+
         # assign powershell variables
         $run = "${{ matrix.run }}"
         $tfm = "${{ matrix.tfm }}"
