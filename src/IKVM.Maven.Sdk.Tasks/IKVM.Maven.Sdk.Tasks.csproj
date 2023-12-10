@@ -17,19 +17,9 @@
         <PackageReference Include="NuGet.ProjectModel" Version="6.2.4" />
     </ItemGroup>
 
-    <Target Name="DownloadMavenArtifacts">
-        <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven-sdk-tasks.pom -DoutputDirectory=$(IntermediateOutputPath)ikvm-maven-sdk-tasks" />
-    </Target>
-
-    <Target Name="GetIkvmReferenceFromMaven" DependsOnTargets="DownloadMavenArtifacts" BeforeTargets="GetIkvmReferenceItemsFromIkvmReferences">
-        <ItemGroup>
-            <IkvmReference Include="ikvm-maven-sdk-tasks">
-                <AssemblyName>ikvm-maven-sdk-tasks</AssemblyName>
-                <AssemblyVersion>$(AssemblyVersion)</AssemblyVersion>
-                <Compile>$(IntermediateOutputPath)\ikvm-maven-sdk-tasks\*.jar</Compile>
-            </IkvmReference>
-        </ItemGroup>
-    </Target>
+    <ItemGroup>
+        <ProjectReference Include="..\IKVM.Maven.Sdk.Tasks.Java\IKVM.Maven.Sdk.Tasks.Java.csproj" />
+    </ItemGroup>
 
     <ItemGroup>
         <Compile Update="Resources\SR.Designer.cs">

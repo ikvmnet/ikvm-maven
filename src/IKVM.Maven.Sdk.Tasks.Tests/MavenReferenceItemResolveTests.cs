@@ -39,12 +39,15 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             return item;
         }
 
+        public TestContext TestContext { get; set; }
+
         [TestMethod]
         public void CanResolve()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.Repositories = new[] { GetCentralRepositoryItem() };
@@ -76,7 +79,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.Repositories = new[] { GetCentralRepositoryItem() };
@@ -104,7 +108,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.Repositories = new[] { GetCentralRepositoryItem() };
@@ -134,7 +139,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.Repositories = new[] { GetCentralRepositoryItem() };
@@ -164,7 +170,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
 
             {
                 var t = new MavenReferenceItemResolve();
@@ -221,7 +228,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.Repositories = new[] { GetCentralRepositoryItem() };
@@ -252,7 +260,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.Repositories = new[] { GetCentralRepositoryItem() };
@@ -285,7 +294,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;
@@ -317,7 +327,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;
@@ -344,7 +355,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;
@@ -373,7 +385,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;
@@ -402,7 +415,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;
@@ -431,7 +445,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;
@@ -457,7 +472,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;
@@ -484,7 +500,8 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
-            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => errors.Add(e));
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine(e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
             var t = new MavenReferenceItemResolve();
             t.BuildEngine = engine.Object;
             t.CacheFile = cacheFile;

@@ -14,7 +14,6 @@ using org.apache.maven.settings;
 using org.apache.maven.settings.building;
 using org.apache.maven.settings.crypto;
 using org.eclipse.aether;
-using org.eclipse.aether.collection;
 using org.eclipse.aether.connector.basic;
 using org.eclipse.aether.impl;
 using org.eclipse.aether.repository;
@@ -261,8 +260,7 @@ namespace IKVM.Maven.Sdk.Tasks
         public RepositorySystemSession CreateRepositorySystemSession(bool noError = false)
         {
             var session = MavenRepositorySystemUtils.newSession();
-            var repository = new LocalRepository(GetDefaultLocalRepoDir());
-            session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(session, repository));
+            session.setLocalRepositoryManager(repositorySystem.newLocalRepositoryManager(session, new LocalRepository(GetDefaultLocalRepoDir())));
             session.setCache(new DefaultRepositoryCache());
             session.setProxySelector(CreateProxySelector());
             session.setMirrorSelector(CreateMirrorSelector());
@@ -272,15 +270,6 @@ namespace IKVM.Maven.Sdk.Tasks
             session.setRepositoryListener(new MavenRepositoryListener(log));
             session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, "true");
             return session;
-        }
-
-        /// <summary>
-        /// Creates a new <see cref="DependencyGraphTransformer"/> based on the currently loaded settings.
-        /// </summary>
-        /// <returns></returns>
-        DependencyGraphTransformer CreateDependencyGraphTransformer()
-        {
-            return new ConflictResolver(new NearestVersionSelector(), new JavaScopeSelector(), new SimpleOptionalitySelector(), new JavaScopeDeriver());
         }
 
         /// <summary>

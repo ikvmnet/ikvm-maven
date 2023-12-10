@@ -144,6 +144,8 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override bool Execute()
         {
+            using var d = SLF4JContextLogger.Enter(new SLF4JMSBuildLoggerProxy(Log));
+
             try
             {
                 var repositories = MavenRepositoryItemMetadata.Load(Repositories);

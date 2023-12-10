@@ -1,7 +1,7 @@
 ﻿<project>
     <modelVersion>4.0.0</modelVersion>
     <groupId>ikvm.maven</groupId>
-    <artifactId>ikvm-maven-sdk-tasks</artifactId>
+    <artifactId>ikvm-maven-sdk-tasks-java</artifactId>
     <version>1</version>
     <properties>
         <java.version>1.8</java.version>
