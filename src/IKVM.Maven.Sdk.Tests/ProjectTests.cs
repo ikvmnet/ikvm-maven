@@ -194,7 +194,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Build");
             options.TargetsToBuild.Add("Publish");
-            options.Arguments.Add("/v:d");
+            options.Arguments.Add("/v:diag");
             analyzer.Build(options).OverallSuccess.Should().Be(true);
 
             var binDir = Path.Combine("Project", "Exe", "bin", "Release", tfm, rid);

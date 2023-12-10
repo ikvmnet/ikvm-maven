@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using com.sun.tools.javac.util;
+﻿using System.Linq;
 
 using IKVM.Maven.Sdk.Tasks.Resources;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-using org.apache.maven.model;
 using org.eclipse.aether.util.artifact;
 
 namespace IKVM.Maven.Sdk.Tasks
