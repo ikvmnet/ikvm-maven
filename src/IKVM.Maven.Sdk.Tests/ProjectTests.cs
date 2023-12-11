@@ -163,8 +163,8 @@ namespace IKVM.Maven.Sdk.Tests
         public void CanBuildProject(EnvironmentPreference env, string tfm, string rid, string exe, string lib)
         {
             // skip framework tests for non-Windows platforms
-            if (env == EnvironmentPreference.Framework || tfm == "net472" || tfm == "net48")
-                if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+                if (env == EnvironmentPreference.Framework || tfm == "net472" || tfm == "net48")
                     return;
 
             var manager = new AnalyzerManager();
