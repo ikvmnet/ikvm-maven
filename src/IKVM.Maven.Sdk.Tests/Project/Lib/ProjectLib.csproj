@@ -2,7 +2,7 @@
     <PropertyGroup>
         <TargetFrameworks>net472;net48;net6.0;net7.0</TargetFrameworks>
         <LocalRepoPath>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)\..\repository\'))</LocalRepoPath>
-        <MavenAdditionalRepositories>local=file://$(LocalRepoPath.Replace('\', '/'))</MavenAdditionalRepositories>
+        <MavenAdditionalRepositories>local=file:///$(LocalRepoPath.Replace('\', '/'))</MavenAdditionalRepositories>
     </PropertyGroup>
 
     <ItemGroup>
