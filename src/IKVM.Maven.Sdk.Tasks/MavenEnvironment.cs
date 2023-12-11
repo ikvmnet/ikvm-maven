@@ -48,7 +48,7 @@ namespace IKVM.Maven.Sdk.Tasks
             /// Initializes a new instance.
             /// </summary>
             /// <param name="configurationFile"></param>
-            public SecDispatcher(string configurationFile)f
+            public SecDispatcher(string configurationFile)
                 : base(new DefaultPlexusCipher(), Collections.emptyMap(), configurationFile)
             {
 
