@@ -3,6 +3,10 @@
         <TargetFrameworks>net472;net6.0</TargetFrameworks>
     </PropertyGroup>
 
+    <ItemGroup>
+        <InternalsVisibleTo Include="IKVM.Maven.Sdk.Tasks" />
+    </ItemGroup>
+
     <Target Name="DownloadMavenArtifacts">
         <Exec Command="mvn org.apache.maven.plugins:maven-dependency-plugin:3.3.0:copy-dependencies -f ikvm-maven-sdk-tasks-java.pom -DoutputDirectory=$(IntermediateOutputPath)maven" />
     </Target>
