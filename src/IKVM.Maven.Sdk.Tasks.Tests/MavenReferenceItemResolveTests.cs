@@ -35,7 +35,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         static ITaskItem GetLocalRepositoryItem()
         {
             var item = new TaskItem("local");
-            item.SetMetadata("Url", java.nio.file.Paths.get("./repository").toAbsolutePath().toUri().toString());
+            item.SetMetadata("Url", java.nio.file.Paths.get(Path.Combine(Path.GetDirectoryName(typeof(MavenReferenceItemResolveTests).Assembly.Location), "repository")).toAbsolutePath().toUri().toString());
             return item;
         }
 

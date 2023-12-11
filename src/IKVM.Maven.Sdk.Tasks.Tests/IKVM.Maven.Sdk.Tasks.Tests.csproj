@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <None Update="repository\**\*">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Test.project.assets.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
