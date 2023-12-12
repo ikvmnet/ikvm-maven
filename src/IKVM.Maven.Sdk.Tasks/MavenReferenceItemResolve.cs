@@ -50,7 +50,8 @@ namespace IKVM.Maven.Sdk.Tasks
                 new RemoteRepositoryJsonConverter(),
                 new VersionJsonConverter(),
                 new VersionConstraintJsonConverter(),
-            }
+            },
+            MaxDepth = 1024,
         };
 
         /// <summary>
