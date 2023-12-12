@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
 namespace IKVM.Maven.Sdk.Tasks
 {
 
@@ -37,14 +34,12 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <summary>
         /// ID of the repository.
         /// </summary>
-        [JsonProperty("id")]
         [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// URL of the repository.
         /// </summary>
-        [JsonProperty("url")]
         [JsonPropertyName("url")]
         public string Url { get; set; }
 

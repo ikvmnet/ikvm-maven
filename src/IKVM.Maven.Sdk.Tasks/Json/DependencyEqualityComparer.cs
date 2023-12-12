@@ -6,7 +6,7 @@ using System.Linq;
 using org.eclipse.aether.artifact;
 using org.eclipse.aether.graph;
 
-namespace IKVM.Maven.Sdk.Tasks.Aether
+namespace IKVM.Maven.Sdk.Tasks.Json
 {
 
     class DependencyEqualityComparer : IEqualityComparer<Dependency>

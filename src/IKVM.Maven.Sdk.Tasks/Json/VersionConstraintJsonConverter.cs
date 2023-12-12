@@ -1,46 +1,39 @@
 ﻿using System;
 using System.Text;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 using org.eclipse.aether.util.version;
 
-namespace IKVM.Maven.Sdk.Tasks.Aether
+namespace IKVM.Maven.Sdk.Tasks.Json
 {
 
     /// <summary>
     /// Serializes a <see cref="org.eclipse.aether.version.VersionConstraint"/> to and from JSON.
     /// </summary>
-    class VersionConstraintJsonConverter : JsonConverter
+    class VersionConstraintJsonConverter : JsonConverter<org.eclipse.aether.version.VersionConstraint>
     {
-
-        public override bool CanConvert(Type objectType)
+        public override org.eclipse.aether.version.VersionConstraint Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-            return typeof(org.eclipse.aether.version.VersionConstraint).IsAssignableFrom(objectType);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            if (JToken.ReadFrom(reader) is not JValue v || v.Type != JTokenType.String)
+            if (reader.TokenType != JsonTokenType.String)
                 return null;
             else
-                return new GenericVersionScheme().parseVersionConstraint((string)v);
+                return new GenericVersionScheme().parseVersionConstraint(reader.GetString());
         }
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, org.eclipse.aether.version.VersionConstraint value, JsonSerializerOptions options)
         {
             // type must be a VersionConstrant
             if (value is not org.eclipse.aether.version.VersionConstraint o)
             {
-                writer.WriteNull();
+                writer.WriteNullValue();
                 return;
             }
 
             // constraint can be a Version
             if (o.getVersion() is org.eclipse.aether.version.Version c)
             {
-                writer.WriteValue(c.toString());
+                writer.WriteStringValue(c.toString());
                 return;
             }
 
@@ -64,12 +57,12 @@ namespace IKVM.Maven.Sdk.Tasks.Aether
                 else
                     s.Append(")");
 
-                writer.WriteValue(s.ToString());
+                writer.WriteStringValue(s.ToString());
                 return;
             }
 
             // fallback
-            writer.WriteNull();
+            writer.WriteNullValue();
         }
 
     }

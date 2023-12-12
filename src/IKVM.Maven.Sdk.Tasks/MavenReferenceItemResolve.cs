@@ -4,16 +4,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
-using IKVM.Maven.Sdk.Tasks.Aether;
+using IKVM.Maven.Sdk.Tasks.Json;
 using IKVM.Maven.Sdk.Tasks.Resources;
 
 using java.util;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-
-using Newtonsoft.Json;
 
 using org.apache.maven.artifact.resolver;
 using org.apache.maven.artifact.versioning;
@@ -36,14 +35,17 @@ namespace IKVM.Maven.Sdk.Tasks
     public class MavenReferenceItemResolve : Task
     {
 
-        const int CACHE_FILE_VERSION = 2;
+        const int CACHE_FILE_VERSION = 3;
 
-        static readonly JsonSerializer serializer = new()
+        static readonly JsonSerializerOptions serializerOptions = new()
         {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             Converters =
             {
                 new BooleanConverter(),
+                new ArtifactJsonConverter(),
                 new DefaultArtifactJsonConverter(),
+                new DependencyNodeJsonConverter(),
                 new DefaultDependencyNodeJsonConverter(),
                 new DependencyJsonConverter(),
                 new ExclusionJsonConverter(),
@@ -115,10 +117,16 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             if (CacheFile != null && File.Exists(CacheFile))
             {
-                using var stm = File.OpenRead(CacheFile);
-                using var rdr = new StreamReader(stm);
-                using var jsn = new JsonTextReader(rdr);
-                return serializer.Deserialize<MavenResolveCacheFile>(jsn);
+                try
+                {
+                    using var stm = File.OpenRead(CacheFile);
+                    if (stm.Length > 0)
+                        return JsonSerializer.Deserialize<MavenResolveCacheFile>(stm, new JsonSerializerOptions(serializerOptions) { ReferenceHandler = new PreserveReferenceHandler() });
+                }
+                catch (JsonException)
+                {
+                    // ignore, consider file missing
+                }
             }
 
             return null;
@@ -133,9 +141,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (CacheFile != null)
             {
                 using var stm = File.Create(CacheFile);
-                using var wrt = new StreamWriter(stm);
-                using var jsn = new JsonTextWriter(wrt) { Formatting = Formatting.None };
-                serializer.Serialize(jsn, cacheFile);
+                JsonSerializer.Serialize(stm, cacheFile, new JsonSerializerOptions(serializerOptions) { ReferenceHandler = new PreserveReferenceHandler() });
             }
         }
 

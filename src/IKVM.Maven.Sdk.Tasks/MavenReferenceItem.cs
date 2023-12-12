@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
 using org.eclipse.aether.util.artifact;
 
 namespace IKVM.Maven.Sdk.Tasks
@@ -12,7 +9,6 @@ namespace IKVM.Maven.Sdk.Tasks
     /// <summary>
     /// Models the required data of a <see cref="MavenReferenceItem"/>.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     class MavenReferenceItem : IEquatable<MavenReferenceItem>
     {
 
