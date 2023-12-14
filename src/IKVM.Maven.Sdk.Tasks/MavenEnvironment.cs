@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using IKVM.Maven.Sdk.Tasks.Extensions;
+
 using java.io;
 using java.lang;
 using java.util;
@@ -116,7 +118,7 @@ namespace IKVM.Maven.Sdk.Tasks
             this.repositoryPath = DefaultRepositoryPath;
             this.settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
             this.repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
-            this.repositories = Arrays.asList(repositories.Select(i => CreateRepository(i)).ToArray());
+            this.repositories = CreateRemoteRepositories(repositories, log);
         }
 
         /// <summary>
@@ -244,9 +246,16 @@ namespace IKVM.Maven.Sdk.Tasks
 
             foreach (Server server in (IEnumerable)settings.getServers())
             {
+                // build authentication information from server record
                 var builder = new AuthenticationBuilder();
-                builder.addUsername(server.getUsername()).addPassword(server.getPassword());
-                builder.addPrivateKey(server.getPrivateKey(), server.getPassphrase());
+                if (server.getUsername() is string username)
+                    builder.addUsername(username);
+                if (server.getPassword() is string password)
+                    builder.addPassword(password);
+                if (server.getPrivateKey() is string privateKey)
+                    builder.addPrivateKey(privateKey, server.getPassphrase());
+
+                // add server to selector
                 selector.add(server.getId(), builder.build());
             }
 
@@ -273,12 +282,60 @@ namespace IKVM.Maven.Sdk.Tasks
         }
 
         /// <summary>
-        /// Creates a new <see cref="ArtifactRepository"/> representing Maven Central.
+        /// Creates the set of remote repositories, along with any specified imported repositories.
         /// </summary>
+        /// <param name="import"></param>
+        /// <param name="log"></param>
         /// <returns></returns>
-        ArtifactRepository CreateRepository(MavenRepositoryItem repository)
+        List CreateRemoteRepositories(IList<MavenRepositoryItem> import, TaskLoggingHelper log)
         {
-            return new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url).build();
+            var map = new Dictionary<string, RemoteRepository.Builder>();
+
+            // import user profile repositories
+            foreach (var repository in settings.getActiveProfiles().AsEnumerable<Profile>().SelectMany(i => i.getRepositories().AsEnumerable<Repository>()))
+                if (map.ContainsKey(repository.getId()) == false)
+                    map[repository.getId()] = new RemoteRepository.Builder(repository.getId(), DefaultRepositoryType, repository.getUrl());
+
+            // override repository from imports
+            foreach (var repository in import)
+                map[repository.Id] = new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url);
+
+            // merge profile settings
+            foreach (var repository in settings.getActiveProfiles().AsEnumerable<Profile>().SelectMany(i => i.getRepositories().AsEnumerable<Repository>()))
+            {
+                if (map.TryGetValue(repository.getId(), out var r) == false)
+                    continue;
+
+                var policy = repository.getReleases();
+                if (policy != null)
+                    r.setPolicy(new org.eclipse.aether.repository.RepositoryPolicy(policy.isEnabled(), policy.getUpdatePolicy(), policy.getChecksumPolicy()));
+
+                var snapshots = repository.getSnapshots();
+                if (snapshots != null)
+                    r.setSnapshotPolicy(new org.eclipse.aether.repository.RepositoryPolicy(snapshots.isEnabled(), snapshots.getUpdatePolicy(), snapshots.getChecksumPolicy()));
+            }
+
+            // merge server settings
+            foreach (var server in settings.getServers().AsEnumerable<Server>())
+            {
+                if (map.TryGetValue(server.getId(), out var r) == false)
+                    continue;
+
+                // build authentication information from server record
+                var builder = new AuthenticationBuilder();
+                if (server.getUsername() is string username)
+                    builder.addUsername(username);
+                if (server.getPassword() is string password)
+                    builder.addPassword(password);
+                if (server.getPrivateKey() is string privateKey)
+                    builder.addPrivateKey(privateKey, server.getPassphrase());
+
+                // set authentication on repository
+                r.setAuthentication(builder.build());
+            }
+
+            // build final list of repositories
+            return Arrays.asList(map.Values.Select(i => i.build()).ToArray());
         }
 
     }

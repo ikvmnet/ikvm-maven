@@ -39,6 +39,17 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             return item;
         }
 
+        /// <summary>
+        /// Creates a task item for the local repository.
+        /// </summary>
+        /// <returns></returns>
+        static ITaskItem GetPrivateRepositoryItem()
+        {
+            var item = new TaskItem("github");
+            item.SetMetadata("Url", "https://maven.pkg.github.com/ikvmnet/*");
+            return item;
+        }
+
         public TestContext TestContext { get; set; }
 
         [TestMethod]
@@ -533,6 +544,35 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             errors.Should().BeEmpty();
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$hellotest:hellotest:1.0");
         }
+
+        // TODO, need to set up some sort of local repository resolution or something to run this test
+        //
+        //[TestMethod]
+        //public void CanResolveFromPrivateRepository()
+        //{
+        //    var cacheFile = Path.GetTempFileName();
+
+        //    var engine = new Mock<IBuildEngine>();
+        //    var errors = new List<BuildErrorEventArgs>();
+        //    engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+        //    engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+        //    engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+        //    var t = new MavenReferenceItemResolve();
+        //    t.BuildEngine = engine.Object;
+        //    t.CacheFile = cacheFile;
+        //    t.Repositories = new[] { GetCentralRepositoryItem(), GetPrivateRepositoryItem() };
+
+        //    var i1 = new TaskItem("hellotest:hellotest:1.0");
+        //    i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "hellotest");
+        //    i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "hellotest");
+        //    i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.0");
+        //    i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+        //    t.References = new[] { i1 };
+
+        //    t.Execute().Should().BeTrue();
+        //    errors.Should().BeEmpty();
+        //    t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$hellotest:hellotest:1.0");
+        //}
 
     }
 
