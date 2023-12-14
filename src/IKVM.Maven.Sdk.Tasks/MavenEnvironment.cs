@@ -296,12 +296,11 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var map = new Dictionary<string, RemoteRepository.Builder>();
 
-            // import user profile repositories
+            // import profile repositories
             foreach (var repository in settings.getActiveProfiles().AsEnumerable<Profile>().SelectMany(i => i.getRepositories().AsEnumerable<Repository>()))
-                if (map.ContainsKey(repository.getId()) == false)
-                    map[repository.getId()] = new RemoteRepository.Builder(repository.getId(), DefaultRepositoryType, repository.getUrl());
+                map[repository.getId()] = new RemoteRepository.Builder(repository.getId(), DefaultRepositoryType, repository.getUrl());
 
-            // override repository from imports
+            // override repository with imports
             foreach (var repository in import)
                 map[repository.Id] = new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url);
 
@@ -311,9 +310,9 @@ namespace IKVM.Maven.Sdk.Tasks
                 if (map.TryGetValue(repository.getId(), out var r) == false)
                     continue;
 
-                var policy = repository.getReleases();
-                if (policy != null)
-                    r.setPolicy(new org.eclipse.aether.repository.RepositoryPolicy(policy.isEnabled(), policy.getUpdatePolicy(), policy.getChecksumPolicy()));
+                var releases = repository.getReleases();
+                if (releases != null)
+                    r.setPolicy(new org.eclipse.aether.repository.RepositoryPolicy(releases.isEnabled(), releases.getUpdatePolicy(), releases.getChecksumPolicy()));
 
                 var snapshots = repository.getSnapshots();
                 if (snapshots != null)
