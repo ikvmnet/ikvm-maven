@@ -96,10 +96,10 @@ namespace IKVM.Maven.Sdk.Tasks
         const string SettingsSecurityXml = "settings-security.xml";
         const string DefaultRepositoryType = "default";
 
-        static readonly string DefaultRepositoryPath = Path.Combine(java.lang.System.getProperty("user.home"), ".m2");
+        static readonly string UserHome = Path.Combine(java.lang.System.getProperty("user.home"), ".m2");
 
         readonly TaskLoggingHelper log;
-        readonly string repositoryPath;
+        readonly string userHome;
         readonly Settings settings;
         readonly RepositorySystem repositorySystem;
         readonly List repositories;
@@ -115,7 +115,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(repositories));
 
             this.log = log ?? throw new ArgumentNullException(nameof(log));
-            this.repositoryPath = DefaultRepositoryPath;
+            this.userHome = UserHome;
             this.settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
             this.repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
             this.repositories = CreateRemoteRepositories(repositories, log);
@@ -152,24 +152,24 @@ namespace IKVM.Maven.Sdk.Tasks
         Settings ReadSettings()
         {
             var request = new DefaultSettingsBuildingRequest();
-            request.setUserSettingsFile(new File(Path.Combine(repositoryPath, SettingsXml)));
+            request.setUserSettingsFile(new File(Path.Combine(userHome, SettingsXml)));
 
             var builder = new DefaultSettingsBuilderFactory().newInstance();
             var settingsResult = builder.build(request);
             if (settingsResult.getProblems() is List settingsProblem)
-                for (var i = settingsProblem.iterator(); i.hasNext();)
-                    HandleSettingsProblem((SettingsProblem)i.next());
+                foreach (var i in settingsProblem.AsEnumerable<SettingsProblem>())
+                    HandleSettingsProblem(i);
 
             // get currently effective settings
             var settings = settingsResult.getEffectiveSettings();
 
             // use settings-security.xml to decrypt loaded settings
-            var secDispatcher = new SecDispatcher(Path.Combine(repositoryPath, SettingsSecurityXml));
+            var secDispatcher = new SecDispatcher(Path.Combine(userHome, SettingsSecurityXml));
             var secDecrypter = new DefaultSettingsDecrypter(secDispatcher);
             var secResult = secDecrypter.decrypt(new DefaultSettingsDecryptionRequest(settings));
             if (secResult.getProblems() is List secProblems)
-                for (var i = secProblems.iterator(); i.hasNext();)
-                    HandleSettingsProblem((SettingsProblem)i.next());
+                foreach (var i in secProblems.AsEnumerable<SettingsProblem>())
+                    HandleSettingsProblem(i);
 
             // apply decrypted settings
             settings.setServers(secResult.getServers());
@@ -187,7 +187,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (settings.getLocalRepository() != null)
                 return new File(settings.getLocalRepository());
 
-            return new File(Path.Combine(DefaultRepositoryPath, "repository"));
+            return new File(Path.Combine(UserHome, "repository"));
         }
 
         /// <summary>
