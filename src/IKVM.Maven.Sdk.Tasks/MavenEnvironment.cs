@@ -186,8 +186,8 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             if (settings.getLocalRepository() != null)
                 return new File(settings.getLocalRepository());
-
-            return new File(Path.Combine(UserHome, "repository"));
+            else
+                return new File(Path.Combine(UserHome, "repository"));
         }
 
         /// <summary>
