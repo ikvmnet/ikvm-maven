@@ -212,10 +212,15 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultProxySelector();
 
-            foreach (org.apache.maven.settings.Proxy proxy in (IEnumerable)settings.getProxies())
+            foreach (var proxy in settings.getProxies().AsEnumerable<org.apache.maven.settings.Proxy>())
             {
+                // build authentication information from server record
                 var builder = new AuthenticationBuilder();
-                builder.addUsername(proxy.getUsername()).addPassword(proxy.getPassword());
+                if (proxy.getUsername() is string username)
+                    builder.addUsername(username);
+                if (proxy.getPassword() is string password)
+                    builder.addPassword(password);
+
                 selector.add(new org.eclipse.aether.repository.Proxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), builder.build()), proxy.getNonProxyHosts());
             }
 
@@ -230,7 +235,7 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultMirrorSelector();
 
-            foreach (Mirror mirror in (IEnumerable)settings.getMirrors())
+            foreach (var mirror in settings.getMirrors().AsEnumerable<Mirror>())
                 selector.add(mirror.getId(), mirror.getUrl(), mirror.getLayout(), false, false, mirror.getMirrorOf(), mirror.getMirrorOfLayouts());
 
             return selector;
