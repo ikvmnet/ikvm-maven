@@ -41,300 +41,300 @@ namespace IKVM.Maven.Sdk.Tasks
         public void trace(SLF4JContextLogger logger, string message)
         {
             if (isTraceEnabled(logger))
-            log.LogMessageFromText("SLF4J [TRACE]: " + message, MessageImportance.Low);
+                log.LogMessage("SLF4J [TRACE]: " + message, MessageImportance.Low);
         }
 
         public void trace(SLF4JContextLogger logger, string str, object obj)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void trace(SLF4JContextLogger logger, string str, object obj1, object obj2)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void trace(SLF4JContextLogger logger, string str, params object[] objarr)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void trace(SLF4JContextLogger logger, string str, Exception t)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + str + ": " + t?.Message);
         }
 
         public void trace(SLF4JContextLogger logger, Marker m, string str)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + str, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + str);
         }
 
         public void trace(SLF4JContextLogger logger, Marker m, string str, object obj)
         {
             if (isTraceEnabled(logger))
-            log.LogMessageFromText("SLF4J [TRACE]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void trace(SLF4JContextLogger logger, Marker m, string str, object obj1, object obj2)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void trace(SLF4JContextLogger logger, Marker m, string str, params object[] objarr)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void trace(SLF4JContextLogger logger, Marker m, string str, Exception t)
         {
             if (isTraceEnabled(logger))
-                log.LogMessageFromText("SLF4J [TRACE]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [TRACE]: " + str + ": " + t?.Message);
         }
 
         public void debug(SLF4JContextLogger logger, string message)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + message);
         }
 
         public void debug(SLF4JContextLogger logger, string str, object obj)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void debug(SLF4JContextLogger logger, string str, object obj1, object obj2)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void debug(SLF4JContextLogger logger, string str, params object[] objarr)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void debug(SLF4JContextLogger logger, string str, Exception t)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + str + ": " + t?.Message);
         }
 
         public void debug(SLF4JContextLogger logger, Marker m, string str)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + str, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + str);
         }
 
         public void debug(SLF4JContextLogger logger, Marker m, string str, object obj)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void debug(SLF4JContextLogger logger, Marker m, string str, object obj1, object obj2)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void debug(SLF4JContextLogger logger, Marker m, string str, params object[] objarr)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void debug(SLF4JContextLogger logger, Marker m, string str, Exception t)
         {
             if (isDebugEnabled(logger))
-                log.LogMessageFromText("SLF4J [DEBUG]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [DEBUG]: " + str + ": " + t?.Message);
         }
         public void info(SLF4JContextLogger logger, string message)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + message);
         }
 
         public void info(SLF4JContextLogger logger, string str, object obj)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void info(SLF4JContextLogger logger, string str, object obj1, object obj2)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void info(SLF4JContextLogger logger, string str, params object[] objarr)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void info(SLF4JContextLogger logger, string str, Exception t)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage("SLF4J [INFO]: " + str + ": " + t?.Message, MessageImportance.Low);
         }
 
         public void info(SLF4JContextLogger logger, Marker m, string str)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + str, MessageImportance.Low);
+                log.LogMessage("SLF4J [INFO]: " + str, MessageImportance.Low);
         }
 
         public void info(SLF4JContextLogger logger, Marker m, string str, object obj)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void info(SLF4JContextLogger logger, Marker m, string str, object obj1, object obj2)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void info(SLF4JContextLogger logger, Marker m, string str, params object[] objarr)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void info(SLF4JContextLogger logger, Marker m, string str, Exception t)
         {
             if (isInfoEnabled(logger))
-                log.LogMessageFromText("SLF4J [INFO]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [INFO]: " + str + ": " + t?.Message);
         }
 
         public void warn(SLF4JContextLogger logger, string message)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + message);
         }
 
         public void warn(SLF4JContextLogger logger, string str, object obj)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void warn(SLF4JContextLogger logger, string str, object obj1, object obj2)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void warn(SLF4JContextLogger logger, string str, params object[] objarr)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void warn(SLF4JContextLogger logger, string str, Exception t)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + str + ": " + t?.Message);
         }
 
         public void warn(SLF4JContextLogger logger, Marker m, string str)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + str, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + str);
         }
 
         public void warn(SLF4JContextLogger logger, Marker m, string str, object obj)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void warn(SLF4JContextLogger logger, Marker m, string str, object obj1, object obj2)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void warn(SLF4JContextLogger logger, Marker m, string str, params object[] objarr)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void warn(SLF4JContextLogger logger, Marker m, string str, Exception t)
         {
             if (isWarnEnabled(logger))
-                log.LogMessageFromText("SLF4J [WARN]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [WARN]: " + str + ": " + t?.Message);
         }
 
         public void error(SLF4JContextLogger logger, string message)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + message, MessageImportance.Normal);
+                log.LogMessage(MessageImportance.Normal, "SLF4J [ERROR]: " + message);
         }
 
         public void error(SLF4JContextLogger logger, string str, object obj)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void error(SLF4JContextLogger logger, string str, object obj1, object obj2)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void error(SLF4JContextLogger logger, string str, params object[] objarr)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void error(SLF4JContextLogger logger, string str, Exception t)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + str + ": " + t?.Message);
         }
 
         public void error(SLF4JContextLogger logger, Marker m, string str)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + str, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + str);
         }
 
         public void error(SLF4JContextLogger logger, Marker m, string str, object obj)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + MessageFormatter.format(str, obj).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + MessageFormatter.format(str, obj).getMessage());
         }
 
         public void error(SLF4JContextLogger logger, Marker m, string str, object obj1, object obj2)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + MessageFormatter.format(str, obj1, obj2).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + MessageFormatter.format(str, obj1, obj2).getMessage());
         }
 
         public void error(SLF4JContextLogger logger, Marker m, string str, params object[] objarr)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + MessageFormatter.arrayFormat(str, objarr).getMessage(), MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + MessageFormatter.arrayFormat(str, objarr).getMessage());
         }
 
         public void error(SLF4JContextLogger logger, Marker m, string str, Exception t)
         {
             if (isErrorEnabled(logger))
-                log.LogMessageFromText("SLF4J [ERROR]: " + str + ": " + t?.Message, MessageImportance.Low);
+                log.LogMessage(MessageImportance.Low, "SLF4J [ERROR]: " + str + ": " + t?.Message);
         }
 
         public bool isTraceEnabled(SLF4JContextLogger logger)
