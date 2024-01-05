@@ -164,16 +164,20 @@ namespace IKVM.Maven.Sdk.Tasks
             var settings = settingsResult.getEffectiveSettings();
 
             // use settings-security.xml to decrypt loaded settings
-            var secDispatcher = new SecDispatcher(Path.Combine(userHome, SettingsSecurityXml));
-            var secDecrypter = new DefaultSettingsDecrypter(secDispatcher);
-            var secResult = secDecrypter.decrypt(new DefaultSettingsDecryptionRequest(settings));
-            if (secResult.getProblems() is List secProblems)
-                foreach (var i in secProblems.AsEnumerable<SettingsProblem>())
-                    HandleSettingsProblem(i);
+            var securityFile = Path.Combine(userHome, SettingsSecurityXml);
+            if (System.IO.File.Exists(securityFile))
+            {
+                var secDispatcher = new SecDispatcher(securityFile);
+                var secDecrypter = new DefaultSettingsDecrypter(secDispatcher);
+                var secResult = secDecrypter.decrypt(new DefaultSettingsDecryptionRequest(settings));
+                if (secResult.getProblems() is List secProblems)
+                    foreach (var i in secProblems.AsEnumerable<SettingsProblem>())
+                        HandleSettingsProblem(i);
 
-            // apply decrypted settings
-            settings.setServers(secResult.getServers());
-            settings.setProxies(secResult.getProxies());
+                // apply decrypted settings
+                settings.setServers(secResult.getServers());
+                settings.setProxies(secResult.getProxies());
+            }
 
             return settings;
         }
