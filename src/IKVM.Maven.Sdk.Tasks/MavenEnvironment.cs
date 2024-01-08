@@ -216,7 +216,7 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultProxySelector();
 
-            foreach (var proxy in settings.getProxies().AsEnumerable<org.apache.maven.settings.Proxy>())
+            foreach (var proxy in settings.getProxies().AsList<org.apache.maven.settings.Proxy>())
             {
                 // build authentication information from server record
                 var builder = new AuthenticationBuilder();
@@ -239,7 +239,7 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultMirrorSelector();
 
-            foreach (var mirror in settings.getMirrors().AsEnumerable<Mirror>())
+            foreach (var mirror in settings.getMirrors().AsList<Mirror>())
                 selector.add(mirror.getId(), mirror.getUrl(), mirror.getLayout(), false, false, mirror.getMirrorOf(), mirror.getMirrorOfLayouts());
 
             return selector;
@@ -253,7 +253,7 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultAuthenticationSelector();
 
-            foreach (Server server in (IEnumerable)settings.getServers())
+            foreach (var server in settings.getServers().AsList<Server>())
             {
                 // build authentication information from server record
                 var builder = new AuthenticationBuilder();
@@ -303,26 +303,34 @@ namespace IKVM.Maven.Sdk.Tasks
             var activeProfiles = settings.getActiveProfiles().AsList<string>();
 
             // import profile repositories
-            foreach (var repository in activeProfiles.SelectMany(i => profiles[i].getRepositories().AsList<Repository>()))
-                map[repository.getId()] = new RemoteRepository.Builder(repository.getId(), DefaultRepositoryType, repository.getUrl());
+            foreach (var profileId in activeProfiles)
+                if (profiles.TryGetValue(profileId, out var profile))
+                    foreach (var repository in profile.getRepositories().AsList<Repository>())
+                        map[repository.getId()] = new RemoteRepository.Builder(repository.getId(), DefaultRepositoryType, repository.getUrl());
 
             // override repository with imports
             foreach (var repository in import)
                 map[repository.Id] = new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url);
 
             // merge profile settings
-            foreach (var repository in activeProfiles.SelectMany(i => profiles[i].getRepositories().AsList<Repository>()))
+            foreach (var profileId in activeProfiles)
             {
-                if (map.TryGetValue(repository.getId(), out var r) == false)
-                    continue;
+                if (profiles.TryGetValue(profileId, out var profile))
+                {
+                    foreach (var repository in profile.getRepositories().AsList<Repository>())
+                    {
+                        if (map.TryGetValue(repository.getId(), out var builder) == false)
+                            continue;
 
-                var releases = repository.getReleases();
-                if (releases != null)
-                    r.setPolicy(new org.eclipse.aether.repository.RepositoryPolicy(releases.isEnabled(), releases.getUpdatePolicy(), releases.getChecksumPolicy()));
+                        var releases = repository.getReleases();
+                        if (releases != null)
+                            builder.setPolicy(new org.eclipse.aether.repository.RepositoryPolicy(releases.isEnabled(), releases.getUpdatePolicy(), releases.getChecksumPolicy()));
 
-                var snapshots = repository.getSnapshots();
-                if (snapshots != null)
-                    r.setSnapshotPolicy(new org.eclipse.aether.repository.RepositoryPolicy(snapshots.isEnabled(), snapshots.getUpdatePolicy(), snapshots.getChecksumPolicy()));
+                        var snapshots = repository.getSnapshots();
+                        if (snapshots != null)
+                            builder.setSnapshotPolicy(new org.eclipse.aether.repository.RepositoryPolicy(snapshots.isEnabled(), snapshots.getUpdatePolicy(), snapshots.getChecksumPolicy()));
+                    }
+                }
             }
 
             // merge server settings
