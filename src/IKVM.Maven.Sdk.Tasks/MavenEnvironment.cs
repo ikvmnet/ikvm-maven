@@ -299,9 +299,11 @@ namespace IKVM.Maven.Sdk.Tasks
         List CreateRemoteRepositories(IList<MavenRepositoryItem> import, TaskLoggingHelper log)
         {
             var map = new Dictionary<string, RemoteRepository.Builder>();
+            var profiles = settings.getProfilesAsMap().AsDictionary<string, Profile>();
+            var activeProfiles = settings.getActiveProfiles().AsList<string>();
 
             // import profile repositories
-            foreach (var repository in settings.getActiveProfiles().AsEnumerable<Profile>().SelectMany(i => i.getRepositories().AsEnumerable<Repository>()))
+            foreach (var repository in activeProfiles.SelectMany(i => profiles[i].getRepositories().AsList<Repository>()))
                 map[repository.getId()] = new RemoteRepository.Builder(repository.getId(), DefaultRepositoryType, repository.getUrl());
 
             // override repository with imports
@@ -309,7 +311,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 map[repository.Id] = new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url);
 
             // merge profile settings
-            foreach (var repository in settings.getActiveProfiles().AsEnumerable<Profile>().SelectMany(i => i.getRepositories().AsEnumerable<Repository>()))
+            foreach (var repository in activeProfiles.SelectMany(i => profiles[i].getRepositories().AsList<Repository>()))
             {
                 if (map.TryGetValue(repository.getId(), out var r) == false)
                     continue;
@@ -324,7 +326,7 @@ namespace IKVM.Maven.Sdk.Tasks
             }
 
             // merge server settings
-            foreach (var server in settings.getServers().AsEnumerable<Server>())
+            foreach (var server in settings.getServers().AsList<Server>())
             {
                 if (map.TryGetValue(server.getId(), out var r) == false)
                     continue;

@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 
 using java.lang;
+using java.util;
 
 namespace IKVM.Maven.Sdk.Tasks.Extensions
 {
@@ -17,12 +20,13 @@ namespace IKVM.Maven.Sdk.Tasks.Extensions
         /// <typeparam name="T"></typeparam>
         /// <param name="iterable"></param>
         /// <returns></returns>
-        public static IEnumerable<T> AsEnumerable<T>(this Iterable iterable)
+        public static IEnumerable<T> AsEnumerable<T>(this Iterable iterable) => iterable switch
         {
-            var e = iterable.iterator().AsEnumerator<T>();
-            while (e.MoveNext())
-                yield return e.Current;
-        }
+            IEnumerable<T> i => i,
+            IEnumerable i => i.Cast<T>(),
+            Collection i => i.AsCollection<T>(),
+            Iterable i => new IterableWrapper<T>(i),
+        };
 
     }
 
