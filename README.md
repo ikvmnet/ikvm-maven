@@ -17,10 +17,12 @@ Optionally, use an arbitrary value for the item specification, and explicitely s
 ```
 <ItemGroup>
     <MavenReference Include="foo-lib">
-      <GroupId>org.foo.bar</GroupId>
-      <ArtifactId>foo-lib</ArtifactId>
-      <Classifier></Classifier>
-      <Version>1.2.3</Version>
+        <GroupId>org.foo.bar</GroupId>
+        <ArtifactId>foo-lib</ArtifactId>
+        <Classifier></Classifier>
+        <Version>1.2.3</Version>
+        <Scope></Scope>
+        <Exclusions></Exclusions>
     </MavenReference>
 </ItemGroup>
 ```
