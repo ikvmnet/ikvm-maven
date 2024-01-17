@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -13,12 +15,19 @@ namespace IKVM.Maven.Sdk.Tasks.Json
     class VersionJsonConverter : JsonConverter<org.eclipse.aether.version.Version>
     {
 
+        static readonly MethodInfo parseVersionMethod = typeof(GenericVersionScheme)
+            .GetMethods()
+            .Where(i => i.Name == "parseVersion")
+            .Where(i => i.GetParameters().Length == 1 && i.GetParameters()[0].ParameterType == typeof(string))
+            .Where(i => i.ReturnType == typeof(GenericVersionScheme).Assembly.GetType("org.eclipse.aether.util.version.GenericVersion"))
+            .First();
+
         public override org.eclipse.aether.version.Version Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.String)
                 return null;
             else
-                return new GenericVersionScheme().parseVersion(reader.GetString());
+                return (org.eclipse.aether.version.Version)parseVersionMethod.Invoke(new GenericVersionScheme(), new[] { reader.GetString() });
         }
 
         public override void Write(Utf8JsonWriter writer, org.eclipse.aether.version.Version value, JsonSerializerOptions options)

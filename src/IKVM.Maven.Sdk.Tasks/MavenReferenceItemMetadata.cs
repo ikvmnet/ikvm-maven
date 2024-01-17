@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Microsoft.Build.Framework;
 
@@ -19,6 +20,7 @@ namespace IKVM.Maven.Sdk.Tasks
         public static readonly string Dependencies = "Dependencies";
         public static readonly string Scope = "Scope";
         public static readonly string Optional = "Optional";
+        public static readonly string Exclusions = "Exclusions";
         public static readonly string Debug = "Debug";
         public static readonly string ReferenceSource = "ReferenceSource";
 
@@ -39,6 +41,7 @@ namespace IKVM.Maven.Sdk.Tasks
             task.SetMetadata(MavenReferenceItemMetadata.Version, item.Version);
             task.SetMetadata(MavenReferenceItemMetadata.Optional, item.Optional ? "true" : "false");
             task.SetMetadata(MavenReferenceItemMetadata.Scope, item.Scope);
+            task.SetMetadata(MavenReferenceItemMetadata.Exclusions, string.Join(";", item.Exclusions.Select(i => i.ToString())));
             task.SetMetadata(MavenReferenceItemMetadata.ReferenceSource, item.ReferenceSource);
         }
 
@@ -65,6 +68,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 item.Version = task.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Optional = string.Equals(task.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
                 item.Scope = task.GetMetadata(MavenReferenceItemMetadata.Scope);
+                item.Exclusions = task.GetMetadata(MavenReferenceItemMetadata.Exclusions).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => ParseExclusion(i)).Where(i => i != null).ToArray();
                 item.ReferenceSource = task.GetMetadata(MavenReferenceItemMetadata.ReferenceSource);
                 list.Add(item);
             }
@@ -73,6 +77,26 @@ namespace IKVM.Maven.Sdk.Tasks
             return list.ToArray();
         }
 
+        /// <summary>
+        /// Parses a compressed exclusion string.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        /// <exception cref="MavenTaskMessageException"></exception>
+        static MavenReferenceItemExclusion ParseExclusion(string value)
+        {
+            var a = value.Split(':');
+            if (a.Length is 2 or 3 or 4)
+            {
+                var groupId = a[0];
+                var artifactId = a[1];
+                var classifier = a.Length >= 3 ? a[2] : null;
+                var extension = a.Length >= 4 ? a[3] : null;
+                return new MavenReferenceItemExclusion(groupId, artifactId, classifier, extension);
+            }
+
+            return null;
+        }
     }
 
 }

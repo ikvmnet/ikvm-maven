@@ -246,7 +246,10 @@ namespace IKVM.Maven.Sdk.Tasks
             // convert set of incoming items into a dependency list
             var dependencies = new Dependency[items.Count];
             for (int i = 0; i < items.Count; i++)
-                dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, new java.util.ArrayList());
+            {
+                var exclusions = Arrays.asList(items[i].Exclusions.Select(j => new Exclusion(j.GroupId, j.ArtifactId, j.Classifier, j.Extension)).ToArray());
+                dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, exclusions);
+            }
 
             // check the cache
             var root = ResolveCompileDependencyGraphFromCache(maven, dependencies);

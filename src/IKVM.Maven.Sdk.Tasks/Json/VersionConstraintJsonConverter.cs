@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -13,12 +15,20 @@ namespace IKVM.Maven.Sdk.Tasks.Json
     /// </summary>
     class VersionConstraintJsonConverter : JsonConverter<org.eclipse.aether.version.VersionConstraint>
     {
+
+        static readonly MethodInfo parseVersionConstraintMethod = typeof(GenericVersionScheme)
+            .GetMethods()
+            .Where(i => i.Name == "parseVersionConstraint")
+            .Where(i => i.GetParameters().Length == 1 && i.GetParameters()[0].ParameterType == typeof(string))
+            .Where(i => i.ReturnType == typeof(GenericVersionScheme).Assembly.GetType("org.eclipse.aether.util.version.GenericVersionConstraint"))
+            .First();
+
         public override org.eclipse.aether.version.VersionConstraint Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType != JsonTokenType.String)
                 return null;
             else
-                return new GenericVersionScheme().parseVersionConstraint(reader.GetString());
+                return (org.eclipse.aether.version.VersionConstraint)parseVersionConstraintMethod.Invoke(new GenericVersionScheme(), new[] { reader.GetString() });
         }
 
         public override void Write(Utf8JsonWriter writer, org.eclipse.aether.version.VersionConstraint value, JsonSerializerOptions options)

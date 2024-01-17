@@ -287,6 +287,8 @@ namespace IKVM.Maven.Sdk.Tasks
             session.setTransferListener(new MavenTransferListener(log, noError));
             session.setRepositoryListener(new MavenRepositoryListener(log));
             session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, "true");
+            session.setSystemProperty("java.version", java.lang.System.getProperty("java.version") ?? "1.8");
+            session.setOffline(settings.isOffline());
             return session;
         }
 

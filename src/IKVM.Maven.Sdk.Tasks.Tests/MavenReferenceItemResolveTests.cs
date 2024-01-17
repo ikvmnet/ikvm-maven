@@ -572,6 +572,35 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
         }
 
+        [TestMethod]
+        public void ExclusionsShouldExcludeSystemDependency()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("net.sf.jt400:jt400:20.0.6");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "net.sf.jt400");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "jt400");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "20.0.6");
+            i1.SetMetadata(MavenReferenceItemMetadata.Exclusions, "com.sun:tools");
+
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().NotContain(i => i.ItemSpec == "maven$com.sun:tools:jar:1.8.0");
+        }
+
     }
 
 }
