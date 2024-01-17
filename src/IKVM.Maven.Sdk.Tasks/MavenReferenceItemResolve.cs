@@ -151,7 +151,11 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override bool Execute()
         {
+#if DEBUG
             using var d = SLF4JContextLogger.Enter(new SLF4JMSBuildLoggerProxy(Log, org.slf4j.@event.Level.TRACE));
+#else
+            using var d = SLF4JContextLogger.Enter(new SLF4JMSBuildLoggerProxy(Log, org.slf4j.@event.Level.INFO));
+#endif
 
             try
             {
