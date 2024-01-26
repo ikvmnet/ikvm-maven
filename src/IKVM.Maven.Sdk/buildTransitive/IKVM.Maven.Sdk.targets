@@ -4,19 +4,16 @@
     </PropertyGroup>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
-    <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="ResolvePackageAssets">
-        <MavenReferenceItemImport AssetsFilePath="$(ProjectAssetsFile)" TargetFramework="$(TargetFramework)" RuntimeIdentifier="$(RuntimeIdentifier)" Condition="Exists('$(ProjectAssetsFile)')">
-            <Output TaskParameter="Items" ItemName="_MavenReferenceItemFromPackageReferences" />
-        </MavenReferenceItemImport>
+    <Target Name="GetMavenReferenceItemsFromMavenReferences" Condition=" '@(MavenReference)' != '' ">
         <ItemGroup>
-            <MavenReferenceItem Include="@(_MavenReferenceItemFromPackageReferences)">
-                <ReferenceSource>PackageReference</ReferenceSource>
+            <MavenReferenceItem Include="@(MavenReference)">
+                <ReferenceSource>MavenReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
     </Target>
 
     <!-- Obtains MavenReferenceItem items from child projects. -->
-    <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="PrepareProjectReferences">
+    <Target Name="GetMavenReferenceItemsFromProjectReferences" DependsOnTargets="GetMavenReferenceItemsFromMavenReferences;PrepareProjectReferences">
         <MSBuild
             Projects="@(_MSBuildProjectReferenceExistent)"
             Targets="GetMavenReferenceItems"
@@ -37,16 +34,19 @@
     </Target>
 
     <!-- Transforms the MavenReference item group into MavenReferenceItem items. -->
-    <Target Name="GetMavenReferenceItemsFromMavenReferences" Condition=" '@(MavenReference)' != '' ">
+    <Target Name="GetMavenReferenceItemsFromPackageReferences" DependsOnTargets="GetMavenReferenceItemsFromMavenReferences;GetMavenReferenceItemsFromProjectReferences;ResolvePackageAssets">
+        <MavenReferenceItemImport AssetsFilePath="$(ProjectAssetsFile)" TargetFramework="$(TargetFramework)" RuntimeIdentifier="$(RuntimeIdentifier)" Condition="Exists('$(ProjectAssetsFile)')">
+            <Output TaskParameter="Items" ItemName="_MavenReferenceItemFromPackageReferences" />
+        </MavenReferenceItemImport>
         <ItemGroup>
-            <MavenReferenceItem Include="@(MavenReference)">
-                <ReferenceSource>MavenReference</ReferenceSource>
+            <MavenReferenceItem Include="@(_MavenReferenceItemFromPackageReferences)">
+                <ReferenceSource>PackageReference</ReferenceSource>
             </MavenReferenceItem>
         </ItemGroup>
     </Target>
 
     <!-- Populates the MavenReferenceItem set with required metadata. -->
-    <Target Name="GetMavenReferenceItemsMetadata" DependsOnTargets="GetMavenReferenceItemsFromPackageReferences;GetMavenReferenceItemsFromProjectReferences;GetMavenReferenceItemsFromMavenReferences;" Condition=" '@(MavenReferenceItem)' != '' ">
+    <Target Name="GetMavenReferenceItemsMetadata" DependsOnTargets="GetMavenReferenceItemsFromMavenReferences;GetMavenReferenceItemsFromProjectReferences;GetMavenReferenceItemsFromPackageReferences" Condition=" '@(MavenReferenceItem)' != '' ">
         <!-- Probes for default metadata from the reference item. -->
         <MavenReferenceItemPrepare Items="@(MavenReferenceItem)">
             <Output TaskParameter="Items" ItemName="_MavenReferenceItemWithMetadata" />
@@ -63,10 +63,10 @@
     <PropertyGroup>
         <GetMavenReferenceItemsDependsOn>
             $(GetMavenReferenceItemsDependsOn);
-            GetMavenReferenceItemsFromPackageReferences;
+            GetMavenReferenceItemsFromMavenReferences;
             PrepareProjectReferences;
             GetMavenReferenceItemsFromProjectReferences;
-            GetMavenReferenceItemsFromMavenReferences;
+            GetMavenReferenceItemsFromPackageReferences;
             GetMavenReferenceItemsMetadata;
         </GetMavenReferenceItemsDependsOn>
     </PropertyGroup>
