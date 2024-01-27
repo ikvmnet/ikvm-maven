@@ -4,6 +4,6 @@
         "rollForward": "latestFeature"
     },
     "msbuild-sdks": {
-        "IKVM.NET.Sdk": "8.7.4"
+        "IKVM.NET.Sdk": "8.7.5-pre.3"
     }
 }
