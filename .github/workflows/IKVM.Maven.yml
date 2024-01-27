@@ -145,6 +145,7 @@ jobs:
         - net48
         - net6.0
         - net7.0
+        - net8.0
         exclude:
         - tfm: net48
           sys: linux-x64
@@ -152,7 +153,7 @@ jobs:
           sys: osx-x64
         include:
         - run: IKVM.Maven.Sdk.Tests
-          tfm: net7.0
+          tfm: net8.0
           sys: win-x64
     name: Test (${{ matrix.run }}:${{ matrix.tfm }}:${{ matrix.sys }})
     timeout-minutes: 240
