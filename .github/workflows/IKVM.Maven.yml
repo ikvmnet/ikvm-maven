@@ -155,6 +155,12 @@ jobs:
         - run: IKVM.Maven.Sdk.Tests
           tfm: net8.0
           sys: win-x64
+        - run: IKVM.Maven.Sdk.Tests
+          tfm: net8.0
+          sys: linux-x64
+        - run: IKVM.Maven.Sdk.Tests
+          tfm: net8.0
+          sys: osx-x64
     name: Test (${{ matrix.run }}:${{ matrix.tfm }}:${{ matrix.sys }})
     timeout-minutes: 240
     needs:
