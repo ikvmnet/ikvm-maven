@@ -628,7 +628,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.Execute().Should().BeTrue();
             errors.Should().BeEmpty();
 
-            t.ResolvedReferences.Should().NotContain(i => i.ItemSpec == "maven$edu.stanford.nlp:stanford-corenlp:models:4.5.5");
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$edu.stanford.nlp:stanford-corenlp:models:4.5.5");
         }
 
     }
