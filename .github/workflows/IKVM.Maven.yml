@@ -96,6 +96,11 @@ jobs:
           /p:RepositoryUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}.git" `
           /p:PackageProjectUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}" `
           /p:BuildInParallel=true `
+          /p:CreateHardLinksForAdditionalFilesIfPossible=true `
+          /p:CreateHardLinksForCopyAdditionalFilesIfPossible=true `
+          /p:CreateHardLinksForCopyFilesToOutputDirectoryIfPossible=true `
+          /p:CreateHardLinksForCopyLocalIfPossible=true `
+          /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
           IKVM.Maven.dist.msbuildproj
       working-directory: ${{ env.WORKPATH }}/ikvm-maven
