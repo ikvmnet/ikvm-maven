@@ -35,29 +35,29 @@ jobs:
         Add-Content $env:GITHUB_ENV "`nNUGET_PACKAGES=$WORKPATH\nuget\packages"
         New-Item -Path "$env:GITHUB_WORKSPACE\work" -ItemType SymbolicLink -Value "$WORKPATH\ikvm-maven"
     - name: Checkout Source
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         path: work
         fetch-depth: 0
         submodules: recursive
     - name: Setup .NET 6.0
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
     - name: Setup .NET 7.0
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
     - name: Setup .NET 8.0
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
+      uses: gittools/actions/gitversion/setup@v1
       with:
         versionSpec: 5.x
     - name: Execute GitVersion
-      uses: gittools/actions/gitversion/execute@v0
+      uses: gittools/actions/gitversion/execute@v1
       with:
         targetPath: ${{ env.WORKPATH }}/ikvm-maven
         useConfigFile: true
@@ -69,13 +69,13 @@ jobs:
         GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Cache NuGet
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ env.NUGET_PACKAGES }}
         key: ${{ runner.os }}-nuget-${{ hashFiles('IKVM.Maven.sln', 'src\**\*.csproj', 'src\**\*.msbuildproj') }}
         restore-keys: ${{ runner.os }}-nuget-
     - name: Cache Maven
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~\.m2\repository
         key: ${{ runner.os }}-maven-${{ hashFiles('IKVM.Maven.sln', 'src\**\*.csproj', 'src\**\*.msbuildproj') }}
@@ -106,12 +106,12 @@ jobs:
       working-directory: ${{ env.WORKPATH }}/ikvm-maven
     - name: Upload MSBuild Log
       if: ${{ always() }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: msbuild.binlog
         path: ${{ env.WORKPATH }}/ikvm-maven/msbuild.binlog
     - name: Upload NuGet Packages
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: nuget
         path: ${{ env.WORKPATH }}/ikvm-maven/dist/nuget
@@ -119,7 +119,7 @@ jobs:
       run: tar czvf C:\tests.tar.gz tests
       working-directory: ${{ env.WORKPATH }}/ikvm-maven/dist
     - name: Upload Tests
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tests
         path: C:\tests.tar.gz
@@ -128,7 +128,7 @@ jobs:
       run: Compress-Archive -Path doc\* -DestinationPath C:\doc.zip
       working-directory: ${{ env.WORKPATH }}/ikvm-maven
     - name: Upload Documentation
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: doc
         path: C:\doc.zip
@@ -200,15 +200,15 @@ jobs:
       shell: pwsh
       run: choco install procdump -y; Add-Content $env:GITHUB_PATH "$env:ProgramData\chocolatey\bin\"
     - name: Setup .NET 6.0
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
     - name: Setup .NET 7.0
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
     - name: Setup .NET 8.0
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     - name: Add NuGet Source (GitHub)
@@ -229,7 +229,7 @@ jobs:
             return tst;
         result-encoding: string
     - name: Download Tests
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: tests
         path: ${{ env.WORKPATH }}
@@ -291,7 +291,7 @@ jobs:
       working-directory: ${{ env.WORKPATH }}
     - name: Upload Test Results
       if: always() && startsWith(env.RET, 'TestResults--')
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ env.RET }}
         path: ${{ env.TMPDIR }}/TestResults.tar.gz
@@ -303,29 +303,29 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
     - name: Checkout Source
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - name: Setup .NET 7.0
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v0
+      uses: gittools/actions/gitversion/setup@v1
       with:
-        versionSpec: 5.11
+        versionSpec: 5.x
     - name: Execute GitVersion
       id: GitVersion
-      uses: gittools/actions/gitversion/execute@v0
+      uses: gittools/actions/gitversion/execute@v1
       with:
         useConfigFile: true
     - name: Download NuGet Packages
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: nuget
         path: dist/nuget
     - name: Download Documentation
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: doc
         path: dist
