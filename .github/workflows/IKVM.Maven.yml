@@ -96,11 +96,6 @@ jobs:
           /p:RepositoryUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}.git" `
           /p:PackageProjectUrl="${env:GITHUB_SERVER_URL}/${env:GITHUB_REPOSITORY}" `
           /p:BuildInParallel=true `
-          /p:CreateHardLinksForAdditionalFilesIfPossible=true `
-          /p:CreateHardLinksForCopyAdditionalFilesIfPossible=true `
-          /p:CreateHardLinksForCopyFilesToOutputDirectoryIfPossible=true `
-          /p:CreateHardLinksForCopyLocalIfPossible=true `
-          /p:CreateHardLinksForPublishFilesIfPossible=true `
           /p:ContinuousIntegrationBuild=true `
           IKVM.Maven.dist.msbuildproj
       working-directory: ${{ env.WORKPATH }}/ikvm-maven
@@ -218,15 +213,15 @@ jobs:
         GITHUB_REPOS: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Get Test Name
-      uses: actions/github-script@v6
+      uses: actions/github-script@v7
       id: test-name
       env:
         MATRIX_RUN: '${{ matrix.run }}'
       with:
         script: |
-            const run = process.env.MATRIX_RUN;
-            const tst = run.split('?')[0];
-            return tst;
+          const run = process.env.MATRIX_RUN;
+          const tst = run.split('?')[0];
+          return tst;
         result-encoding: string
     - name: Download Tests
       uses: actions/download-artifact@v4
