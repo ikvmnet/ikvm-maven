@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.7.3" />
+        <PackageReference Include="IKVM" Version="8.8.1" />
     </ItemGroup>
 
     <ItemGroup>
@@ -51,7 +51,7 @@
 
     <Target Name="MakeGeneratedPropsFile" Outputs="$(IntermediateOutputPath)generated.props" BeforeTargets="_GetPackageFiles">
         <ItemGroup>
-            <_GeneratedPropsFileLine Include="&lt;Project&gt;&lt;PropertyGroup&gt;&lt;IkvmVersion&gt;$(PackageVersion)&lt;/IkvmVersion&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;" />
+            <_GeneratedPropsFileLine Include="&lt;Project&gt;&lt;PropertyGroup&gt;&lt;IkvmMavenSdkVersion&gt;$(PackageVersion)&lt;/IkvmMavenSdkVersion&gt;&lt;/PropertyGroup&gt;&lt;/Project&gt;" />
         </ItemGroup>
         <WriteLinesToFile File="$(IntermediateOutputPath)generated.props" Lines="@(_GeneratedPropsFileLine)" Overwrite="true" WriteOnlyWhenDifferent="true" />
         <ItemGroup>

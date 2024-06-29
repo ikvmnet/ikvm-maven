@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+using com.sun.org.apache.xpath.@internal.axes;
+
 using NuGet.Frameworks;
 using NuGet.Packaging;
 using NuGet.ProjectModel;
@@ -80,7 +82,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 var pomPathsByTfm = lib.Files
                     .Where(i => i.StartsWith("maven/") && i.EndsWith($"/{library.Name}.pom"))
                     .Select(i => new { Segments = i.Split('/'), File = i }).Where(i => i.Segments.Length == 3)
-                    .Select(i => new { Folder = i.Segments[1], Path = i.File.Replace('/', Path.DirectorySeparatorChar) })
+                    .Select(i => new { Folder = i.Segments[1], Path = i.File })
                     .GroupBy(i => i.Folder)
                     .Select(i => new FrameworkSpecificGroup(NuGetFramework.ParseFolder(i.Key), i.Select(j => j.Path).ToList()))
                     .ToList();
@@ -90,12 +92,28 @@ namespace IKVM.Maven.Sdk.Tasks
                 if (compatibleGroup == null)
                     continue;
 
+                // start root path at lock file, if no other exists
+                var root = ".";
+                if (lockFile.Path != null)
+                    root = Path.GetDirectoryName(lockFile.Path);
+
                 // integrate each discovered POM
                 foreach (var pom in compatibleGroup.Items)
                     foreach (var pkgDir in lockFile.PackageFolders)
-                        if (Path.Combine(pkgDir.Path, lib.Path.Replace('/', Path.DirectorySeparatorChar), pom) is string pomPath)
-                            yield return pomPath;
+                        if (Path.Combine(FixPath(root), FixPath(pkgDir.Path), FixPath(lib.Path), FixPath(pom)) is string pomPath)
+                            if (File.Exists(pomPath))
+                                yield return pomPath;
             }
+        }
+
+        /// <summary>
+        /// Replace OS-specific separators with current OS separators.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        string FixPath(string value)
+        {
+            return value.Replace('/', Path.DirectorySeparatorChar).Replace('\\', Path.DirectorySeparatorChar);
         }
 
         /// <summary>

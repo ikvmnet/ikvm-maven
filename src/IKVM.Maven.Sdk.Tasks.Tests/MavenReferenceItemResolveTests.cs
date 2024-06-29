@@ -39,6 +39,17 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             return item;
         }
 
+        /// <summary>
+        /// Creates a task item for the local repository.
+        /// </summary>
+        /// <returns></returns>
+        static ITaskItem GetPrivateRepositoryItem()
+        {
+            var item = new TaskItem("github");
+            item.SetMetadata("Url", "https://maven.pkg.github.com/ikvmnet/*");
+            return item;
+        }
+
         public TestContext TestContext { get; set; }
 
         [TestMethod]
@@ -532,6 +543,92 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.Execute().Should().BeTrue();
             errors.Should().BeEmpty();
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$hellotest:hellotest:1.0");
+        }
+
+        [TestMethod]
+        public void CanResolveFromPrivateRepository()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem(), GetPrivateRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.xmlgraphics:fop:2.8");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.xmlgraphics");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "fop");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.8");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.apache.xmlgraphics:fop:2.8");
+        }
+
+        [TestMethod]
+        public void ExclusionsShouldExcludeSystemDependency()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("net.sf.jt400:jt400:20.0.6");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "net.sf.jt400");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "jt400");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "20.0.6");
+            i1.SetMetadata(MavenReferenceItemMetadata.Exclusions, "com.sun:tools");
+
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().NotContain(i => i.ItemSpec == "maven$com.sun:tools:jar:1.8.0");
+        }
+
+        [TestMethod]
+        public void CanResolveClassifiers()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("edu.stanford.nlp:stanford-corenlp:4.5.5");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "edu.stanford.nlp");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "stanford-corenlp");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "4.5.5");
+            i1.SetMetadata(MavenReferenceItemMetadata.Classifier, "models");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$edu.stanford.nlp:stanford-corenlp:models:4.5.5");
         }
 
     }

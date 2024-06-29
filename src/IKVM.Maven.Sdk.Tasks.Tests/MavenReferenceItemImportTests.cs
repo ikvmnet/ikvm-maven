@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 using FluentAssertions;
 
 using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using Moq;
-
-using NuGet.Common;
 
 namespace IKVM.Maven.Sdk.Tasks.Tests
 {
@@ -24,7 +21,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         public TestContext TestContext { get; set; }
 
         [TestMethod]
-        public void Should_work_with_itemspec_and_version_as_metadata()
+        public void CanDiscoverProjectModelFiles()
         {
             var engine = new Mock<IBuildEngine>();
             var errors = new List<BuildErrorEventArgs>();
@@ -32,9 +29,16 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemImport();
             t.BuildEngine = engine.Object;
 
-            t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net6.0", null).Should().HaveCount(4);
-            t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net472", null).Should().HaveCount(4);
-            t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), "net48", null).Should().HaveCount(4);
+            foreach (var tfm in new[] { "net6.0", "net8.0", "net481" })
+            {
+                var l = t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), tfm, null);
+                l.Should().HaveCount(1);
+                foreach (var pom in l)
+                {
+                    var d = MavenReferenceItemImport.GetProjectObjectModelFileDependencies(pom).ToList();
+                    d.Should().HaveCount(1);
+                }
+            }
         }
 
     }

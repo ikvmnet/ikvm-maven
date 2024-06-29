@@ -4,16 +4,15 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 
-using IKVM.Maven.Sdk.Tasks.Aether;
+using IKVM.Maven.Sdk.Tasks.Json;
 using IKVM.Maven.Sdk.Tasks.Resources;
 
 using java.util;
 
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
-
-using Newtonsoft.Json;
 
 using org.apache.maven.artifact.resolver;
 using org.apache.maven.artifact.versioning;
@@ -36,21 +35,25 @@ namespace IKVM.Maven.Sdk.Tasks
     public class MavenReferenceItemResolve : Task
     {
 
-        const int CACHE_FILE_VERSION = 2;
+        const int CACHE_FILE_VERSION = 3;
 
-        static readonly JsonSerializer serializer = new()
+        static readonly JsonSerializerOptions serializerOptions = new()
         {
+            PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             Converters =
             {
                 new BooleanConverter(),
+                new ArtifactJsonConverter(),
                 new DefaultArtifactJsonConverter(),
+                new DependencyNodeJsonConverter(),
                 new DefaultDependencyNodeJsonConverter(),
                 new DependencyJsonConverter(),
                 new ExclusionJsonConverter(),
                 new RemoteRepositoryJsonConverter(),
                 new VersionJsonConverter(),
                 new VersionConstraintJsonConverter(),
-            }
+            },
+            MaxDepth = 1024,
         };
 
         /// <summary>
@@ -114,10 +117,16 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             if (CacheFile != null && File.Exists(CacheFile))
             {
-                using var stm = File.OpenRead(CacheFile);
-                using var rdr = new StreamReader(stm);
-                using var jsn = new JsonTextReader(rdr);
-                return serializer.Deserialize<MavenResolveCacheFile>(jsn);
+                try
+                {
+                    using var stm = File.OpenRead(CacheFile);
+                    if (stm.Length > 0)
+                        return JsonSerializer.Deserialize<MavenResolveCacheFile>(stm, new JsonSerializerOptions(serializerOptions) { ReferenceHandler = new PreserveReferenceHandler() });
+                }
+                catch (JsonException)
+                {
+                    // ignore, consider file missing
+                }
             }
 
             return null;
@@ -132,9 +141,7 @@ namespace IKVM.Maven.Sdk.Tasks
             if (CacheFile != null)
             {
                 using var stm = File.Create(CacheFile);
-                using var wrt = new StreamWriter(stm);
-                using var jsn = new JsonTextWriter(wrt) { Formatting = Formatting.Indented };
-                serializer.Serialize(jsn, cacheFile);
+                JsonSerializer.Serialize(stm, cacheFile, new JsonSerializerOptions(serializerOptions) { ReferenceHandler = new PreserveReferenceHandler() });
             }
         }
 
@@ -144,7 +151,11 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override bool Execute()
         {
+#if DEBUG
             using var d = SLF4JContextLogger.Enter(new SLF4JMSBuildLoggerProxy(Log, org.slf4j.@event.Level.TRACE));
+#else
+            using var d = SLF4JContextLogger.Enter(new SLF4JMSBuildLoggerProxy(Log, org.slf4j.@event.Level.INFO));
+#endif
 
             try
             {
@@ -239,7 +250,10 @@ namespace IKVM.Maven.Sdk.Tasks
             // convert set of incoming items into a dependency list
             var dependencies = new Dependency[items.Count];
             for (int i = 0; i < items.Count; i++)
-                dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, new java.util.ArrayList());
+            {
+                var exclusions = Arrays.asList(items[i].Exclusions.Select(j => new Exclusion(j.GroupId, j.ArtifactId, j.Classifier, j.Extension)).ToArray());
+                dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, exclusions);
+            }
 
             // check the cache
             var root = ResolveCompileDependencyGraphFromCache(maven, dependencies);

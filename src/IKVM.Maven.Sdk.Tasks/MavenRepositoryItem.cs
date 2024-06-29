@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json.Serialization;
 
 namespace IKVM.Maven.Sdk.Tasks
 {
@@ -36,13 +34,13 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <summary>
         /// ID of the repository.
         /// </summary>
-        [JsonProperty("id")]
+        [JsonPropertyName("id")]
         public string Id { get; set; }
 
         /// <summary>
         /// URL of the repository.
         /// </summary>
-        [JsonProperty("url")]
+        [JsonPropertyName("url")]
         public string Url { get; set; }
 
         public override bool Equals(object obj)

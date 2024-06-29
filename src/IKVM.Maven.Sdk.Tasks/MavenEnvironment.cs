@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
+using IKVM.Maven.Sdk.Tasks.Extensions;
+
 using java.io;
 using java.lang;
 using java.util;
@@ -94,10 +96,10 @@ namespace IKVM.Maven.Sdk.Tasks
         const string SettingsSecurityXml = "settings-security.xml";
         const string DefaultRepositoryType = "default";
 
-        static readonly string DefaultRepositoryPath = Path.Combine(java.lang.System.getProperty("user.home"), ".m2");
+        static readonly string UserHome = Path.Combine(java.lang.System.getProperty("user.home"), ".m2");
 
         readonly TaskLoggingHelper log;
-        readonly string repositoryPath;
+        readonly string userHome;
         readonly Settings settings;
         readonly RepositorySystem repositorySystem;
         readonly List repositories;
@@ -113,10 +115,10 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(repositories));
 
             this.log = log ?? throw new ArgumentNullException(nameof(log));
-            this.repositoryPath = DefaultRepositoryPath;
+            this.userHome = UserHome;
             this.settings = ReadSettings() ?? throw new NullReferenceException("Null result reading Settings.");
             this.repositorySystem = CreateRepositorySystem() ?? throw new NullReferenceException("Null result creating RepositorySystem.");
-            this.repositories = Arrays.asList(repositories.Select(i => CreateRepository(i)).ToArray());
+            this.repositories = CreateRemoteRepositories(repositories, log);
         }
 
         /// <summary>
@@ -150,28 +152,32 @@ namespace IKVM.Maven.Sdk.Tasks
         Settings ReadSettings()
         {
             var request = new DefaultSettingsBuildingRequest();
-            request.setUserSettingsFile(new File(Path.Combine(repositoryPath, SettingsXml)));
+            request.setUserSettingsFile(new File(Path.Combine(userHome, SettingsXml)));
 
             var builder = new DefaultSettingsBuilderFactory().newInstance();
             var settingsResult = builder.build(request);
             if (settingsResult.getProblems() is List settingsProblem)
-                for (var i = settingsProblem.iterator(); i.hasNext();)
-                    HandleSettingsProblem((SettingsProblem)i.next());
+                foreach (var i in settingsProblem.AsEnumerable<SettingsProblem>())
+                    HandleSettingsProblem(i);
 
             // get currently effective settings
             var settings = settingsResult.getEffectiveSettings();
 
             // use settings-security.xml to decrypt loaded settings
-            var secDispatcher = new SecDispatcher(Path.Combine(repositoryPath, SettingsSecurityXml));
-            var secDecrypter = new DefaultSettingsDecrypter(secDispatcher);
-            var secResult = secDecrypter.decrypt(new DefaultSettingsDecryptionRequest(settings));
-            if (secResult.getProblems() is List secProblems)
-                for (var i = secProblems.iterator(); i.hasNext();)
-                    HandleSettingsProblem((SettingsProblem)i.next());
+            var securityFile = Path.Combine(userHome, SettingsSecurityXml);
+            if (System.IO.File.Exists(securityFile))
+            {
+                var secDispatcher = new SecDispatcher(securityFile);
+                var secDecrypter = new DefaultSettingsDecrypter(secDispatcher);
+                var secResult = secDecrypter.decrypt(new DefaultSettingsDecryptionRequest(settings));
+                if (secResult.getProblems() is List secProblems)
+                    foreach (var i in secProblems.AsEnumerable<SettingsProblem>())
+                        HandleSettingsProblem(i);
 
-            // apply decrypted settings
-            settings.setServers(secResult.getServers());
-            settings.setProxies(secResult.getProxies());
+                // apply decrypted settings
+                settings.setServers(secResult.getServers());
+                settings.setProxies(secResult.getProxies());
+            }
 
             return settings;
         }
@@ -184,8 +190,8 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             if (settings.getLocalRepository() != null)
                 return new File(settings.getLocalRepository());
-
-            return new File(Path.Combine(DefaultRepositoryPath, "repository"));
+            else
+                return new File(Path.Combine(UserHome, "repository"));
         }
 
         /// <summary>
@@ -210,10 +216,15 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultProxySelector();
 
-            foreach (org.apache.maven.settings.Proxy proxy in (IEnumerable)settings.getProxies())
+            foreach (var proxy in settings.getProxies().AsList<org.apache.maven.settings.Proxy>())
             {
+                // build authentication information from server record
                 var builder = new AuthenticationBuilder();
-                builder.addUsername(proxy.getUsername()).addPassword(proxy.getPassword());
+                if (proxy.getUsername() is string username)
+                    builder.addUsername(username);
+                if (proxy.getPassword() is string password)
+                    builder.addPassword(password);
+
                 selector.add(new org.eclipse.aether.repository.Proxy(proxy.getProtocol(), proxy.getHost(), proxy.getPort(), builder.build()), proxy.getNonProxyHosts());
             }
 
@@ -228,7 +239,7 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultMirrorSelector();
 
-            foreach (Mirror mirror in (IEnumerable)settings.getMirrors())
+            foreach (var mirror in settings.getMirrors().AsList<Mirror>())
                 selector.add(mirror.getId(), mirror.getUrl(), mirror.getLayout(), false, false, mirror.getMirrorOf(), mirror.getMirrorOfLayouts());
 
             return selector;
@@ -242,11 +253,18 @@ namespace IKVM.Maven.Sdk.Tasks
         {
             var selector = new DefaultAuthenticationSelector();
 
-            foreach (Server server in (IEnumerable)settings.getServers())
+            foreach (var server in settings.getServers().AsList<Server>())
             {
+                // build authentication information from server record
                 var builder = new AuthenticationBuilder();
-                builder.addUsername(server.getUsername()).addPassword(server.getPassword());
-                builder.addPrivateKey(server.getPrivateKey(), server.getPassphrase());
+                if (server.getUsername() is string username)
+                    builder.addUsername(username);
+                if (server.getPassword() is string password)
+                    builder.addPassword(password);
+                if (server.getPrivateKey() is string privateKey)
+                    builder.addPrivateKey(privateKey, server.getPassphrase());
+
+                // add server to selector
                 selector.add(server.getId(), builder.build());
             }
 
@@ -269,16 +287,75 @@ namespace IKVM.Maven.Sdk.Tasks
             session.setTransferListener(new MavenTransferListener(log, noError));
             session.setRepositoryListener(new MavenRepositoryListener(log));
             session.setConfigProperty(ConflictResolver.CONFIG_PROP_VERBOSE, "true");
+            session.setSystemProperty("java.version", java.lang.System.getProperty("java.version") ?? "1.8");
+            session.setOffline(settings.isOffline());
             return session;
         }
 
         /// <summary>
-        /// Creates a new <see cref="ArtifactRepository"/> representing Maven Central.
+        /// Creates the set of remote repositories, along with any specified imported repositories.
         /// </summary>
+        /// <param name="import"></param>
+        /// <param name="log"></param>
         /// <returns></returns>
-        ArtifactRepository CreateRepository(MavenRepositoryItem repository)
+        List CreateRemoteRepositories(IList<MavenRepositoryItem> import, TaskLoggingHelper log)
         {
-            return new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url).build();
+            var map = new Dictionary<string, RemoteRepository.Builder>();
+            var profiles = settings.getProfilesAsMap().AsDictionary<string, Profile>();
+            var activeProfiles = settings.getActiveProfiles().AsList<string>();
+
+            // import profile repositories
+            foreach (var profileId in activeProfiles)
+                if (profiles.TryGetValue(profileId, out var profile))
+                    foreach (var repository in profile.getRepositories().AsList<Repository>())
+                        map[repository.getId()] = new RemoteRepository.Builder(repository.getId(), DefaultRepositoryType, repository.getUrl());
+
+            // override repository with imports
+            foreach (var repository in import)
+                map[repository.Id] = new RemoteRepository.Builder(repository.Id, DefaultRepositoryType, repository.Url);
+
+            // merge profile settings
+            foreach (var profileId in activeProfiles)
+            {
+                if (profiles.TryGetValue(profileId, out var profile))
+                {
+                    foreach (var repository in profile.getRepositories().AsList<Repository>())
+                    {
+                        if (map.TryGetValue(repository.getId(), out var builder) == false)
+                            continue;
+
+                        var releases = repository.getReleases();
+                        if (releases != null)
+                            builder.setPolicy(new org.eclipse.aether.repository.RepositoryPolicy(releases.isEnabled(), releases.getUpdatePolicy(), releases.getChecksumPolicy()));
+
+                        var snapshots = repository.getSnapshots();
+                        if (snapshots != null)
+                            builder.setSnapshotPolicy(new org.eclipse.aether.repository.RepositoryPolicy(snapshots.isEnabled(), snapshots.getUpdatePolicy(), snapshots.getChecksumPolicy()));
+                    }
+                }
+            }
+
+            // merge server settings
+            foreach (var server in settings.getServers().AsList<Server>())
+            {
+                if (map.TryGetValue(server.getId(), out var r) == false)
+                    continue;
+
+                // build authentication information from server record
+                var builder = new AuthenticationBuilder();
+                if (server.getUsername() is string username)
+                    builder.addUsername(username);
+                if (server.getPassword() is string password)
+                    builder.addPassword(password);
+                if (server.getPrivateKey() is string privateKey)
+                    builder.addPrivateKey(privateKey, server.getPassphrase());
+
+                // set authentication on repository
+                r.setAuthentication(builder.build());
+            }
+
+            // build final list of repositories
+            return Arrays.asList(map.Values.Select(i => i.build()).ToArray());
         }
 
     }

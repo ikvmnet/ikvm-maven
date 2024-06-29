@@ -75,31 +75,31 @@ namespace IKVM.Maven.Sdk.Tasks
         void AssignMetadata(MavenReferenceItem item)
         {
             if (string.IsNullOrWhiteSpace(item.ItemSpec) == false)
-            {
-                var a = item.ItemSpec.Split(':');
-                if (a.Length is 2 or 3)
                 {
-                    // itemspec may set various properties
-                    var groupId = a[0];
-                    var artifactId = a[1];
-                    var version = a.Length >= 3 ? a[2] : null;
+                    var a = item.ItemSpec.Split(':');
+                    if (a.Length is 2 or 3)
+                    {
+                        // itemspec may set various properties
+                        var groupId = a[0];
+                        var artifactId = a[1];
+                        var version = a.Length >= 3 ? a[2] : null;
 
-                    // if the itemspec is parsable as coordinates, we should attempt to apply or validate metadata
-                    if (string.IsNullOrWhiteSpace(item.GroupId))
-                        item.GroupId = groupId;
-                    else if (item.GroupId != groupId)
-                        throw new MavenTaskMessageException("Error.MavenInvalidGroupId", item.ItemSpec);
+                        // if the itemspec is parsable as coordinates, we should attempt to apply or validate metadata
+                        if (string.IsNullOrWhiteSpace(item.GroupId))
+                            item.GroupId = groupId;
+                        else if (item.GroupId != groupId)
+                            throw new MavenTaskMessageException("Error.MavenInvalidGroupId", item.ItemSpec);
 
-                    if (string.IsNullOrWhiteSpace(item.ArtifactId))
-                        item.ArtifactId = artifactId;
-                    else if (item.ArtifactId != artifactId)
-                        throw new MavenTaskMessageException("Error.MavenInvalidArtifactId", item.ItemSpec);
+                        if (string.IsNullOrWhiteSpace(item.ArtifactId))
+                            item.ArtifactId = artifactId;
+                        else if (item.ArtifactId != artifactId)
+                            throw new MavenTaskMessageException("Error.MavenInvalidArtifactId", item.ItemSpec);
 
-                    if (string.IsNullOrWhiteSpace(item.Version))
-                        item.Version = version;
-                    else if (version != null && item.Version != version)
-                        throw new MavenTaskMessageException("Error.MavenInvalidVersion", item.ItemSpec);
-                }
+                        if (string.IsNullOrWhiteSpace(item.Version))
+                            item.Version = version;
+                        else if (version != null && item.Version != version)
+                            throw new MavenTaskMessageException("Error.MavenInvalidVersion", item.ItemSpec);
+                    }
             }
 
             if (string.IsNullOrWhiteSpace(item.GroupId))

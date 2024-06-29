@@ -145,17 +145,9 @@ namespace IKVM.Maven.Sdk.Tasks
         /// isolated AppDomain so as to not conflict with locally loaded versions of NuGet.
         /// </summary>
         /// <returns></returns>
-        DisposableValue<NuGetApi> GetNuGetApi()
+        static DisposableValue<NuGetApi> GetNuGetApi()
         {
-#if NETFRAMEWORK_
-            var appDomainSetup = new AppDomainSetup();
-            appDomainSetup.ApplicationBase = Path.GetDirectoryName(typeof(NuGetApi).Assembly.Location);
-            var appDomain = AppDomain.CreateDomain("IKVM.Maven.Sdk.Tasks", null, appDomainSetup);
-            var api = (NuGetApi)appDomain.CreateInstanceAndUnwrap(typeof(NuGetApi).Assembly.FullName, typeof(NuGetApi).FullName);
-            return new DisposableValue<NuGetApi>(api, () => AppDomain.Unload(appDomain));
-#else
             return new DisposableValue<NuGetApi>(new NuGetApi(), null);
-#endif
         }
 
         /// <summary>

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using System.Linq;
 
 using org.eclipse.aether.util.artifact;
 
@@ -12,7 +9,6 @@ namespace IKVM.Maven.Sdk.Tasks
     /// <summary>
     /// Models the required data of a <see cref="MavenReferenceItem"/>.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     class MavenReferenceItem : IEquatable<MavenReferenceItem>
     {
 
@@ -52,10 +48,16 @@ namespace IKVM.Maven.Sdk.Tasks
         public string Scope { get; set; } = JavaScopes.COMPILE;
 
         /// <summary>
+        /// Gets the exclusions of this reference.
+        /// </summary>
+        public MavenReferenceItemExclusion[] Exclusions { get; set; }
+
+        /// <summary>
         /// Originator of the reference item.
         /// </summary>
         public string ReferenceSource { get; set; }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             return Equals(obj as MavenReferenceItem);
@@ -76,6 +78,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 Version == other.Version &&
                 Optional == other.Optional &&
                 Scope == other.Scope &&
+                Enumerable.SequenceEqual(Exclusions, Exclusions) &&
                 ReferenceSource == other.ReferenceSource;
         }
 
@@ -85,16 +88,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override int GetHashCode()
         {
-            int hashCode = 1928079503;
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ItemSpec);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(GroupId);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ArtifactId);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Classifier);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Version);
-            hashCode = hashCode * -1521134295 + Optional.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Scope);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(ReferenceSource);
-            return hashCode;
+            return HashCode.Combine(HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope, Exclusions), ReferenceSource);
         }
 
         /// <summary>
