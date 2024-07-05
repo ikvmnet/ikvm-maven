@@ -10,18 +10,21 @@
     </PropertyGroup>
 
     <PropertyGroup>
+        <MSBuildRuntimeVersion Condition=" '$(MSBuildRuntimeVersion)' == '' ">$([System.Runtime.InteropServices.RuntimeInformation]:: FrameworkDescription.ToString())</MSBuildRuntimeVersion>
         <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' ">net6.0</IkvmMavenSdkTaskFolder>
+        <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' And $(MSBuildRuntimeVersion.StartsWith('.NET 8')) ">net8.0</IkvmMavenSdkTaskFolder>
+        <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' == 'Core' And $(MSBuildRuntimeVersion.StartsWith('.NET 9')) ">net8.0</IkvmMavenSdkTaskFolder>
         <IkvmMavenSdkTaskFolder Condition=" '$(MSBuildRuntimeType)' != 'Core' ">net472</IkvmMavenSdkTaskFolder>
-        <IkvmMavenSdkTaskFactory Condition=" '$(MSBuildRuntimeType)' == 'Core' ">TaskHostFactory</IkvmMavenSdkTaskFactory>
+        <IkvmMavenSdkTaskFactory Condition=" '$(MSBuildRuntimeType)' == 'Core' "></IkvmMavenSdkTaskFactory>
         <IkvmMavenSdkTaskFactory Condition=" '$(MSBuildRuntimeType)' != 'Core' ">TaskHostFactory</IkvmMavenSdkTaskFactory>
         <IkvmMavenSdkTaskAssembly>$(IkvmMavenSdkDir)tasks\$(IkvmMavenSdkTaskFolder)\IKVM.Maven.Sdk.Tasks.dll</IkvmMavenSdkTaskAssembly>
     </PropertyGroup>
 
-    <UsingTask TaskName="MavenReferenceItemImport" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
-    <UsingTask TaskName="MavenReferenceItemPrepare" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
-    <UsingTask TaskName="MavenReferenceItemResolve" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
-    <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
-    <UsingTask TaskName="MavenWriteProjectObjectModelFile" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" />
+    <UsingTask TaskName="MavenReferenceItemImport" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" Condition="Exists('$(IkvmMavenSdkTaskAssembly)')" />
+    <UsingTask TaskName="MavenReferenceItemPrepare" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" Condition="Exists('$(IkvmMavenSdkTaskAssembly)')" />
+    <UsingTask TaskName="MavenReferenceItemResolve" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" Condition="Exists('$(IkvmMavenSdkTaskAssembly)')" />
+    <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" Condition="Exists('$(IkvmMavenSdkTaskAssembly)')" />
+    <UsingTask TaskName="MavenWriteProjectObjectModelFile" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" Condition="Exists('$(IkvmMavenSdkTaskAssembly)')" />
 
     <ItemDefinitionGroup>
         <MavenReference>

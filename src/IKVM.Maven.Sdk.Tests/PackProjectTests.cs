@@ -40,6 +40,8 @@ namespace IKVM.Maven.Sdk.Tests
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
                 return;
 
+            Environment.SetEnvironmentVariable("MSBUILDDEBUGONSTART", "1");
+
             // properties to load into test build
             Properties = File.ReadAllLines("IKVM.Maven.Sdk.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
 
@@ -57,8 +59,11 @@ namespace IKVM.Maven.Sdk.Tests
 
             // other required sub directories
             NuGetPackageRoot = Path.Combine(TempRoot, "nuget", "packages");
+            Directory.CreateDirectory(NuGetPackageRoot);
             IkvmCachePath = Path.Combine(TempRoot, "ikvm", "cache");
+            Directory.CreateDirectory(IkvmCachePath);
             IkvmExportCachePath = Path.Combine(TempRoot, "ikvm", "expcache");
+            Directory.CreateDirectory(IkvmExportCachePath);
 
             // nuget.config file that defines package sources
             new XDocument(
