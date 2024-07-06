@@ -10,8 +10,6 @@ using Buildalyzer.Environment;
 
 using FluentAssertions;
 
-using Microsoft.Build.Framework;
-using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace IKVM.Maven.Sdk.Tests
@@ -39,8 +37,6 @@ namespace IKVM.Maven.Sdk.Tests
             // skip tests for non-Windows platforms, since our project produces Framework output
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
                 return;
-
-            Environment.SetEnvironmentVariable("MSBUILDDEBUGONSTART", "1");
 
             // properties to load into test build
             Properties = File.ReadAllLines("IKVM.Maven.Sdk.Tests.properties").Select(i => i.Split('=', 2)).ToDictionary(i => i[0], i => i[1]);
