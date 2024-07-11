@@ -47,13 +47,6 @@
             <PublishPackagePath>tasks\net6.0</PublishPackagePath>
             <Pack>true</Pack>
         </PublishProjectReference>
-        <PublishProjectReference Include="..\IKVM.Maven.Sdk.Tasks\IKVM.Maven.Sdk.Tasks.csproj">
-            <SetTargetFramework>TargetFramework=net8.0</SetTargetFramework>
-            <PublishTargetPath Condition=" '$(TargetFramework)' == 'net8.0' ">tasks</PublishTargetPath>
-            <CopyToOutputDirectory Condition=" '$(TargetFramework)' == 'net8.0' ">PreserveNewest</CopyToOutputDirectory>
-            <PublishPackagePath>tasks\net8.0</PublishPackagePath>
-            <Pack>true</Pack>
-        </PublishProjectReference>
     </ItemGroup>
 
     <Target Name="MakeGeneratedPropsFile" Outputs="$(IntermediateOutputPath)generated.props" BeforeTargets="_GetPackageFiles">
