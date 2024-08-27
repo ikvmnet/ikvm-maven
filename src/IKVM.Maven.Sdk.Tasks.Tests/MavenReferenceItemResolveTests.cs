@@ -545,7 +545,9 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var pkg1 = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.commons:commons-text:1.11.0");
             pkg1.GetMetadata("References").Split(';').Should().Contain("maven$org.apache.commons:commons-lang3:3.13.0");
             var pkg2 = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.commons:commons-lang3:3.13.0");
-            pkg2.GetMetadata("References").Split(';').Should().Contain("maven$org.apache.commons:commons-text:1.11.0");
+
+            // we break the circle so we can actually build them
+            pkg2.GetMetadata("References").Split(';').Should().NotContain("maven$org.apache.commons:commons-text:1.11.0");
         }
 
         [TestMethod]
