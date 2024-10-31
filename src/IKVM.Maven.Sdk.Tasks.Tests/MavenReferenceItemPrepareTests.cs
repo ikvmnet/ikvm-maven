@@ -161,7 +161,6 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             i2.GetMetadata(MavenReferenceItemMetadata.ArtifactId).Should().Be("foo");
             i2.GetMetadata(MavenReferenceItemMetadata.Version).Should().Be("1.0");
             i2.GetMetadata(MavenReferenceItemMetadata.Classifier).Should().Be("cls");
-
         }
 
     }

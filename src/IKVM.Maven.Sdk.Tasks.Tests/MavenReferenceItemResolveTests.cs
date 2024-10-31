@@ -551,6 +551,38 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
+        public void CanResolveCircularDependency2()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.openrewrite:rewrite-java-8:8.35.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.openrewrite");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "rewrite-java-8");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "8.35.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            var pkg1 = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.commons:commons-text:1.11.0");
+            pkg1.GetMetadata("References").Split(';').Should().Contain("maven$org.apache.commons:commons-lang3:3.13.0");
+            var pkg2 = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.commons:commons-lang3:3.13.0");
+
+            // we break the circle so we can actually build them
+            pkg2.GetMetadata("References").Split(';').Should().NotContain("maven$org.apache.commons:commons-text:1.11.0");
+        }
+
+        [TestMethod]
         public void CanResolveFromLocalRepository()
         {
             var cacheFile = Path.GetTempFileName();
