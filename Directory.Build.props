@@ -5,7 +5,6 @@
 
     <ItemGroup>
         <Authors Include="Jerome Haltom" />
-        <Authors Include="Shad Storhaug" />
     </ItemGroup>
 
     <PropertyGroup Label="Copyright Info">
