@@ -35,6 +35,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Install Mono
+      run: |
+        sudo apt-get update && \
+        sudo apt-get install -y mono-runtime mono-devel
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v3
       with:
