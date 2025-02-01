@@ -43,8 +43,6 @@ jobs:
         versionSpec: 5.x
     - name: Execute GitVersion
       uses: gittools/actions/gitversion/execute@v3
-      with:
-        useConfigFile: true
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
@@ -291,14 +289,12 @@ jobs:
       with:
         dotnet-version: 7.0.x
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v1
+      uses: gittools/actions/gitversion/setup@v3
       with:
         versionSpec: 5.x
     - name: Execute GitVersion
       id: GitVersion
-      uses: gittools/actions/gitversion/execute@v1
-      with:
-        useConfigFile: true
+      uses: gittools/actions/gitversion/execute@v3
     - name: Download NuGet Packages
       uses: actions/download-artifact@v4
       with:
