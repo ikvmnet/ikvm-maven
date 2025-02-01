@@ -45,7 +45,6 @@ jobs:
       uses: gittools/actions/gitversion/execute@v3
       with:
         useConfigFile: true
-        configFilePath: GitVersion.yml
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
