@@ -8,7 +8,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="IKVM" Version="8.10.3" />
         <PackageReference Include="IKVM" Version="8.11.0" />
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.1" />
         <PackageReference Include="Microsoft.Build" Version="16.9.0" PrivateAssets="All" />
