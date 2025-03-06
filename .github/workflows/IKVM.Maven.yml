@@ -35,6 +35,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Setup .NET 9.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
     - name: Install Mono
       run: |
         sudo apt-get update && \
@@ -109,6 +113,7 @@ jobs:
         sys:
         - win-x64
         - linux-x64
+        - linux-arm64
         - osx-x64
         - osx-arm64
         tfm:
@@ -116,9 +121,12 @@ jobs:
         - net6.0
         - net7.0
         - net8.0
+        - net9.0
         exclude:
         - tfm: net48
           sys: linux-x64
+        - tfm: net48
+          sys: linux-arm64
         - tfm: net48
           sys: osx-x64
         - tfm: net48
@@ -131,7 +139,7 @@ jobs:
     timeout-minutes: 240
     needs:
     - build
-    runs-on: ${{ fromJSON('{"win-x64":["windows-2022"],"linux-x64":["ubuntu-22.04"],"osx-x64":["macos-13"],"osx-arm64":["macos-14"]}')[matrix.sys] }}
+    runs-on: ${{ fromJSON('{"win-x86":["windows-2022"],"win-x64":["windows-2022"],"linux-x64":["ubuntu-22.04"],"linux-arm64":["ubuntu-22.04-arm"],"osx-x64":["macos-13"],"osx-arm64":["macos-14"]}')[matrix.sys] }}
     steps:
     - name: Free Disk Space (Linux)
       if: runner.os == 'Linux'
@@ -180,6 +188,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
+    - name: Setup .NET 9.0
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
@@ -275,10 +287,10 @@ jobs:
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
-    - name: Setup .NET 7.0
+    - name: Setup .NET 9.0
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 7.0.x
+        dotnet-version: 9.0.x
     - name: Install GitVersion
       uses: gittools/actions/gitversion/setup@v3
       with:
