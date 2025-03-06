@@ -158,5 +158,15 @@ namespace IKVM.Maven.Sdk.Tasks.Resources {
                 return ResourceManager.GetString("Error.MavenTransferFailed", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to MAVEN0012: Cyclic reference detected from &apos;{0}&apos; to &apos;{1}&apos;.
+        ///.
+        /// </summary>
+        internal static string Warning_MavenIgnoreCyclicReference {
+            get {
+                return ResourceManager.GetString("Warning.MavenIgnoreCyclicReference", resourceCulture);
+            }
+        }
     }
 }

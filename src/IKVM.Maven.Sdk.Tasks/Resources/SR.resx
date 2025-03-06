@@ -150,4 +150,7 @@
   <data name="Error.MavenTransferFailed" xml:space="preserve">
     <value>MAVEN0011: Transfer failed from '{0}'.</value>
   </data>
+  <data name="Warning.MavenIgnoreCyclicReference" xml:space="preserve">
+    <value>MAVEN0012: Cyclic reference detected from '{0}' to '{1}'.</value>
+  </data>
 </root>
