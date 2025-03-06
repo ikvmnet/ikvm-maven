@@ -178,21 +178,53 @@ jobs:
       shell: pwsh
       run: choco install procdump -y; Add-Content $env:GITHUB_PATH "$env:ProgramData\chocolatey\bin\"
     - name: Setup .NET 6.0
+      if: matrix.sys != 'win-x86'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
     - name: Setup .NET 7.0
+      if: matrix.sys != 'win-x86'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
     - name: Setup .NET 8.0
+      if: matrix.sys != 'win-x86'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
     - name: Setup .NET 9.0
+      if: matrix.sys != 'win-x86'
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 9.0.x
+    - name: Setup .NET 6.0
+      if: matrix.sys == 'win-x86'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 6.0.x
+      env:
+        PROCESSOR_ARCHITECTURE: x86
+    - name: Setup .NET 7.0
+      if: matrix.sys == 'win-x86'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 7.0.x
+      env:
+        PROCESSOR_ARCHITECTURE: x86
+    - name: Setup .NET 8.0
+      if: matrix.sys == 'win-x86'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+      env:
+        PROCESSOR_ARCHITECTURE: x86
+    - name: Setup .NET 9.0
+      if: matrix.sys == 'win-x86'
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+      env:
+        PROCESSOR_ARCHITECTURE: x86
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
