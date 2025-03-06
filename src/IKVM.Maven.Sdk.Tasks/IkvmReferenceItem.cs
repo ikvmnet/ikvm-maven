@@ -114,6 +114,9 @@ namespace IKVM.Maven.Sdk.Tasks
         /// </summary>
         public string MavenVersion { get; set; }
 
+        /// <inheritdoc />
+        public override string ToString() => ItemSpec;
+
     }
 
 }

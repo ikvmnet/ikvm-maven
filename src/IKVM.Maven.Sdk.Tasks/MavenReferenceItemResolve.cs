@@ -210,6 +210,7 @@ namespace IKVM.Maven.Sdk.Tasks
             // walk the full dependency graph to generate items and their references
             var output = new Dictionary<string, IkvmReferenceItem>();
             CollectIkvmReferenceItems(output, graph, new HashSet<DependencyNode>());
+            RemoveCircularReferences(output.Values);
 
             // resolve compile and runtime items and ensure they are copied
             var privateScopes = new List<string>() { JavaScopes.RUNTIME };
@@ -226,6 +227,40 @@ namespace IKVM.Maven.Sdk.Tasks
                 ikvmItem.ReferenceOutputAssembly = true;
 
             return output.Values;
+        }
+
+        /// <summary>
+        /// Removes circular dependencies and outputs a warning. IKVM should still build these since it supports dynamic lookup.
+        /// </summary>
+        /// <param name="items"></param>
+        void RemoveCircularReferences(IReadOnlyCollection<IkvmReferenceItem> items)
+        {
+            RemoveCircularReferences(items, new HashSet<IkvmReferenceItem>());
+        }
+
+        /// <summary>
+        /// Removes circular dependencies and outputs a warning. IKVM should still build these since it supports dynamic lookup.
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="stack"></param>
+        void RemoveCircularReferences(IReadOnlyCollection<IkvmReferenceItem> items, HashSet<IkvmReferenceItem> stack)
+        {
+            foreach (var item in items)
+            {
+                // register this item as encountered
+                stack.Add(item);
+
+                // remove any items we have already encountered higher in the tree
+                foreach (var i in stack)
+                    if (item.References.Remove(i))
+                        Log.LogWarningFromResources("Warning.MavenIgnoreCyclicReference", item.ItemSpec, i.ItemSpec);
+
+                // recurse into references
+                RemoveCircularReferences(item.References, stack);
+
+                // unregister this item as encountered
+                stack.Remove(item);
+            }
         }
 
         /// <summary>
@@ -487,7 +522,7 @@ namespace IKVM.Maven.Sdk.Tasks
             // if we've got an actual item, traverse it's dependencies to assign references
             if (ikvmItem != null)
                 foreach (var ikvmReference in CollectIkvmReferenceItemReferences(output, node, new HashSet<DependencyNode>()))
-                    if (ikvmItem.References.Contains(ikvmReference) == false)
+                    if (ikvmItem != ikvmReference && ikvmItem.References.Contains(ikvmReference) == false)
                         ikvmItem.References.Add(ikvmReference);
         }
 

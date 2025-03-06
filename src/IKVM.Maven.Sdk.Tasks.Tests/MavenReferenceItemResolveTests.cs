@@ -533,10 +533,42 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.CacheFile = cacheFile;
             t.Repositories = new[] { GetCentralRepositoryItem() };
 
-            var i1 = new TaskItem("org.apache.commons:commons-text:1.11.0");
+            var i1 = new TaskItem("org.apache.commons:commons-text:1.13.0");
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.commons");
             i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "commons-text");
-            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.11.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.13.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            var pkg1 = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.commons:commons-text:1.13.0");
+            pkg1.GetMetadata("References").Split(';').Should().Contain("maven$org.apache.commons:commons-lang3:3.17.0");
+            var pkg2 = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.apache.commons:commons-lang3:3.17.0");
+
+            // we break the circle so we can actually build them
+            pkg2.GetMetadata("References").Split(';').Should().NotContain("maven$org.apache.commons:commons-text:1.13.0");
+        }
+
+        [TestMethod]
+        public void CanResolveCircularDependency2()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.calcite:calcite-core:1.38.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.calcite");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "calcite-core");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.38.0");
             i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
             t.References = new[] { i1 };
 
