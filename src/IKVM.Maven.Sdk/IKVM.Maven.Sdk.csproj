@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.11.1" />
+        <PackageReference Include="IKVM" Version="8.12.0-dev.53" />
     </ItemGroup>
 
     <ItemGroup>
