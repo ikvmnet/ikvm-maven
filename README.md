@@ -6,7 +6,7 @@ To use, install the `IKVM.Maven.Sdk` package from NuGet, and add a `<MavenRefere
 
 The simplest use case is to specify the group ID and artifact ID coordinates on the item specification, and use `Version` for the metadata.
 
-```
+```xml
 <ItemGroup>
     <MavenReference Include="org.foo.bar:foo-lib" Version="1.2.3" />
 </ItemGroup>
@@ -14,7 +14,7 @@ The simplest use case is to specify the group ID and artifact ID coordinates on 
 
 Optionally, use an arbitrary value for the item specification, and explicitely specify information through metadata:
 
-```
+```xml
 <ItemGroup>
     <MavenReference Include="foo-lib">
         <GroupId>org.foo.bar</GroupId>
