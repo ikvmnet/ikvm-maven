@@ -19,7 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\IKVM.Maven.Sdk.Tasks.Java\IKVM.Maven.Sdk.Tasks.Java.csproj" />
+        <ProjectReference Include="..\IKVM.Maven.Sdk.Tasks.Java\IKVM.Maven.Sdk.Tasks.Java.msbuildproj" />
     </ItemGroup>
 
     <ItemGroup>
