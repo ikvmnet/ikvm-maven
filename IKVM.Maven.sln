@@ -32,7 +32,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dist-nuget", "src\dist-nuge
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "dist-tests", "src\dist-tests\dist-tests.csproj", "{7CF45054-BD9C-4874-8A4B-3C2BE86FDB25}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7557}") = "IKVM.Maven.Sdk.Tasks.Java", "src\IKVM.Maven.Sdk.Tasks.Java\IKVM.Maven.Sdk.Tasks.Java.msbuildproj", "{45334A6F-F78C-4D95-81F6-7D6E2B8C5798}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IKVM.Maven.Sdk.Tasks.Java", "src\IKVM.Maven.Sdk.Tasks.Java\IKVM.Maven.Sdk.Tasks.Java.msbuildproj", "{45334A6F-F78C-4D95-81F6-7D6E2B8C5798}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
