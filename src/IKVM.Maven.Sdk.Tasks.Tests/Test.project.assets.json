@@ -45,6 +45,21 @@
                 "runtimeTargets": {
                 }
             }
+        },
+        "net8.0-windows7.0": {
+            "HelloTest/1.0": {
+                "type": "package",
+                "dependencies": {
+                },
+                "compile": {
+                },
+                "runtime": {
+                },
+                "build": {
+                },
+                "runtimeTargets": {
+                }
+            }
         }
     },
     "libraries": {
@@ -133,6 +148,32 @@
             },
             "net8.0": {
                 "targetAlias": "net8.0",
+                "dependencies": {
+                    "HelloTest": {
+                        "target": "Package",
+                        "version": "[1.0, )"
+                    }
+                },
+                "imports": [
+                    "net461",
+                    "net462",
+                    "net47",
+                    "net471",
+                    "net472",
+                    "net48",
+                    "net481"
+                ],
+                "assetTargetFallback": true,
+                "warn": true,
+                "frameworkReferences": {
+                    "Microsoft.NETCore.App": {
+                        "privateAssets": "all"
+                    }
+                },
+                "runtimeIdentifierGraphPath": ""
+            },
+            "net8.0-windows7.0": {
+                "targetAlias": "net8.0-windows",
                 "dependencies": {
                     "HelloTest": {
                         "target": "Package",
