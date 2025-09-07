@@ -60,9 +60,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(targetFramework));
 
             // start with the target being built
-            var target = lockFile.GetTarget(NuGetFramework.Parse(targetFramework), null);
-            if (target == null && lockFile.PackageSpec.TargetFrameworks.All(tfi => string.IsNullOrEmpty(tfi.TargetAlias)))
-                target = lockFile.GetTarget(NuGetFramework.Parse(targetFramework), null);
+            var target = lockFile.GetTarget(targetFramework, null);
             if (target == null)
                 yield break;
 

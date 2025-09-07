@@ -29,7 +29,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var t = new MavenReferenceItemImport();
             t.BuildEngine = engine.Object;
 
-            foreach (var tfm in new[] { "net6.0", "net8.0", "net481" })
+            foreach (var tfm in new[] { "net481", "net6.0", "net8.0", "net8.0-windows" })
             {
                 var l = t.GetProjectObjectModelFiles(Path.Combine(binPath, "Test.project.assets.json"), tfm, null);
                 l.Should().HaveCount(1);

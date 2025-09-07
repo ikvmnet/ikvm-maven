@@ -2,13 +2,13 @@
 
     <PropertyGroup>
         <TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
-        <IncludeBuildOutput>true</IncludeBuildOutput>
         <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Description>Java SE 8 Virtual Machine for .NET (Maven SDK)</Description>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
+        <DevelopmentDependency>true</DevelopmentDependency>
     </PropertyGroup>
 
     <PropertyGroup>
@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.11.2" />
+        <PackageReference Include="IKVM" Version="8.13.1" />
     </ItemGroup>
 
     <ItemGroup>
