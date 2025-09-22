@@ -9,6 +9,7 @@
 
     <ItemGroup>
         <PackageReference Include="IKVM" Version="8.13.1" />
+        <PackageReference Include="IKVM" Version="8.13.3" />
         <PackageReference Include="Microsoft.Bcl.HashCode" Version="6.0.0" />
         <PackageReference Include="Microsoft.Build" Version="16.9.0" PrivateAssets="All" />
         <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.9.0" PrivateAssets="All" />
