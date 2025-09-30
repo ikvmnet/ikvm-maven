@@ -44,11 +44,11 @@ jobs:
         sudo apt-get update && \
         sudo apt-get install -y mono-runtime mono-devel
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3
+      uses: gittools/actions/gitversion/setup@v4
       with:
-        versionSpec: 5.x
+        versionSpec: 6.x
     - name: Execute GitVersion
-      uses: gittools/actions/gitversion/execute@v3
+      uses: gittools/actions/gitversion/execute@v4
     - name: Add NuGet Source (GitHub)
       shell: pwsh
       run: dotnet nuget add source --username USERNAME --password $env:GITHUB_TOKEN --store-password-in-clear-text --name ikvm $env:GITHUB_REPOS
@@ -332,12 +332,12 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Install GitVersion
-      uses: gittools/actions/gitversion/setup@v3
+      uses: gittools/actions/gitversion/setup@v4
       with:
-        versionSpec: 5.x
+        versionSpec: 6.x
     - name: Execute GitVersion
       id: GitVersion
-      uses: gittools/actions/gitversion/execute@v3
+      uses: gittools/actions/gitversion/execute@v4
     - name: Download NuGet Packages
       uses: actions/download-artifact@v4
       with:
