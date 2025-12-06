@@ -173,10 +173,10 @@ jobs:
         Add-Content $env:GITHUB_ENV "`nWORKPATH=$dir/work"
         Add-Content $env:GITHUB_ENV "`nTMP=$dir/temp`nTEMP=$dir/temp`nTMPDIR=$dir/temp"
         Add-Content $env:GITHUB_ENV "`nDOTNET_INSTALL_DIR=$dir/dotnet"
-    - name: Install ProcDump
-      if: runner.os == 'Windows'
-      shell: pwsh
-      run: choco install procdump -y; Add-Content $env:GITHUB_PATH "$env:ProgramData\chocolatey\bin\"
+    # - name: Install ProcDump
+    #   if: runner.os == 'Windows'
+    #   shell: pwsh
+    #   run: choco install procdump -y; Add-Content $env:GITHUB_PATH "$env:ProgramData\chocolatey\bin\"
     - name: Setup .NET 6.0
       if: matrix.sys != 'win-x86'
       uses: actions/setup-dotnet@v4
@@ -273,10 +273,10 @@ jobs:
         if ($tests) {
             $argl = @(
                 "-f", $tfm,
-                "--blame",
-                "--blame-hang",
-                "--blame-hang-timeout", "120m",
-                "--blame-hang-dump-type", "full",
+                # "--blame",
+                # "--blame-hang",
+                # "--blame-hang-timeout", "120m",
+                # "--blame-hang-dump-type", "full",
                 "-v:diag",
                 "--results-directory", "TestResults",
                 "--logger:console;verbosity=detailed",
@@ -288,7 +288,7 @@ jobs:
             }
 
             if ($sys -ne "linux-arm64") {
-                $argl += @("--blame-crash")
+                # $argl += @("--blame-crash")
             }
             
             $runsettings = $(gi .\tests\$tst\$tfm\*.runsettings)
