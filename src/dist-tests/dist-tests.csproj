@@ -6,12 +6,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net48" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net48" />
+        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net472" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net472" />
         <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net6.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net6.0" />
-        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net7.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net7.0" />
         <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net8.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net8.0" />
         <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net9.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net9.0" />
-        <TestTarget Include="IKVM.Maven.Sdk.Tests|net8.0" ProjectName="IKVM.Maven.Sdk.Tests" TargetFramework="net8.0" />
+        <TestTarget Include="IKVM.Maven.Sdk.Tasks.Tests|net10.0" ProjectName="IKVM.Maven.Sdk.Tasks.Tests" TargetFramework="net10.0" />
+        <TestTarget Include="IKVM.Maven.Sdk.Tests|net10.0" ProjectName="IKVM.Maven.Sdk.Tests" TargetFramework="net10.0" />
     </ItemGroup>
 
     <!-- Runs once per TFM/RID combination to generate individual output. -->

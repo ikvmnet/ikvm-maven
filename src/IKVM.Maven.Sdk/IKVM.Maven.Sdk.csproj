@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.Build.NoTargets">
 
     <PropertyGroup>
-        <TargetFrameworks>net472;net6.0;net8.0</TargetFrameworks>
+        <TargetFrameworks>net472;net6.0;net8.0;net10.0</TargetFrameworks>
         <NoWarn>$(NoWarn);NU5100;NU5128</NoWarn>
         <IncludeBuildOutput>false</IncludeBuildOutput>
         <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
@@ -20,7 +20,7 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="all" />
-        <PackageReference Include="IKVM" Version="8.14.0" />
+        <PackageReference Include="IKVM" Version="8.15.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,15 +35,15 @@
     <ItemGroup>
         <PublishProjectReference Include="..\IKVM.Maven.Sdk.Tasks\IKVM.Maven.Sdk.Tasks.csproj">
             <SetTargetFramework>TargetFramework=net472</SetTargetFramework>
-            <PublishTargetPath Condition=" '$(TargetFramework)' == 'net472' ">tasks</PublishTargetPath>
-            <CopyToOutputDirectory Condition=" '$(TargetFramework)' == 'net472' ">PreserveNewest</CopyToOutputDirectory>
+            <PublishTargetPath Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net472'))">tasks</PublishTargetPath>
+            <CopyToOutputDirectory Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net472'))">PreserveNewest</CopyToOutputDirectory>
             <PublishPackagePath>tasks\net472</PublishPackagePath>
             <Pack>true</Pack>
         </PublishProjectReference>
         <PublishProjectReference Include="..\IKVM.Maven.Sdk.Tasks\IKVM.Maven.Sdk.Tasks.csproj">
             <SetTargetFramework>TargetFramework=net6.0</SetTargetFramework>
-            <PublishTargetPath Condition=" '$(TargetFramework)' == 'net6.0' ">tasks</PublishTargetPath>
-            <CopyToOutputDirectory Condition=" '$(TargetFramework)' == 'net6.0' ">PreserveNewest</CopyToOutputDirectory>
+            <PublishTargetPath Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">tasks</PublishTargetPath>
+            <CopyToOutputDirectory Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">PreserveNewest</CopyToOutputDirectory>
             <PublishPackagePath>tasks\net6.0</PublishPackagePath>
             <Pack>true</Pack>
         </PublishProjectReference>
