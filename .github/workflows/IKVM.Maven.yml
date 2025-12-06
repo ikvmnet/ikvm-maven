@@ -27,10 +27,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
-    - name: Setup .NET 7.0
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 7.0.x
     - name: Setup .NET 8.0
       uses: actions/setup-dotnet@v4
       with:
@@ -186,11 +182,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
-    - name: Setup .NET 7.0
-      if: matrix.sys != 'win-x86'
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 7.0.x
     - name: Setup .NET 8.0
       if: matrix.sys != 'win-x86'
       uses: actions/setup-dotnet@v4
@@ -211,13 +202,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
-      env:
-        PROCESSOR_ARCHITECTURE: x86
-    - name: Setup .NET 7.0
-      if: matrix.sys == 'win-x86'
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 7.0.x
       env:
         PROCESSOR_ARCHITECTURE: x86
     - name: Setup .NET 8.0
@@ -337,7 +321,7 @@ jobs:
     if: github.event_name != 'pull_request'
     needs:
     - test
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Checkout Source
       uses: actions/checkout@v4
