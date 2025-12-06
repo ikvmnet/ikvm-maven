@@ -114,7 +114,7 @@ namespace IKVM.Maven.Sdk.Tests
 
         public TestContext TestContext { get; set; }
 
-        [DataTestMethod]
+        [TestMethod]
         [DataRow(EnvironmentPreference.Core)]
         [DataRow(EnvironmentPreference.Framework)]
         public void CanPackProject(EnvironmentPreference env)

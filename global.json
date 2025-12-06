@@ -5,7 +5,7 @@
     },
     "msbuild-sdks": {
         "Microsoft.Build.NoTargets": "3.7.134",
-        "MSTest.Sdk": "4.0.2",
+        "MSTest.Sdk": "3.11.1",
         "IKVM.NET.Sdk": "8.15.0"
     }
 }
