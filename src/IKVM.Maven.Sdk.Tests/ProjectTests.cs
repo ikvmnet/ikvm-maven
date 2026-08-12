@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
+using System.Reflection.PortableExecutable;
 using System.Runtime.InteropServices;
 using System.Xml.Linq;
 
@@ -251,6 +253,10 @@ namespace IKVM.Maven.Sdk.Tests
                 File.Exists(Path.Combine(outDir, "xml.apis.dll")).Should().BeFalse();
                 File.Exists(Path.Combine(outDir, "hellotest.dll")).Should().BeTrue();
 
+                // generated assemblies must carry CustomAssemblyClassLoaderAttribute(typeof(AppDomainAssemblyClassLoader))
+                foreach (var asmName in new[] { "maven.core.dll", "maven.model.dll", "org.apache.commons.io.dll", "org.slf4j.dll", "hellotest.dll" })
+                    AssertCustomAssemblyClassLoader(Path.Combine(outDir, asmName), "ikvm.runtime.AppDomainAssemblyClassLoader");
+
                 // ikvm libraries
                 File.Exists(Path.Combine(outDir, "IKVM.Runtime.dll")).Should().BeTrue();
                 File.Exists(Path.Combine(outDir, "IKVM.Java.dll")).Should().BeTrue();
@@ -273,7 +279,48 @@ namespace IKVM.Maven.Sdk.Tests
                 // ikvm image native libraries
                 foreach (var libName in new[] { "awt", "iava", "jvm", "management", "net", "nio", "sunec", "unpack", "verify" })
                     File.Exists(Path.Combine(outDir, "ikvm", rid, "bin", string.Format(lib, libName))).Should().BeTrue();
+
             }
+        }
+
+        static void AssertCustomAssemblyClassLoader(string assemblyPath, string expectedTypeNameSubstring)
+        {
+            using var peReader = new PEReader(File.OpenRead(assemblyPath));
+            var reader = peReader.GetMetadataReader();
+            var assemblyDef = reader.GetAssemblyDefinition();
+
+            foreach (var attrHandle in assemblyDef.GetCustomAttributes())
+            {
+                var attr = reader.GetCustomAttribute(attrHandle);
+
+                // resolve the attribute type name
+                string attrTypeName = null;
+                string attrTypeNamespace = null;
+                if (attr.Constructor.Kind == HandleKind.MemberReference)
+                {
+                    var memberRef = reader.GetMemberReference((MemberReferenceHandle)attr.Constructor);
+                    if (memberRef.Parent.Kind == HandleKind.TypeReference)
+                    {
+                        var typeRef = reader.GetTypeReference((TypeReferenceHandle)memberRef.Parent);
+                        attrTypeName = reader.GetString(typeRef.Name);
+                        attrTypeNamespace = reader.GetString(typeRef.Namespace);
+                    }
+                }
+
+                if (attrTypeNamespace != "IKVM.Attributes" || attrTypeName != "CustomAssemblyClassLoaderAttribute")
+                    continue;
+
+                // The single ctor argument is a System.Type, serialised in the blob as a SerString.
+                // Blob layout: prolog (01 00) | SerString (compressed-length + UTF-8 bytes) | named-arg count (00 00)
+                var blobReader = reader.GetBlobReader(attr.Value);
+                blobReader.ReadInt16(); // skip prolog 0x0001
+                var typeArg = blobReader.ReadSerializedString();
+
+                typeArg.Should().Contain(expectedTypeNameSubstring, $"{Path.GetFileName(assemblyPath)} CustomAssemblyClassLoaderAttribute type argument should contain '{expectedTypeNameSubstring}'");
+                return;
+            }
+
+            Assert.Fail($"{Path.GetFileName(assemblyPath)} is missing CustomAssemblyClassLoaderAttribute");
         }
 
     }
