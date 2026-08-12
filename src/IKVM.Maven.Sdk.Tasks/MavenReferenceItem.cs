@@ -83,9 +83,23 @@ namespace IKVM.Maven.Sdk.Tasks
                 Version == other.Version &&
                 Optional == other.Optional &&
                 Scope == other.Scope &&
-                Enumerable.SequenceEqual(Exclusions, other.Exclusions) &&
-                Enumerable.SequenceEqual(Dependencies, other.Dependencies) &&
+                ArrayEquals(Exclusions, other.Exclusions) &&
+                ArrayEquals(Dependencies, other.Dependencies) &&
                 ReferenceSource == other.ReferenceSource;
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> if the two arrays are equal.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        static bool ArrayEquals<T>(T[] a, T[] b)
+        {
+            if (a is null || b is null)
+                return a is null && b is null;
+
+            return Enumerable.SequenceEqual(a, b);
         }
 
         /// <summary>
@@ -94,7 +108,17 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope, Exclusions), Dependencies, ReferenceSource);
+            var code = HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope);
+
+            if (Exclusions != null)
+                foreach (var exclusion in Exclusions)
+                    code = HashCode.Combine(code, exclusion);
+
+            if (Dependencies != null)
+                foreach (var dependency in Dependencies)
+                    code = HashCode.Combine(code, dependency);
+
+            return HashCode.Combine(code, ReferenceSource);
         }
 
         /// <summary>
