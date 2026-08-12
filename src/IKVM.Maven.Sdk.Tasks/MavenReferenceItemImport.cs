@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 
 using IKVM.Maven.Sdk.Tasks.Resources;
 
@@ -11,6 +12,7 @@ using Microsoft.Build.Utilities;
 
 using org.apache.maven.model;
 using org.apache.maven.model.io;
+using org.eclipse.aether.util.artifact;
 
 namespace IKVM.Maven.Sdk.Tasks
 {
@@ -101,8 +103,8 @@ namespace IKVM.Maven.Sdk.Tasks
             {
                 // integrate each discovered POM
                 foreach (var pom in GetProjectObjectModelFiles(AssetsFilePath, TargetFramework, RuntimeIdentifier))
-                    foreach (var dependency in GetProjectObjectModelFileDependencies(pom))
-                        items.Add(GetMavenReferenceItem(dependency));
+                    foreach (var item in GetProjectObjectModelFileReferences(pom))
+                        items.Add(item);
 
                 // output final list of new dependencies
                 Items = items.Select(ToTaskItem).ToArray();
@@ -172,12 +174,13 @@ namespace IKVM.Maven.Sdk.Tasks
         }
 
         /// <summary>
-        /// Extracts the <see cref="Dependency"/> nodes from the given path to a POM file.
+        /// Extracts the <see cref="MavenReferenceItem"/> instances described by the given path to a POM file,
+        /// including any dependencies declared through the IKVM POM extensions.
         /// </summary>
         /// <param name="pom"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        internal static IEnumerable<Dependency> GetProjectObjectModelFileDependencies(string pom)
+        internal static IEnumerable<MavenReferenceItem> GetProjectObjectModelFileReferences(string pom)
         {
             if (pom is null)
                 throw new ArgumentNullException(nameof(pom));
@@ -186,13 +189,101 @@ namespace IKVM.Maven.Sdk.Tasks
             if (File.Exists(pom) == false)
                 yield break;
 
-            // read POM file
+            // load the POM file and separate the extension content from the model content
+            var doc = XDocument.Load(pom);
+            var additions = ExtractItemDependencies(doc);
+
+            // read the cleaned POM file
             var reader = new DefaultModelReader();
-            var model = reader.read(new java.io.File(pom), null);
+            var model = reader.read(new java.io.StringReader(doc.ToString()), null);
 
             // extract dependencies from model
             foreach (Dependency dependency in (IEnumerable)model.getDependencies())
-                yield return dependency;
+            {
+                var item = GetMavenReferenceItem(dependency);
+                if (additions.TryGetValue((item.GroupId, item.ArtifactId), out var l))
+                    item.Dependencies = l.ToArray();
+
+                yield return item;
+            }
+        }
+
+        /// <summary>
+        /// Extracts the dependencies declared through the IKVM POM extensions from the given document, keyed by the
+        /// coordinates of the dependency node upon which they are declared, and removes the extension content so the
+        /// remaining document forms a standard POM.
+        /// </summary>
+        /// <param name="doc"></param>
+        /// <returns></returns>
+        internal static Dictionary<(string GroupId, string ArtifactId), List<MavenReferenceItemDependency>> ExtractItemDependencies(XDocument doc)
+        {
+            var ext = MavenWriteProjectObjectModelFile.PomExtNamespace;
+            var pom = doc.Root.Name.Namespace;
+            var additions = new Dictionary<(string, string), List<MavenReferenceItemDependency>>();
+
+            // walk each dependency node carrying extension content
+            foreach (var dependency in doc.Root.Element(pom + "dependencies")?.Elements(pom + "dependency") ?? Enumerable.Empty<XElement>())
+            {
+                var container = dependency.Element(ext + "dependencies");
+                if (container == null)
+                    continue;
+
+                var groupId = (string)dependency.Element(pom + "groupId");
+                var artifactId = (string)dependency.Element(pom + "artifactId");
+                if (additions.TryGetValue((groupId, artifactId), out var l) == false)
+                    additions[(groupId, artifactId)] = l = new List<MavenReferenceItemDependency>();
+
+                CollectItemDependencies(container, pom, new List<MavenReferenceItemDependencySelector>(), l);
+            }
+
+            // remove all extension content so the model parses strictly
+            doc.Descendants().Where(i => i.Name.Namespace == ext).Remove();
+            doc.Root.Attributes().Where(i => i.IsNamespaceDeclaration && i.Value == ext.NamespaceName).Remove();
+
+            return additions;
+        }
+
+        /// <summary>
+        /// Recursively collects the dependencies declared within the given extension container. A dependency node
+        /// itself containing extension content acts as a path selector; a leaf dependency node is a declared
+        /// dependency.
+        /// </summary>
+        /// <param name="container"></param>
+        /// <param name="pom"></param>
+        /// <param name="path"></param>
+        /// <param name="output"></param>
+        static void CollectItemDependencies(XElement container, XNamespace pom, List<MavenReferenceItemDependencySelector> path, List<MavenReferenceItemDependency> output)
+        {
+            var ext = MavenWriteProjectObjectModelFile.PomExtNamespace;
+
+            foreach (var element in container.Elements(pom + "dependency"))
+            {
+                var groupId = (string)element.Element(pom + "groupId");
+                var artifactId = (string)element.Element(pom + "artifactId");
+                var version = (string)element.Element(pom + "version");
+
+                var nested = element.Element(ext + "dependencies");
+                if (nested != null)
+                {
+                    path.Add(new MavenReferenceItemDependencySelector(groupId, artifactId, version));
+                    CollectItemDependencies(nested, pom, path, output);
+                    path.RemoveAt(path.Count - 1);
+                }
+                else
+                {
+                    output.Add(new MavenReferenceItemDependency()
+                    {
+                        Path = path.ToArray(),
+                        GroupId = groupId,
+                        ArtifactId = artifactId,
+                        Extension = (string)element.Element(pom + "type") ?? "jar",
+                        Classifier = (string)element.Element(pom + "classifier") ?? "",
+                        Version = version,
+                        Scope = (string)element.Element(pom + "scope") ?? JavaScopes.COMPILE,
+                        Optional = string.Equals((string)element.Element(pom + "optional"), "true", StringComparison.OrdinalIgnoreCase),
+                    });
+                }
+            }
         }
 
     }

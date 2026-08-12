@@ -153,4 +153,10 @@
   <data name="Warning.MavenIgnoreCyclicReference" xml:space="preserve">
     <value>MAVEN0012: Cyclic reference detected from '{0}' to '{1}'.</value>
   </data>
+  <data name="Warning.MavenDependencyPathNotFound" xml:space="preserve">
+    <value>MAVEN0013: Dependency '{1}' declared on '{0}' was not applied: the path did not match the resolved dependency graph.</value>
+  </data>
+  <data name="Warning.MavenDependencyArtifactNotFound" xml:space="preserve">
+    <value>MAVEN0014: Dependency '{1}' declared on '{0}' was not applied: the dependency artifact was not present in the resolution output.</value>
+  </data>
 </root>

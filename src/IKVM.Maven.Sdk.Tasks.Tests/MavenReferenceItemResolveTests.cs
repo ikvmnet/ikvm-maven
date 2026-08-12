@@ -668,6 +668,104 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
+        public void DeclaredDependencyShouldBeResolvedAndWired()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("com.jayway.jsonpath:json-path:2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "com.jayway.jsonpath");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "json-path");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "com.fasterxml.jackson.core:jackson-databind:2.16.1");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            // the declared dependency is resolved into the output
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.fasterxml.jackson.core:jackson-databind:2.16.1");
+
+            // and wired as a reference of the target
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$com.jayway.jsonpath:json-path:2.9.0");
+            pkg.GetMetadata("References").Split(';').Should().Contain("maven$com.fasterxml.jackson.core:jackson-databind:2.16.1");
+        }
+
+        [TestMethod]
+        public void DeclaredDependencyWithPathShouldBeWiredIntoTransitiveTarget()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.calcite:calcite-core:1.38.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.calcite");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "calcite-core");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.38.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "com.jayway.jsonpath:json-path/com.fasterxml.jackson.core:jackson-databind:2.16.1");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            // the declared dependency is wired into the transitive target selected by the path
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec.StartsWith("maven$com.jayway.jsonpath:json-path:"));
+            pkg.GetMetadata("References").Split(';').Should().Contain(i => i.StartsWith("maven$com.fasterxml.jackson.core:jackson-databind:"));
+        }
+
+        [TestMethod]
+        public void DeclaredDependencyWithUnmatchedPathShouldWarn()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            var warnings = new List<BuildWarningEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => { warnings.Add(e); TestContext.WriteLine("WARNING: " + e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("com.jayway.jsonpath:json-path:2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "com.jayway.jsonpath");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "json-path");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "org.example:does-not-exist/com.fasterxml.jackson.core:jackson-databind:2.16.1");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            warnings.Should().Contain(i => (i.Code != null && i.Code.Contains("MAVEN0013")) || i.Message.Contains("MAVEN0013"));
+
+            // the dependency is not wired anywhere
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$com.jayway.jsonpath:json-path:2.9.0");
+            pkg.GetMetadata("References").Split(';').Should().NotContain("maven$com.fasterxml.jackson.core:jackson-databind:2.16.1");
+        }
+
+        [TestMethod]
         public void CanResolveClassifiers()
         {
             var cacheFile = Path.GetTempFileName();

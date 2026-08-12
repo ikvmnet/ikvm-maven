@@ -53,6 +53,11 @@ namespace IKVM.Maven.Sdk.Tasks
         public MavenReferenceItemExclusion[] Exclusions { get; set; }
 
         /// <summary>
+        /// Gets the dependencies declared upon this reference, or upon artifacts within its dependency tree.
+        /// </summary>
+        public MavenReferenceItemDependency[] Dependencies { get; set; } = Array.Empty<MavenReferenceItemDependency>();
+
+        /// <summary>
         /// Originator of the reference item.
         /// </summary>
         public string ReferenceSource { get; set; }
@@ -78,17 +83,18 @@ namespace IKVM.Maven.Sdk.Tasks
                 Version == other.Version &&
                 Optional == other.Optional &&
                 Scope == other.Scope &&
-                ExclusionsEqual(Exclusions, other.Exclusions) &&
+                ArrayEquals(Exclusions, other.Exclusions) &&
+                ArrayEquals(Dependencies, other.Dependencies) &&
                 ReferenceSource == other.ReferenceSource;
         }
 
         /// <summary>
-        /// Returns <c>true</c> if the two exclusion sets are equal.
+        /// Returns <c>true</c> if the two arrays are equal.
         /// </summary>
         /// <param name="a"></param>
         /// <param name="b"></param>
         /// <returns></returns>
-        static bool ExclusionsEqual(MavenReferenceItemExclusion[] a, MavenReferenceItemExclusion[] b)
+        static bool ArrayEquals<T>(T[] a, T[] b)
         {
             if (a is null || b is null)
                 return a is null && b is null;
@@ -107,6 +113,10 @@ namespace IKVM.Maven.Sdk.Tasks
             if (Exclusions != null)
                 foreach (var exclusion in Exclusions)
                     code = HashCode.Combine(code, exclusion);
+
+            if (Dependencies != null)
+                foreach (var dependency in Dependencies)
+                    code = HashCode.Combine(code, dependency);
 
             return HashCode.Combine(code, ReferenceSource);
         }
