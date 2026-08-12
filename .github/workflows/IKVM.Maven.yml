@@ -107,6 +107,7 @@ jobs:
         path: /tmp/doc.zip
   test:
     strategy:
+      fail-fast: false
       matrix:
         run:
         - IKVM.Maven.Sdk.Tasks.Tests
