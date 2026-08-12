@@ -88,7 +88,13 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope, Exclusions), ReferenceSource);
+            var code = HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope);
+
+            if (Exclusions != null)
+                foreach (var exclusion in Exclusions)
+                    code = HashCode.Combine(code, exclusion);
+
+            return HashCode.Combine(code, ReferenceSource);
         }
 
         /// <summary>
