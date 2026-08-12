@@ -31,7 +31,9 @@ namespace IKVM.Maven.Sdk.Tasks.Extensions
 
         public void IntersectWith(IEnumerable<T> other)
         {
-            set.retainAll(Arrays.asList(other.ToArray()));
+            // T[] is not covariant with object[] for an unconstrained T, so the array has to be built as object[]
+            // explicitly or it ends up boxed as the single element of the argument list
+            set.retainAll(Arrays.asList(other.Cast<object>().ToArray()));
         }
 
         public bool IsProperSubsetOf(IEnumerable<T> other)
