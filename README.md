@@ -58,13 +58,15 @@ Each entry declares a dependency of the referenced artifact:
 ```
 
 A dependency can also be declared upon an artifact within the dependency tree of the reference, addressed by a path of
-`groupId:artifactId[:version]` segments separated by `/`. The final segment is the dependency to declare, in the form
-`groupId:artifactId:version[:scope][:optional]`. Multiple entries are separated by `;`.
+`groupId:artifactId[:version]` segments separated by `/`. The final segment is the dependency to declare: an artifact
+coordinate in the standard Maven form `groupId:artifactId[:extension[:classifier]]:version`, optionally followed by
+comma-separated `key=value` qualifiers assigning the attributes a coordinate cannot express: `scope=<scope>` and
+`optional=true`. Multiple entries are separated by `;`.
 
 ```xml
 <ItemGroup>
     <MavenReference Include="org.apache.calcite:calcite-core" Version="1.43.0">
-        <Dependencies>com.jayway.jsonpath:json-path/com.fasterxml.jackson.core:jackson-databind:2.18.2</Dependencies>
+        <Dependencies>com.jayway.jsonpath:json-path/com.fasterxml.jackson.core:jackson-databind:2.18.2,optional=true</Dependencies>
     </MavenReference>
 </ItemGroup>
 ```

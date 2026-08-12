@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text;
 
+using org.eclipse.aether.artifact;
 using org.eclipse.aether.util.artifact;
 
 namespace IKVM.Maven.Sdk.Tasks
@@ -16,8 +17,9 @@ namespace IKVM.Maven.Sdk.Tasks
 
         /// <summary>
         /// Parses a compressed dependency string. Path segments are separated by '/', with each segment in the form
-        /// 'groupId:artifactId[:version]'. The final segment describes the dependency to be added in the form
-        /// 'groupId:artifactId:version[:scope][:optional]'.
+        /// 'groupId:artifactId[:version]'. The final segment is an artifact coordinate in the form
+        /// 'groupId:artifactId[:extension[:classifier]]:version', optionally followed by comma-separated 'key=value'
+        /// qualifiers.
         /// </summary>
         /// <param name="value"></param>
         /// <returns></returns>
@@ -42,26 +44,52 @@ namespace IKVM.Maven.Sdk.Tasks
                     throw new MavenTaskException($"Invalid dependency path segment '{segments[i]}' in '{value}'.");
             }
 
-            // final segment describes the dependency to add
-            var d = segments[segments.Length - 1].Split(':');
-            if (d.Length is < 3 or > 5)
-                throw new MavenTaskException($"Invalid dependency '{segments[segments.Length - 1]}' in '{value}'.");
+            // final segment is an artifact coordinate, optionally followed by comma-separated qualifiers
+            var tokens = segments[segments.Length - 1].Split(',').Select(i => i.Trim()).ToArray();
+            var coords = tokens[0];
 
             var item = new MavenReferenceItemDependency();
             item.Path = path;
-            item.GroupId = d[0];
-            item.ArtifactId = d[1];
-            item.Version = d[2];
 
-            // remaining tokens may be a scope followed by the literal 'optional'
-            for (int i = 3; i < d.Length; i++)
+            try
             {
-                if (string.Equals(d[i], "optional", StringComparison.OrdinalIgnoreCase))
-                    item.Optional = true;
-                else if (i == 3 && item.Optional == false)
-                    item.Scope = d[i];
-                else
-                    throw new MavenTaskException($"Invalid dependency '{segments[segments.Length - 1]}' in '{value}'.");
+                var artifact = new DefaultArtifact(coords);
+                item.GroupId = artifact.getGroupId();
+                item.ArtifactId = artifact.getArtifactId();
+                item.Extension = artifact.getExtension();
+                item.Classifier = artifact.getClassifier();
+                item.Version = artifact.getVersion();
+            }
+            catch (java.lang.IllegalArgumentException e)
+            {
+                throw new MavenTaskException($"Invalid dependency coordinate '{coords}' in '{value}': {e.getMessage()}");
+            }
+
+            // remaining tokens assign the non-coordinate attributes of the dependency
+            foreach (var pair in tokens.Skip(1))
+            {
+                var kv = pair.Split(new[] { '=' }, 2);
+                if (kv.Length != 2)
+                    throw new MavenTaskException($"Invalid dependency qualifier '{pair}' in '{value}'.");
+
+                var key = kv[0].Trim();
+                var val = kv[1].Trim();
+                switch (key)
+                {
+                    case "scope":
+                        item.Scope = val;
+                        break;
+                    case "optional":
+                        if (string.Equals(val, "true", StringComparison.OrdinalIgnoreCase))
+                            item.Optional = true;
+                        else if (string.Equals(val, "false", StringComparison.OrdinalIgnoreCase))
+                            item.Optional = false;
+                        else
+                            throw new MavenTaskException($"Invalid dependency qualifier '{pair}' in '{value}'.");
+                        break;
+                    default:
+                        throw new MavenTaskException($"Unknown dependency qualifier '{key}' in '{value}'.");
+                }
             }
 
             return item;
@@ -82,6 +110,16 @@ namespace IKVM.Maven.Sdk.Tasks
         /// The Maven artifact ID of the dependency. Required.
         /// </summary>
         public string ArtifactId { get; set; }
+
+        /// <summary>
+        /// The extension of the dependency.
+        /// </summary>
+        public string Extension { get; set; } = "jar";
+
+        /// <summary>
+        /// The Maven classifier of the dependency. Optional.
+        /// </summary>
+        public string Classifier { get; set; } = "";
 
         /// <summary>
         /// The version of the dependency. Required.
@@ -115,6 +153,8 @@ namespace IKVM.Maven.Sdk.Tasks
                 Path.SequenceEqual(other.Path) &&
                 GroupId == other.GroupId &&
                 ArtifactId == other.ArtifactId &&
+                Extension == other.Extension &&
+                Classifier == other.Classifier &&
                 Version == other.Version &&
                 Scope == other.Scope &&
                 Optional == other.Optional;
@@ -128,6 +168,8 @@ namespace IKVM.Maven.Sdk.Tasks
                 h.Add(i);
             h.Add(GroupId);
             h.Add(ArtifactId);
+            h.Add(Extension);
+            h.Add(Classifier);
             h.Add(Version);
             h.Add(Scope);
             h.Add(Optional);
@@ -142,11 +184,20 @@ namespace IKVM.Maven.Sdk.Tasks
             foreach (var i in Path)
                 b.Append(i).Append('/');
 
-            b.Append(GroupId).Append(':').Append(ArtifactId).Append(':').Append(Version);
+            b.Append(GroupId).Append(':').Append(ArtifactId);
+            var classifier = string.IsNullOrEmpty(Classifier) == false;
+            if (classifier || Extension != "jar")
+            {
+                b.Append(':').Append(Extension);
+                if (classifier)
+                    b.Append(':').Append(Classifier);
+            }
+            b.Append(':').Append(Version);
+
             if (Scope != JavaScopes.COMPILE)
-                b.Append(':').Append(Scope);
+                b.Append(",scope=").Append(Scope);
             if (Optional)
-                b.Append(':').Append("optional");
+                b.Append(",optional=true");
 
             return b.ToString();
         }

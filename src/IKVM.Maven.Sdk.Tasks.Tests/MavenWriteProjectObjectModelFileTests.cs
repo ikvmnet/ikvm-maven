@@ -97,7 +97,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.calcite");
             i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "calcite-core");
             i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.43.0");
-            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "com.jayway.jsonpath:json-path/com.fasterxml.jackson.core:jackson-databind:2.18.2:optional");
+            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "com.jayway.jsonpath:json-path/com.fasterxml.jackson.core:jackson-databind:2.18.2,optional=true");
             t.References = new[] { i1 };
 
             t.Execute().Should().BeTrue();

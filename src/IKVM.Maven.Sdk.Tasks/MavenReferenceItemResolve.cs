@@ -367,7 +367,7 @@ namespace IKVM.Maven.Sdk.Tasks
                     if (dependencies.Any(i => i.getArtifact().getGroupId() == dependency.GroupId && i.getArtifact().getArtifactId() == dependency.ArtifactId && i.getArtifact().getVersion() == dependency.Version))
                         continue;
 
-                    dependencies.Add(new Dependency(new DefaultArtifact(dependency.GroupId, dependency.ArtifactId, null, "jar", dependency.Version), dependency.Scope, dependency.Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, Collections.emptyList()));
+                    dependencies.Add(new Dependency(new DefaultArtifact(dependency.GroupId, dependency.ArtifactId, dependency.Classifier, dependency.Extension, dependency.Version), dependency.Scope, dependency.Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, Collections.emptyList()));
                 }
             }
 

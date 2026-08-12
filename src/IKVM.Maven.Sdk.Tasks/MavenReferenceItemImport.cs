@@ -276,6 +276,8 @@ namespace IKVM.Maven.Sdk.Tasks
                         Path = path.ToArray(),
                         GroupId = groupId,
                         ArtifactId = artifactId,
+                        Extension = (string)element.Element(pom + "type") ?? "jar",
+                        Classifier = (string)element.Element(pom + "classifier") ?? "",
                         Version = version,
                         Scope = (string)element.Element(pom + "scope") ?? JavaScopes.COMPILE,
                         Optional = string.Equals((string)element.Element(pom + "optional"), "true", StringComparison.OrdinalIgnoreCase),

@@ -211,6 +211,10 @@ namespace IKVM.Maven.Sdk.Tasks
                 new XElement(pom + "groupId", dependency.GroupId),
                 new XElement(pom + "artifactId", dependency.ArtifactId),
                 new XElement(pom + "version", dependency.Version));
+            if (dependency.Extension != "jar")
+                d.Add(new XElement(pom + "type", dependency.Extension));
+            if (string.IsNullOrEmpty(dependency.Classifier) == false)
+                d.Add(new XElement(pom + "classifier", dependency.Classifier));
             if (dependency.Scope != JavaScopes.COMPILE)
                 d.Add(new XElement(pom + "scope", dependency.Scope));
             if (dependency.Optional)
