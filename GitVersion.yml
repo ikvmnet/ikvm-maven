@@ -1,15 +1,23 @@
-mode: ContinuousDeployment
+workflow: GitFlow/v1
 assembly-file-versioning-format: '{Major}.{Minor}.{Patch}.{WeightedPreReleaseNumber ?? 0}'
 major-version-bump-message: '\+semver:\s?(major)'
 minor-version-bump-message: '\+semver:\s?(minor)'
 patch-version-bump-message: '\+semver:\s?(patch)'
+mode: ContinuousDelivery
 branches:
   main:
     regex: ^main$
-    tag: pre
+    label: pre
     increment: Patch
   develop:
     regex: ^develop$
-    tag: dev
+    label: dev
     increment: Minor
-    
+  release:
+    mode: ContinuousDelivery
+  hotfix:
+    mode: ContinuousDelivery
+  feature:
+    mode: ContinuousDelivery
+  unknown:
+    mode: ContinuousDelivery
