@@ -78,8 +78,22 @@ namespace IKVM.Maven.Sdk.Tasks
                 Version == other.Version &&
                 Optional == other.Optional &&
                 Scope == other.Scope &&
-                Enumerable.SequenceEqual(Exclusions, Exclusions) &&
+                ExclusionsEqual(Exclusions, other.Exclusions) &&
                 ReferenceSource == other.ReferenceSource;
+        }
+
+        /// <summary>
+        /// Returns <c>true</c> if the two exclusion sets are equal.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        static bool ExclusionsEqual(MavenReferenceItemExclusion[] a, MavenReferenceItemExclusion[] b)
+        {
+            if (a is null || b is null)
+                return a is null && b is null;
+
+            return Enumerable.SequenceEqual(a, b);
         }
 
         /// <summary>
