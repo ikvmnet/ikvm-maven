@@ -210,6 +210,7 @@ namespace IKVM.Maven.Sdk.Tasks
             // walk the full dependency graph to generate items and their references
             var output = new Dictionary<string, IkvmReferenceItem>();
             CollectIkvmReferenceItems(output, graph, new HashSet<DependencyNode>());
+            WireItemDependencies(output, graph, items);
             RemoveCircularReferences(output.Values);
 
             // resolve compile and runtime items and ensure they are copied
@@ -264,6 +265,74 @@ namespace IKVM.Maven.Sdk.Tasks
         }
 
         /// <summary>
+        /// Wires the dependencies declared upon each item into the resolved reference graph. Each declared dependency
+        /// names a target artifact by a path rooted at the item; when the path matches the resolved graph, the
+        /// dependency artifact is added as a reference of the target artifact.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="root"></param>
+        /// <param name="items"></param>
+        /// <exception cref="ArgumentNullException"></exception>
+        void WireItemDependencies(Dictionary<string, IkvmReferenceItem> output, DependencyNode root, IList<MavenReferenceItem> items)
+        {
+            if (output is null)
+                throw new ArgumentNullException(nameof(output));
+            if (root is null)
+                throw new ArgumentNullException(nameof(root));
+            if (items is null)
+                throw new ArgumentNullException(nameof(items));
+
+            foreach (var item in items)
+            {
+                foreach (var dependency in item.Dependencies)
+                {
+                    // the dependency artifact was resolved as part of the request
+                    var artifactNode = FindEffectiveChild(root, dependency.GroupId, dependency.ArtifactId, null);
+                    var artifactItem = artifactNode?.getArtifact() is Artifact artifact ? GetIkvmReferenceItemForArtifact(output, artifact) : null;
+                    if (artifactItem == null)
+                    {
+                        Log.LogWarningFromResources("Warning.MavenDependencyArtifactNotFound", item.ItemSpec, dependency.ToString());
+                        continue;
+                    }
+
+                    // walk the path from the item to the target artifact: the path acts as a precondition
+                    var node = FindEffectiveChild(root, item.GroupId, item.ArtifactId, null);
+                    foreach (var selector in dependency.Path)
+                        node = node != null ? FindEffectiveChild(node, selector.GroupId, selector.ArtifactId, selector.Version) : null;
+
+                    var targetItem = node?.getArtifact() is Artifact target ? GetIkvmReferenceItemForArtifact(output, target) : null;
+                    if (targetItem == null)
+                    {
+                        Log.LogWarningFromResources("Warning.MavenDependencyPathNotFound", item.ItemSpec, dependency.ToString());
+                        continue;
+                    }
+
+                    // declare the dependency artifact as a reference of the target artifact
+                    if (targetItem != artifactItem && targetItem.References.Contains(artifactItem) == false)
+                        targetItem.References.Add(artifactItem);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Finds the effective child of the given node with the given coordinates. A <c>null</c> version matches any
+        /// version.
+        /// </summary>
+        /// <param name="node"></param>
+        /// <param name="groupId"></param>
+        /// <param name="artifactId"></param>
+        /// <param name="version"></param>
+        /// <returns></returns>
+        DependencyNode FindEffectiveChild(DependencyNode node, string groupId, string artifactId, string version)
+        {
+            foreach (var child in GetEffectiveChildren(node))
+                if (child.getArtifact() is Artifact a && a.getGroupId() == groupId && a.getArtifactId() == artifactId && (version == null || a.getVersion() == version))
+                    return child;
+
+            return null;
+        }
+
+        /// <summary>
         /// Resolves the dependency graph for any items that may be relevant to the code of the application.
         /// </summary>
         /// <param name="maven"></param>
@@ -283,11 +352,23 @@ namespace IKVM.Maven.Sdk.Tasks
                 throw new ArgumentNullException(nameof(items));
 
             // convert set of incoming items into a dependency list
-            var dependencies = new Dependency[items.Count];
+            var dependencies = new List<Dependency>(items.Count);
             for (int i = 0; i < items.Count; i++)
             {
                 var exclusions = Arrays.asList(items[i].Exclusions.Select(j => new Exclusion(j.GroupId, j.ArtifactId, j.Classifier, j.Extension)).ToArray());
-                dependencies[i] = new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, exclusions);
+                dependencies.Add(new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, exclusions));
+            }
+
+            // dependencies declared upon items join the request so they are resolved and mediated with the rest of the graph
+            foreach (var item in items)
+            {
+                foreach (var dependency in item.Dependencies)
+                {
+                    if (dependencies.Any(i => i.getArtifact().getGroupId() == dependency.GroupId && i.getArtifact().getArtifactId() == dependency.ArtifactId && i.getArtifact().getVersion() == dependency.Version))
+                        continue;
+
+                    dependencies.Add(new Dependency(new DefaultArtifact(dependency.GroupId, dependency.ArtifactId, dependency.Classifier, dependency.Extension, dependency.Version), dependency.Scope, dependency.Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, Collections.emptyList()));
+                }
             }
 
             // check the cache
@@ -305,7 +386,7 @@ namespace IKVM.Maven.Sdk.Tasks
             var result = maven.RepositorySystem.resolveDependencies(
                 session,
                 new DependencyRequest(
-                    new CollectRequest(Arrays.asList(dependencies), null, maven.Repositories),
+                    new CollectRequest(Arrays.asList(dependencies.ToArray()), null, maven.Repositories),
                     filter));
 
             root = (DefaultDependencyNode)result.getRoot();
@@ -315,7 +396,7 @@ namespace IKVM.Maven.Sdk.Tasks
             TryWriteCacheFile(new MavenResolveCacheFile()
             {
                 Version = CACHE_FILE_VERSION,
-                Dependencies = dependencies,
+                Dependencies = dependencies.ToArray(),
                 Repositories = repositories.ToArray(),
                 Graph = root,
             });
