@@ -2,6 +2,7 @@ using System;
 
 using FluentAssertions;
 
+using Microsoft.Build.Utilities;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace IKVM.Maven.Sdk.Tasks.Tests
@@ -130,6 +131,39 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var d = MavenReferenceItemDependency.Parse("a:b/c:d:1.0/e:f:2.0,scope=runtime,optional=true");
             var r = MavenReferenceItemDependency.Parse(d.ToString());
             r.Should().Be(d);
+        }
+
+        /// <summary>
+        /// The prepare task imports every item it is given and saves it again, so the declarations pass through this
+        /// pair on each invocation. Anything the encoding drops is dropped on the first build.
+        /// </summary>
+        [TestMethod]
+        public void ShouldRoundTripThroughSaveAndImport()
+        {
+            var item = new MavenReferenceItem()
+            {
+                ItemSpec = "ikvm.test:foo",
+                GroupId = "ikvm.test",
+                ArtifactId = "foo",
+                Version = "1.0",
+                Dependencies = new[]
+                {
+                    MavenReferenceItemDependency.Parse("a:b:1.0"),
+                    MavenReferenceItemDependency.Parse("c:d/e:f:2.0,scope=runtime,optional=true"),
+                    MavenReferenceItemDependency.Parse("g:h:1.0/i:j:zip:linux-x86_64:3.0"),
+                },
+            };
+
+            var task = new TaskItem();
+            MavenReferenceItemMetadata.Save(item, task);
+
+            MavenReferenceItemMetadata.Import(new[] { task })[0].Dependencies.Should().BeEquivalentTo(item.Dependencies);
+        }
+
+        [TestMethod]
+        public void ShouldImportEmptyDependenciesWhenMetadataIsMissing()
+        {
+            MavenReferenceItemMetadata.Import(new[] { new TaskItem("ikvm.test:foo") })[0].Dependencies.Should().NotBeNull().And.BeEmpty();
         }
 
     }
