@@ -206,7 +206,9 @@ namespace IKVM.Maven.Sdk.Tests
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(@"Project", "Exe", "ProjectExe.csproj"));
             analyzer.AddBuildLogger(new MSBuildTestLogger(TestContext));
-            analyzer.AddBinaryLogger(Path.Combine(WorkRoot, $"{tfm}-{rid}-msbuild.binlog"));
+            // the environment preference has to be part of the name, or the Core and Framework runs of the same
+            // target framework and runtime identifier overwrite each other's log
+            analyzer.AddBinaryLogger(Path.Combine(WorkRoot, $"{env}-{tfm}-{rid}-msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
             analyzer.SetGlobalProperty("ImportDirectoryBuildTargets", "false");
             analyzer.SetGlobalProperty("IkvmCacheDir", IkvmCachePath + Path.DirectorySeparatorChar);
@@ -230,7 +232,6 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Build");
             options.TargetsToBuild.Add("Publish");
-            options.Arguments.Add("/v:diag");
             analyzer.Build(options).OverallSuccess.Should().Be(true);
 
             var binDir = Path.Combine("Project", "Exe", "bin", "Release", tfm, rid);

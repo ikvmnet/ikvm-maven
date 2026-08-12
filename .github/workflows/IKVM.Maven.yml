@@ -219,9 +219,9 @@ jobs:
                 # "--blame-hang",
                 # "--blame-hang-timeout", "120m",
                 # "--blame-hang-dump-type", "full",
-                "-v:diag",
+                "-v:minimal",
                 "--results-directory", "TestResults",
-                "--logger:console;verbosity=detailed",
+                "--logger:console;verbosity=normal",
                 "--logger:trx"
             )
 

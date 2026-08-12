@@ -27,8 +27,29 @@ namespace IKVM.Maven.Sdk.Tests
 
         public override void Initialize(IEventSource eventSource)
         {
-            eventSource.AnyEventRaised += (sender, evt) => context.WriteLine(evt.Message);
+            eventSource.ErrorRaised += (sender, evt) => context.WriteLine(evt.Message);
+            eventSource.WarningRaised += (sender, evt) => context.WriteLine(evt.Message);
+            eventSource.MessageRaised += (sender, evt) =>
+            {
+                if (IsEnabled(evt.Importance))
+                    context.WriteLine(evt.Message);
+            };
         }
+
+        /// <summary>
+        /// Returns <c>true</c> if a message of the given importance should be forwarded. Every event used to be
+        /// forwarded regardless of verbosity, which for a run that drives a full build per test case produced
+        /// gigabytes of captured output in the test results.
+        /// </summary>
+        /// <param name="importance"></param>
+        /// <returns></returns>
+        bool IsEnabled(MessageImportance importance) => Verbosity switch
+        {
+            LoggerVerbosity.Quiet => false,
+            LoggerVerbosity.Minimal => importance == MessageImportance.High,
+            LoggerVerbosity.Normal => importance != MessageImportance.Low,
+            _ => true,
+        };
 
     }
 
