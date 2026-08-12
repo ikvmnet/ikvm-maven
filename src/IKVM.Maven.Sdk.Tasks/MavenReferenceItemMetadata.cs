@@ -41,6 +41,7 @@ namespace IKVM.Maven.Sdk.Tasks
             task.SetMetadata(MavenReferenceItemMetadata.Version, item.Version);
             task.SetMetadata(MavenReferenceItemMetadata.Optional, item.Optional ? "true" : "false");
             task.SetMetadata(MavenReferenceItemMetadata.Scope, item.Scope);
+            task.SetMetadata(MavenReferenceItemMetadata.Dependencies, item.Dependencies != null ? string.Join(";", item.Dependencies.Select(i => i.ToString())) : null);
             task.SetMetadata(MavenReferenceItemMetadata.Exclusions, item.Exclusions != null ? string.Join(";", item.Exclusions.Select(i => i.ToString())) : null);
             task.SetMetadata(MavenReferenceItemMetadata.ReferenceSource, item.ReferenceSource);
         }
@@ -68,6 +69,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 item.Version = task.GetMetadata(MavenReferenceItemMetadata.Version);
                 item.Optional = string.Equals(task.GetMetadata(MavenReferenceItemMetadata.Optional), "true", StringComparison.OrdinalIgnoreCase);
                 item.Scope = task.GetMetadata(MavenReferenceItemMetadata.Scope);
+                item.Dependencies = task.GetMetadata(MavenReferenceItemMetadata.Dependencies)?.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => i.Trim()).Where(i => i.Length > 0).Select(MavenReferenceItemDependency.Parse).ToArray() ?? Array.Empty<MavenReferenceItemDependency>();
                 item.Exclusions = task.GetMetadata(MavenReferenceItemMetadata.Exclusions)?.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries).Select(i => ParseExclusion(i)).Where(i => i != null).ToArray() ?? Array.Empty<MavenReferenceItemExclusion>();
                 item.ReferenceSource = task.GetMetadata(MavenReferenceItemMetadata.ReferenceSource);
                 list.Add(item);

@@ -53,6 +53,11 @@ namespace IKVM.Maven.Sdk.Tasks
         public MavenReferenceItemExclusion[] Exclusions { get; set; }
 
         /// <summary>
+        /// Gets the dependencies declared upon this reference, or upon artifacts within its dependency tree.
+        /// </summary>
+        public MavenReferenceItemDependency[] Dependencies { get; set; } = Array.Empty<MavenReferenceItemDependency>();
+
+        /// <summary>
         /// Originator of the reference item.
         /// </summary>
         public string ReferenceSource { get; set; }
@@ -78,7 +83,8 @@ namespace IKVM.Maven.Sdk.Tasks
                 Version == other.Version &&
                 Optional == other.Optional &&
                 Scope == other.Scope &&
-                Enumerable.SequenceEqual(Exclusions, Exclusions) &&
+                Enumerable.SequenceEqual(Exclusions, other.Exclusions) &&
+                Enumerable.SequenceEqual(Dependencies, other.Dependencies) &&
                 ReferenceSource == other.ReferenceSource;
         }
 
@@ -88,7 +94,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override int GetHashCode()
         {
-            return HashCode.Combine(HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope, Exclusions), ReferenceSource);
+            return HashCode.Combine(HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope, Exclusions), Dependencies, ReferenceSource);
         }
 
         /// <summary>

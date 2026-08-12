@@ -35,10 +35,67 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
                 l.Should().HaveCount(1);
                 foreach (var pom in l)
                 {
-                    var d = MavenReferenceItemImport.GetProjectObjectModelFileDependencies(pom).ToList();
+                    var d = MavenReferenceItemImport.GetProjectObjectModelFileReferences(pom).ToList();
                     d.Should().HaveCount(1);
                 }
             }
+        }
+
+        [TestMethod]
+        public void CanImportDeclaredDependencies()
+        {
+            var pom = Path.GetTempFileName();
+            File.WriteAllText(pom, """
+                <?xml version="1.0" encoding="UTF-8"?>
+                <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:ikvm="http://ikvm.org/POM-EXT/1.0.0">
+                  <modelVersion>4.0.0</modelVersion>
+                  <groupId>ikvm.nuget</groupId>
+                  <artifactId>Test.Package</artifactId>
+                  <version>1.0.0</version>
+                  <dependencies>
+                    <dependency>
+                      <groupId>org.apache.calcite</groupId>
+                      <artifactId>calcite-core</artifactId>
+                      <version>1.43.0</version>
+                      <scope>compile</scope>
+                      <ikvm:dependencies>
+                        <dependency>
+                          <groupId>com.jayway.jsonpath</groupId>
+                          <artifactId>json-path</artifactId>
+                          <ikvm:dependencies>
+                            <dependency>
+                              <groupId>com.fasterxml.jackson.core</groupId>
+                              <artifactId>jackson-databind</artifactId>
+                              <version>2.18.2</version>
+                              <optional>true</optional>
+                            </dependency>
+                          </ikvm:dependencies>
+                        </dependency>
+                      </ikvm:dependencies>
+                    </dependency>
+                  </dependencies>
+                </project>
+                """);
+
+            var items = MavenReferenceItemImport.GetProjectObjectModelFileReferences(pom).ToList();
+            items.Should().HaveCount(1);
+
+            var item = items[0];
+            item.GroupId.Should().Be("org.apache.calcite");
+            item.ArtifactId.Should().Be("calcite-core");
+            item.Version.Should().Be("1.43.0");
+
+            item.Dependencies.Should().HaveCount(1);
+            var d = item.Dependencies[0];
+            d.Path.Should().HaveCount(1);
+            d.Path[0].GroupId.Should().Be("com.jayway.jsonpath");
+            d.Path[0].ArtifactId.Should().Be("json-path");
+            d.Path[0].Version.Should().BeNull();
+            d.GroupId.Should().Be("com.fasterxml.jackson.core");
+            d.ArtifactId.Should().Be("jackson-databind");
+            d.Version.Should().Be("2.18.2");
+            d.Optional.Should().BeTrue();
+            d.Scope.Should().Be("compile");
         }
 
     }
