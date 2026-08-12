@@ -37,10 +37,48 @@ However, since IKVM is statically compiling assemblies, we need to be able to pr
 each assembly we might be building. We can't fully build Library A if it depends on missing classes from Library B.
 As such, IKVM.Maven.Sdk requires that Maven dependencies be fully specified.
 
-But, we aren't the authors of Maven artifacts. Nor can we provide local overrides for missing Maven dependencies, as the
-Maven artifacts need to be available to any user who might indirectly add a reference through a NuGet package. Therefor,
-if you encounter an underspecified or missing dependency in Maven, the proper place to fix it is in Maven. Report the missing
-dependency to the authors of the Maven library you are attempting to use.
+But, we aren't the authors of Maven artifacts. If you encounter an underspecified or missing dependency in Maven, the
+proper place to fix it is in Maven. Report the missing dependency to the authors of the Maven library you are attempting
+to use. Until a fix is published, the missing dependency can be declared locally through the `Dependencies` metadata.
+
+## Declaring Dependencies
+
+Additional dependencies can be declared upon a `MavenReference` through the `Dependencies` metadata. This exists to
+work around artifacts whose published POM underspecifies their dependencies: since IKVM statically compiles each
+artifact, classes referenced from an undeclared dependency would otherwise compile into hard-throwing stubs.
+
+Each entry declares a dependency of the referenced artifact:
+
+```xml
+<ItemGroup>
+    <MavenReference Include="com.jayway.jsonpath:json-path" Version="2.10.0">
+        <Dependencies>com.fasterxml.jackson.core:jackson-databind:2.18.2</Dependencies>
+    </MavenReference>
+</ItemGroup>
+```
+
+A dependency can also be declared upon an artifact within the dependency tree of the reference, addressed by a path of
+`groupId:artifactId[:version]` segments separated by `/`. The final segment is the dependency to declare: an artifact
+coordinate in the standard Maven form `groupId:artifactId[:extension[:classifier]]:version`, optionally followed by
+comma-separated `key=value` qualifiers assigning the attributes a coordinate cannot express: `scope=<scope>` and
+`optional=true`. Multiple entries are separated by `;`.
+
+```xml
+<ItemGroup>
+    <MavenReference Include="org.apache.calcite:calcite-core" Version="1.43.0">
+        <Dependencies>com.jayway.jsonpath:json-path/com.fasterxml.jackson.core:jackson-databind:2.18.2,optional=true</Dependencies>
+    </MavenReference>
+</ItemGroup>
+```
+
+Declarations are additive only: dependencies can be added, but never removed, since other artifacts in the graph may
+rely on them. The declared dependency joins dependency resolution alongside the rest of the graph, participating in
+version mediation, and is wired as a reference of the addressed artifact. The path acts as a precondition: if it does
+not match the resolved dependency graph, the declaration does not apply and a warning is raised.
+
+Declared dependencies are preserved in the partial POM packed into NuGet packages, nested beneath the corresponding
+`dependency` node in the `http://ikvm.org/POM-EXT/1.0.0` namespace, and therefore flow to consuming projects like any
+other dependency information.
 
 ## Transitive Dependencies
 
