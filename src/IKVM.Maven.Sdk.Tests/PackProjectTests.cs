@@ -81,7 +81,7 @@ namespace IKVM.Maven.Sdk.Tests
                 .Save(Path.Combine(@"PackProject", "nuget.config"));
 
             var manager = new AnalyzerManager();
-            var analyzer = manager.GetProject(Path.Combine(@"PackProject", "Lib", "PackProjectLib.csproj"));
+            var analyzer = manager.GetProject(Path.GetFullPath(Path.Combine(@"PackProject", "Lib", "PackProjectLib.csproj")));
             analyzer.AddBuildLogger(new MSBuildTestLogger(context));
             analyzer.AddBinaryLogger(Path.Combine(WorkRoot, "msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
