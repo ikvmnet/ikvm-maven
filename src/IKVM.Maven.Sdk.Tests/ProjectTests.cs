@@ -18,6 +18,23 @@ namespace IKVM.Maven.Sdk.Tests
     public partial class ProjectTests
     {
 
+        /// <summary>
+        /// Stops MSBuild from leaving worker nodes running after the build completes.
+        /// </summary>
+        /// <remarks>
+        /// Buildalyzer collects build events over an anonymous pipe (MsBuildPipeLogger). The read
+        /// only finishes once every process holding the write end has closed it, so a reused node
+        /// that outlives the build keeps the pipe open and Build() blocks for ~10 minutes after
+        /// MSBuild itself has already finished. See Buildalyzer#143. Buildalyzer declares
+        /// MSBUILDDISABLENODEREUSE but never sets it, so we set it here.
+        /// </remarks>
+        /// <param name="options"></param>
+        public static void DisableNodeReuse(EnvironmentOptions options)
+        {
+            options.EnvironmentVariables[EnvironmentVariables.MSBUILDDISABLENODEREUSE] = "1";
+            options.Arguments.Add("/nodeReuse:false");
+        }
+
         public static Dictionary<string, string> Properties { get; set; }
 
         public static string TempRoot { get; set; }
@@ -95,6 +112,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.Restore = true;
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Restore");
+            DisableNodeReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
@@ -229,6 +247,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Add("Build");
             options.TargetsToBuild.Add("Publish");
             options.Arguments.Add("/v:diag");
+            DisableNodeReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
 
             var binDir = Path.Combine("Project", "Exe", "bin", "Release", tfm, rid);
