@@ -19,20 +19,31 @@ namespace IKVM.Maven.Sdk.Tests
     {
 
         /// <summary>
-        /// Stops MSBuild from leaving worker nodes running after the build completes.
+        /// Stops the build from leaving server processes running after it completes.
         /// </summary>
         /// <remarks>
         /// Buildalyzer collects build events over an anonymous pipe (MsBuildPipeLogger). The read
-        /// only finishes once every process holding the write end has closed it, so a reused node
-        /// that outlives the build keeps the pipe open and Build() blocks for ~10 minutes after
-        /// MSBuild itself has already finished. See Buildalyzer#143. Buildalyzer declares
-        /// MSBUILDDISABLENODEREUSE but never sets it, so we set it here.
+        /// only finishes once every process holding the write end has closed it. On Unix the pipe
+        /// is inherited by the whole process tree, so any server that outlives the build keeps it
+        /// open and Build() blocks until that server idles out. See Buildalyzer#143.
+        ///
+        /// Two servers do this. MSBuild worker nodes are covered by node reuse; Buildalyzer
+        /// declares MSBUILDDISABLENODEREUSE but never sets it, so we set it here. VBCSCompiler is
+        /// spawned by the Csc task and hangs around for its 10 minute keepalive, which showed up
+        /// as every CanBuildProject case taking exactly 10m8s on Linux and OS X against ~8s of
+        /// real work; UseSharedCompilation=false stops it being spawned at all.
+        ///
+        /// Windows does not inherit the pipe that far down the tree and shows no such tail, so it
+        /// keeps the shared compiler rather than paying a process launch per compile.
         /// </remarks>
         /// <param name="options"></param>
-        public static void DisableNodeReuse(EnvironmentOptions options)
+        public static void DisableBuildServerReuse(EnvironmentOptions options)
         {
             options.EnvironmentVariables[EnvironmentVariables.MSBUILDDISABLENODEREUSE] = "1";
             options.Arguments.Add("/nodeReuse:false");
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) == false)
+                options.Arguments.Add("/p:UseSharedCompilation=false");
         }
 
         public static Dictionary<string, string> Properties { get; set; }
@@ -112,7 +123,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.Restore = true;
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Restore");
-            DisableNodeReuse(options);
+            DisableBuildServerReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
@@ -247,7 +258,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Add("Build");
             options.TargetsToBuild.Add("Publish");
             options.Arguments.Add("/v:diag");
-            DisableNodeReuse(options);
+            DisableBuildServerReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
 
             var binDir = Path.Combine("Project", "Exe", "bin", "Release", tfm, rid);

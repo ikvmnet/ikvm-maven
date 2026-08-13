@@ -102,7 +102,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.Restore = true;
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Restore");
-            ProjectTests.DisableNodeReuse(options);
+            ProjectTests.DisableBuildServerReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
@@ -148,7 +148,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Pack");
             options.Arguments.Add("/v:d");
-            ProjectTests.DisableNodeReuse(options);
+            ProjectTests.DisableBuildServerReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
