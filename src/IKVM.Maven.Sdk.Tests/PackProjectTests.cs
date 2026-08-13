@@ -127,7 +127,9 @@ namespace IKVM.Maven.Sdk.Tests
             var manager = new AnalyzerManager();
             var analyzer = manager.GetProject(Path.Combine(Path.GetDirectoryName(typeof(PackProjectTests).Assembly.Location), @"PackProject", "Lib", "PackProjectLib.csproj"));
             analyzer.AddBuildLogger(new MSBuildTestLogger(TestContext));
-            analyzer.AddBinaryLogger(Path.Combine(WorkRoot, $"msbuild.binlog"));
+            // the environment preference has to be part of the name, or the Core and Framework runs overwrite each
+            // other's log
+            analyzer.AddBinaryLogger(Path.Combine(WorkRoot, $"{env}-msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
             analyzer.SetGlobalProperty("ImportDirectoryBuildTargets", "false");
             analyzer.SetGlobalProperty("IkvmCacheDir", IkvmCachePath + Path.DirectorySeparatorChar);
@@ -147,7 +149,6 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Pack");
-            options.Arguments.Add("/v:d");
             ProjectTests.DisableBuildServerReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }

@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 
 using FluentAssertions;
 
@@ -666,6 +668,104 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
+        public void DeclaredDependencyShouldBeResolvedAndWired()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("com.jayway.jsonpath:json-path:2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "com.jayway.jsonpath");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "json-path");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "com.fasterxml.jackson.core:jackson-databind:2.16.1");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            // the declared dependency is resolved into the output
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$com.fasterxml.jackson.core:jackson-databind:2.16.1");
+
+            // and wired as a reference of the target
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$com.jayway.jsonpath:json-path:2.9.0");
+            pkg.GetMetadata("References").Split(';').Should().Contain("maven$com.fasterxml.jackson.core:jackson-databind:2.16.1");
+        }
+
+        [TestMethod]
+        public void DeclaredDependencyWithPathShouldBeWiredIntoTransitiveTarget()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.calcite:calcite-core:1.38.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.calcite");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "calcite-core");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.38.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "com.jayway.jsonpath:json-path/com.fasterxml.jackson.core:jackson-databind:2.16.1");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            // the declared dependency is wired into the transitive target selected by the path
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec.StartsWith("maven$com.jayway.jsonpath:json-path:"));
+            pkg.GetMetadata("References").Split(';').Should().Contain(i => i.StartsWith("maven$com.fasterxml.jackson.core:jackson-databind:"));
+        }
+
+        [TestMethod]
+        public void DeclaredDependencyWithUnmatchedPathShouldWarn()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            var warnings = new List<BuildWarningEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => { warnings.Add(e); TestContext.WriteLine("WARNING: " + e.Message); });
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("com.jayway.jsonpath:json-path:2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "com.jayway.jsonpath");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "json-path");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.9.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Dependencies, "org.example:does-not-exist/com.fasterxml.jackson.core:jackson-databind:2.16.1");
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+            warnings.Should().Contain(i => (i.Code != null && i.Code.Contains("MAVEN0013")) || i.Message.Contains("MAVEN0013"));
+
+            // the dependency is not wired anywhere
+            var pkg = t.ResolvedReferences.First(i => i.ItemSpec == "maven$com.jayway.jsonpath:json-path:2.9.0");
+            pkg.GetMetadata("References").Split(';').Should().NotContain("maven$com.fasterxml.jackson.core:jackson-databind:2.16.1");
+        }
+
+        [TestMethod]
         public void CanResolveClassifiers()
         {
             var cacheFile = Path.GetTempFileName();
@@ -694,6 +794,245 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
 
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$edu.stanford.nlp:stanford-corenlp:models:4.5.5");
         }
+
+        #region Local repository only
+
+        const string CacheHitMessage = "Resolved Maven dependency graph from project cache.";
+
+        /// <summary>
+        /// Builds a resolve task against the bundled file repository only, so that the test does not depend on the
+        /// network or on anything published to Maven Central.
+        /// </summary>
+        MavenReferenceItemResolve CreateLocalResolveTask(TestBuildEngine engine, string cacheFile, params ITaskItem[] repositories)
+        {
+            return new MavenReferenceItemResolve()
+            {
+                BuildEngine = engine,
+                CacheFile = cacheFile,
+                Repositories = repositories.Length > 0 ? repositories : new[] { GetLocalRepositoryItem() },
+                References = new[] { CreateHelloTestReference("1.0") },
+            };
+        }
+
+        static ITaskItem CreateHelloTestReference(string version)
+        {
+            var i = new TaskItem($"hellotest:hellotest:{version}");
+            i.SetMetadata(MavenReferenceItemMetadata.GroupId, "hellotest");
+            i.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "hellotest");
+            i.SetMetadata(MavenReferenceItemMetadata.Version, version);
+            i.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            return i;
+        }
+
+        [TestMethod]
+        public void CanResolveFromLocalRepositoryAlone()
+        {
+            var engine = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(engine, null);
+
+            t.Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+            t.ResolvedReferences.Should().ContainSingle().Which.ItemSpec.Should().Be("maven$hellotest:hellotest:1.0");
+        }
+
+        [TestMethod]
+        public void ShouldAttachMavenMetadataToResolvedReferences()
+        {
+            var engine = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(engine, null);
+
+            t.Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+
+            var r = t.ResolvedReferences.Should().ContainSingle().Subject;
+            r.GetMetadata(IkvmReferenceItemMetadata.MavenGroupId).Should().Be("hellotest");
+            r.GetMetadata(IkvmReferenceItemMetadata.MavenArtifactId).Should().Be("hellotest");
+            r.GetMetadata(IkvmReferenceItemMetadata.MavenVersion).Should().Be("1.0");
+            r.GetMetadata(IkvmReferenceItemMetadata.MavenClassifier).Should().BeEmpty();
+            r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyName).Should().Be("hellotest");
+            r.GetMetadata(IkvmReferenceItemMetadata.FallbackAssemblyVersion).Should().Be("1.0");
+            r.GetMetadata(IkvmReferenceItemMetadata.Compile).Should().EndWith("hellotest-1.0.jar");
+        }
+
+        /// <summary>
+        /// The class loader, debug flag and key file are global build settings which every generated assembly has to
+        /// inherit; the SDK targets rely on them being stamped onto each resolved reference.
+        /// </summary>
+        [TestMethod]
+        public void ShouldPropagateGlobalOptionsToResolvedReferences()
+        {
+            var engine = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(engine, null);
+            t.ClassLoader = "ikvm.runtime.AppDomainAssemblyClassLoader";
+            t.Debug = true;
+            t.KeyFile = "key.snk";
+
+            t.Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+
+            var r = t.ResolvedReferences.Should().ContainSingle().Subject;
+            r.GetMetadata(IkvmReferenceItemMetadata.ClassLoader).Should().Be("ikvm.runtime.AppDomainAssemblyClassLoader");
+            r.GetMetadata(IkvmReferenceItemMetadata.Debug).Should().Be("true");
+            r.GetMetadata(IkvmReferenceItemMetadata.KeyFile).Should().Be("key.snk");
+        }
+
+        [TestMethod]
+        public void ShouldResolveNothingForNoReferences()
+        {
+            var engine = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(engine, null);
+            t.References = Array.Empty<ITaskItem>();
+
+            t.Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+            t.ResolvedReferences.Should().BeEmpty();
+        }
+
+        [TestMethod]
+        public void ShouldFailOnUnresolvableReference()
+        {
+            var engine = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(engine, null);
+            t.References = new[] { CreateHelloTestReference("999.0") };
+
+            t.Execute().Should().BeFalse();
+            engine.Errors.Should().NotBeEmpty();
+        }
+
+        [TestMethod]
+        public void ShouldWriteCacheFile()
+        {
+            var cacheFile = GetTempCacheFile();
+            var engine = new TestBuildEngine(TestContext);
+
+            CreateLocalResolveTask(engine, cacheFile).Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+
+            File.Exists(cacheFile).Should().BeTrue();
+            var json = JsonDocument.Parse(File.ReadAllText(cacheFile)).RootElement;
+            json.GetProperty("version").GetInt32().Should().BeGreaterThan(0);
+            json.GetProperty("repositories").GetArrayLength().Should().Be(1);
+            json.GetProperty("dependencies").GetArrayLength().Should().Be(1);
+            json.GetProperty("graph").ValueKind.Should().Be(JsonValueKind.Object);
+        }
+
+        [TestMethod]
+        public void ShouldReadCacheFileOnSecondResolve()
+        {
+            var cacheFile = GetTempCacheFile();
+
+            var first = new TestBuildEngine(TestContext);
+            CreateLocalResolveTask(first, cacheFile).Execute().Should().BeTrue();
+            first.Messages.Should().NotContain(i => i.Message == CacheHitMessage);
+
+            var second = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(second, cacheFile);
+            t.Execute().Should().BeTrue();
+            second.Errors.Should().BeEmpty();
+            second.Messages.Should().Contain(i => i.Message == CacheHitMessage);
+            t.ResolvedReferences.Should().ContainSingle().Which.ItemSpec.Should().Be("maven$hellotest:hellotest:1.0");
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreCorruptCacheFile()
+        {
+            var cacheFile = GetTempCacheFile();
+            File.WriteAllText(cacheFile, "{ this is not json");
+
+            var engine = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(engine, cacheFile);
+
+            t.Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+            engine.Messages.Should().NotContain(i => i.Message == CacheHitMessage);
+            t.ResolvedReferences.Should().ContainSingle();
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreEmptyCacheFile()
+        {
+            var cacheFile = GetTempCacheFile();
+            File.WriteAllText(cacheFile, "");
+
+            var engine = new TestBuildEngine(TestContext);
+            var t = CreateLocalResolveTask(engine, cacheFile);
+
+            t.Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+            engine.Messages.Should().NotContain(i => i.Message == CacheHitMessage);
+        }
+
+        /// <summary>
+        /// A cache written by an older version of the tasks describes a graph this version may no longer understand,
+        /// so the version stamp has to invalidate it.
+        /// </summary>
+        [TestMethod]
+        public void ShouldIgnoreCacheFileFromAnotherVersion()
+        {
+            var cacheFile = GetTempCacheFile();
+            CreateLocalResolveTask(new TestBuildEngine(TestContext), cacheFile).Execute().Should().BeTrue();
+
+            var version = JsonDocument.Parse(File.ReadAllText(cacheFile)).RootElement.GetProperty("version").GetInt32();
+            File.WriteAllText(cacheFile, File.ReadAllText(cacheFile).Replace($"\"version\":{version}", "\"version\":0"));
+
+            var engine = new TestBuildEngine(TestContext);
+            CreateLocalResolveTask(engine, cacheFile).Execute().Should().BeTrue();
+            engine.Errors.Should().BeEmpty();
+            engine.Messages.Should().NotContain(i => i.Message == CacheHitMessage);
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreCacheFileWhenReferencesChange()
+        {
+            var cacheFile = GetTempCacheFile();
+
+            var first = CreateLocalResolveTask(new TestBuildEngine(TestContext), cacheFile);
+            first.Execute().Should().BeTrue();
+
+            var engine = new TestBuildEngine(TestContext);
+            var second = CreateLocalResolveTask(engine, cacheFile);
+            second.References = new[] { CreateHelloTestReference("1.0"), CreateHelloTestReference("1.0") };
+            second.Execute().Should().BeTrue();
+
+            engine.Messages.Should().NotContain(i => i.Message == CacheHitMessage);
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreCacheFileWhenReferenceScopeChanges()
+        {
+            var cacheFile = GetTempCacheFile();
+
+            CreateLocalResolveTask(new TestBuildEngine(TestContext), cacheFile).Execute().Should().BeTrue();
+
+            var engine = new TestBuildEngine(TestContext);
+            var second = CreateLocalResolveTask(engine, cacheFile);
+            var i1 = CreateHelloTestReference("1.0");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "runtime");
+            second.References = new[] { i1 };
+            second.Execute().Should().BeTrue();
+
+            engine.Messages.Should().NotContain(i => i.Message == CacheHitMessage);
+        }
+
+        [TestMethod]
+        public void ShouldIgnoreCacheFileWhenRepositoriesChange()
+        {
+            var cacheFile = GetTempCacheFile();
+
+            CreateLocalResolveTask(new TestBuildEngine(TestContext), cacheFile).Execute().Should().BeTrue();
+
+            var engine = new TestBuildEngine(TestContext);
+            CreateLocalResolveTask(engine, cacheFile, GetLocalRepositoryItem(), GetCentralRepositoryItem()).Execute().Should().BeTrue();
+
+            engine.Messages.Should().NotContain(i => i.Message == CacheHitMessage);
+        }
+
+        static string GetTempCacheFile()
+        {
+            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName() + ".maven.cache");
+        }
+
+        #endregion
 
     }
 

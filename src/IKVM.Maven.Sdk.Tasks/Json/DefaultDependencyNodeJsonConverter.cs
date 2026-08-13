@@ -86,10 +86,24 @@ namespace IKVM.Maven.Sdk.Tasks.Json
 
         void ReadDataItem(JsonElement json, JsonSerializerOptions options, DefaultDependencyNode node, JsonElement item)
         {
-            var key = item.TryGetProperty("key", out var k) ? JsonSerializer.Deserialize<object>(k, options) : null;
+            var key = item.TryGetProperty("key", out var k) ? ReadDataKey(options, k) : null;
             var valueType = item.TryGetProperty("valueType", out var t) ? t.GetString() : null;
             var value = item.TryGetProperty("value", out var v) ? v : (JsonElement?)null;
             node.setData(key, ReadDataValue(options, valueType, value));
+        }
+
+        /// <summary>
+        /// Reads a node data key. The keys are looked up by equality when the graph is walked, most notably for
+        /// <see cref="org.eclipse.aether.util.graph.transformer.ConflictResolver.NODE_DATA_WINNER"/>, so a string key
+        /// has to come back as a string rather than as a <see cref="JsonElement"/>.
+        /// </summary>
+        object ReadDataKey(JsonSerializerOptions options, JsonElement key)
+        {
+            return key.ValueKind switch
+            {
+                JsonValueKind.String => key.GetString(),
+                _ => JsonSerializer.Deserialize<object>(key, options),
+            };
         }
 
         object ReadDataValue(JsonSerializerOptions options, string valueType, JsonElement? value)

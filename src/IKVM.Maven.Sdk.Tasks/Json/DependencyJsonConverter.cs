@@ -43,10 +43,14 @@ namespace IKVM.Maven.Sdk.Tasks.Json
 
         java.lang.Boolean ReadOptional(JsonElement o, JsonSerializerOptions options)
         {
-            return (o.TryGetProperty("optional", out var optional) ? optional.GetBoolean() : (bool?)null) switch
+            // an unspecified optional flag is written as a null, and has to come back as a null
+            if (o.TryGetProperty("optional", out var optional) == false)
+                return null;
+
+            return optional.ValueKind switch
             {
-                true => java.lang.Boolean.TRUE,
-                false => java.lang.Boolean.FALSE,
+                JsonValueKind.True => java.lang.Boolean.TRUE,
+                JsonValueKind.False => java.lang.Boolean.FALSE,
                 _ => null,
             };
         }
