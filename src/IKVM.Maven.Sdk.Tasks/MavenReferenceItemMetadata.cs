@@ -42,7 +42,7 @@ namespace IKVM.Maven.Sdk.Tasks
             task.SetMetadata(MavenReferenceItemMetadata.Optional, item.Optional ? "true" : "false");
             task.SetMetadata(MavenReferenceItemMetadata.Scope, item.Scope);
             task.SetMetadata(MavenReferenceItemMetadata.Dependencies, item.Dependencies != null ? string.Join(";", item.Dependencies.Select(i => i.ToString())) : null);
-            task.SetMetadata(MavenReferenceItemMetadata.Exclusions, item.Exclusions != null ? string.Join(";", item.Exclusions.Select(i => i.ToString())) : null);
+            task.SetMetadata(MavenReferenceItemMetadata.Exclusions, item.Exclusions != null ? string.Join(PropertySeperatorString, item.Exclusions.Select(FormatExclusion)) : null);
             task.SetMetadata(MavenReferenceItemMetadata.ReferenceSource, item.ReferenceSource);
         }
 
@@ -77,6 +77,24 @@ namespace IKVM.Maven.Sdk.Tasks
 
             // return the resulting imported references
             return list.ToArray();
+        }
+
+        /// <summary>
+        /// Formats an exclusion into the compressed form understood by <see cref="ParseExclusion(string)"/>. The
+        /// optional trailing segments are only emitted when present, since the item passes through this pair on each
+        /// invocation of the prepare task.
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        static string FormatExclusion(MavenReferenceItemExclusion value)
+        {
+            if (string.IsNullOrEmpty(value.Extension) == false)
+                return $"{value.GroupId}:{value.ArtifactId}:{value.Classifier}:{value.Extension}";
+
+            if (string.IsNullOrEmpty(value.Classifier) == false)
+                return $"{value.GroupId}:{value.ArtifactId}:{value.Classifier}";
+
+            return $"{value.GroupId}:{value.ArtifactId}";
         }
 
         /// <summary>
