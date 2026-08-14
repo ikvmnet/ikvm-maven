@@ -795,6 +795,44 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$edu.stanford.nlp:stanford-corenlp:models:4.5.5");
         }
 
+        [TestMethod]
+        public void AliasesShouldApplyToTheDeclaredArtifactOnly()
+        {
+            var cacheFile = Path.GetTempFileName();
+
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.CacheFile = cacheFile;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.apache.httpcomponents:httpclient:4.5.14");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.apache.httpcomponents");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "httpclient");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "4.5.14");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Aliases, "httpclient");
+
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            // the artifact named by the reference carries the alias
+            t.ResolvedReferences.Should()
+                .ContainSingle(i => i.ItemSpec == "maven$org.apache.httpcomponents:httpclient:4.5.14")
+                .Which.GetMetadata(IkvmReferenceItemMetadata.Aliases).Should().Be("httpclient");
+
+            // its transitive dependencies remain in the global namespace
+            t.ResolvedReferences.Should()
+                .ContainSingle(i => i.ItemSpec.StartsWith("maven$org.apache.httpcomponents:httpcore:"))
+                .Which.GetMetadata(IkvmReferenceItemMetadata.Aliases).Should().BeEmpty();
+        }
+
         #region Local repository only
 
         const string CacheHitMessage = "Resolved Maven dependency graph from project cache.";
@@ -1033,6 +1071,20 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         #endregion
+
+        [TestMethod]
+        [DataRow(null, "foo", "foo")]
+        [DataRow("", "foo", "foo")]
+        [DataRow("foo", null, "foo")]
+        [DataRow("foo", "bar", "foo,bar")]
+        [DataRow("foo", "foo", "foo")]
+        [DataRow("foo,bar", "bar,baz", "foo,bar,baz")]
+        [DataRow(" foo , bar ", "bar", "foo,bar")]
+        [DataRow(null, null, "")]
+        public void UnionAliases_should_combine_without_duplicates(string a, string b, string expected)
+        {
+            MavenReferenceItemResolve.UnionAliases(a, b).Should().Be(expected);
+        }
 
     }
 

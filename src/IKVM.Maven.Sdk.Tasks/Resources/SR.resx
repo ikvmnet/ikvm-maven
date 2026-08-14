@@ -159,4 +159,7 @@
   <data name="Warning.MavenDependencyArtifactNotFound" xml:space="preserve">
     <value>MAVEN0014: Dependency '{1}' declared on '{0}' was not applied: the dependency artifact was not present in the resolution output.</value>
   </data>
+  <data name="Warning.MavenAliasesArtifactNotFound" xml:space="preserve">
+    <value>MAVEN0015: Aliases declared on '{0}' were not applied: the artifact was not present in the resolution output.</value>
+  </data>
 </root>

@@ -211,6 +211,7 @@ namespace IKVM.Maven.Sdk.Tasks
             var output = new Dictionary<string, IkvmReferenceItem>();
             CollectIkvmReferenceItems(output, graph, new HashSet<DependencyNode>());
             WireItemDependencies(output, graph, items);
+            ApplyItemAliases(output, graph, items);
             RemoveCircularReferences(output.Values);
 
             // resolve compile and runtime items and ensure they are copied
@@ -312,6 +313,61 @@ namespace IKVM.Maven.Sdk.Tasks
                         targetItem.References.Add(artifactItem);
                 }
             }
+        }
+
+        /// <summary>
+        /// Applies the aliases declared upon each item to the <see cref="IkvmReferenceItem"/> generated for the
+        /// artifact of the item itself. Aliases are deliberately not applied to the transitive dependencies of the
+        /// item: aliasing the entire tree would remove each of its assemblies from the global namespace.
+        /// </summary>
+        /// <param name="output"></param>
+        /// <param name="root"></param>
+        /// <param name="items"></param>
+        void ApplyItemAliases(Dictionary<string, IkvmReferenceItem> output, DependencyNode root, IList<MavenReferenceItem> items)
+        {
+            if (output is null)
+                throw new ArgumentNullException(nameof(output));
+            if (root is null)
+                throw new ArgumentNullException(nameof(root));
+            if (items is null)
+                throw new ArgumentNullException(nameof(items));
+
+            foreach (var item in items)
+            {
+                if (string.IsNullOrWhiteSpace(item.Aliases))
+                    continue;
+
+                var node = FindEffectiveChild(root, item.GroupId, item.ArtifactId, null);
+                var ikvmItem = node?.getArtifact() is Artifact artifact ? GetIkvmReferenceItemForArtifact(output, artifact) : null;
+                if (ikvmItem == null)
+                {
+                    Log.LogWarningFromResources("Warning.MavenAliasesArtifactNotFound", item.ItemSpec);
+                    continue;
+                }
+
+                ikvmItem.Aliases = UnionAliases(ikvmItem.Aliases, item.Aliases);
+            }
+        }
+
+        /// <summary>
+        /// Combines two comma separated alias lists, preserving order and discarding duplicates. The same artifact can
+        /// be reached from more than one item, and each declared alias has to remain usable.
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        internal static string UnionAliases(string a, string b)
+        {
+            var l = new List<string>();
+
+            foreach (var i in $"{a},{b}".Split(','))
+            {
+                var alias = i.Trim();
+                if (alias.Length > 0 && l.Contains(alias) == false)
+                    l.Add(alias);
+            }
+
+            return string.Join(",", l);
         }
 
         /// <summary>

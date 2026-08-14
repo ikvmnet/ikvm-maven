@@ -80,6 +80,11 @@ namespace IKVM.Maven.Sdk.Tasks
         public bool DelaySign { get; set; }
 
         /// <summary>
+        /// Comma separated list of extern aliases to apply to the generated reference.
+        /// </summary>
+        public string Aliases { get; set; }
+
+        /// <summary>
         /// Whether the item will be copied along with the build output.
         /// </summary>
         public bool Private { get; set; } = true;

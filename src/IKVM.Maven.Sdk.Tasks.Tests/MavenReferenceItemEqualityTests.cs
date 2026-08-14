@@ -18,6 +18,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             Version = "1.2.3",
             Optional = true,
             Scope = "compile",
+            Aliases = "foo",
             Exclusions = new[] { new MavenReferenceItemExclusion("ikvm.other", "bar", null, null) },
             ReferenceSource = "MavenReference",
         };
@@ -99,6 +100,10 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             var d = CreateItem();
             d.Optional = false;
             a.Equals(d).Should().BeFalse();
+
+            var e = CreateItem();
+            e.Aliases = "bar";
+            a.Equals(e).Should().BeFalse();
         }
 
     }
