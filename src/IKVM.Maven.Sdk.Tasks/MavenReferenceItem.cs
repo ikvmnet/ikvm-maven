@@ -48,6 +48,11 @@ namespace IKVM.Maven.Sdk.Tasks
         public string Scope { get; set; } = JavaScopes.COMPILE;
 
         /// <summary>
+        /// Comma separated list of extern aliases to apply to the reference generated for this item.
+        /// </summary>
+        public string Aliases { get; set; }
+
+        /// <summary>
         /// Gets the exclusions of this reference.
         /// </summary>
         public MavenReferenceItemExclusion[] Exclusions { get; set; }
@@ -83,6 +88,7 @@ namespace IKVM.Maven.Sdk.Tasks
                 Version == other.Version &&
                 Optional == other.Optional &&
                 Scope == other.Scope &&
+                Aliases == other.Aliases &&
                 ArrayEquals(Exclusions, other.Exclusions) &&
                 ArrayEquals(Dependencies, other.Dependencies) &&
                 ReferenceSource == other.ReferenceSource;
@@ -108,7 +114,7 @@ namespace IKVM.Maven.Sdk.Tasks
         /// <returns></returns>
         public override int GetHashCode()
         {
-            var code = HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope);
+            var code = HashCode.Combine(ItemSpec, GroupId, ArtifactId, Classifier, Version, Optional, Scope, Aliases);
 
             if (Exclusions != null)
                 foreach (var exclusion in Exclusions)

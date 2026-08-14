@@ -23,9 +23,32 @@ Optionally, use an arbitrary value for the item specification, and explicitely s
         <Version>1.2.3</Version>
         <Scope></Scope>
         <Exclusions></Exclusions>
+        <Aliases></Aliases>
     </MavenReference>
 </ItemGroup>
 ```
+
+## Aliases
+
+Two Java libraries can export types with identical fully qualified names. Set `Aliases` on a `MavenReference` to place
+the generated assembly behind an `extern alias`, exactly as you would for a normal `Reference`:
+
+```xml
+<ItemGroup>
+    <MavenReference Include="org.foo.bar:foo-lib:1.2.3">
+        <Aliases>foolib</Aliases>
+    </MavenReference>
+</ItemGroup>
+```
+
+```csharp
+extern alias foolib;
+```
+
+The alias is applied only to the artifact named by the reference, and not to its transitive dependencies: aliasing the
+whole tree would remove every assembly in it from the global namespace. Multiple aliases may be given as a comma
+separated list. Note that an assembly placed behind an alias is no longer reachable from the global namespace unless
+`global` is among its aliases.
 
 ## Underspecified Dependencies
 

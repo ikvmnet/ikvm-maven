@@ -45,6 +45,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             i.SetMetadata(MavenReferenceItemMetadata.Version, "1.2.3");
             i.SetMetadata(MavenReferenceItemMetadata.Optional, "true");
             i.SetMetadata(MavenReferenceItemMetadata.Scope, "runtime");
+            i.SetMetadata(MavenReferenceItemMetadata.Aliases, "foo,bar");
             i.SetMetadata(MavenReferenceItemMetadata.Exclusions, "ikvm.other:bar");
             i.SetMetadata(MavenReferenceItemMetadata.ReferenceSource, "PackageReference");
 
@@ -56,6 +57,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             item.Version.Should().Be("1.2.3");
             item.Optional.Should().BeTrue();
             item.Scope.Should().Be("runtime");
+            item.Aliases.Should().Be("foo,bar");
             item.Exclusions.Should().ContainSingle().Which.Should().Be(new MavenReferenceItemExclusion("ikvm.other", "bar", null, null));
             item.ReferenceSource.Should().Be("PackageReference");
         }
@@ -69,8 +71,17 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             item.Classifier.Should().BeEmpty();
             item.Version.Should().BeEmpty();
             item.Scope.Should().BeEmpty();
+            item.Aliases.Should().BeEmpty();
             item.Optional.Should().BeFalse();
             item.Exclusions.Should().NotBeNull().And.BeEmpty();
+        }
+
+        [TestMethod]
+        public void Should_round_trip_aliases()
+        {
+            var task = (ITaskItem)new TaskItem();
+            MavenReferenceItemMetadata.Save(new MavenReferenceItem() { ItemSpec = "ikvm.test:foo", Aliases = "foo,bar" }, task);
+            MavenReferenceItemMetadata.Import(new[] { task })[0].Aliases.Should().Be("foo,bar");
         }
 
         [TestMethod]

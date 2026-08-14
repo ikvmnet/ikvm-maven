@@ -47,6 +47,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
                 Debug = true,
                 KeyFile = "key.snk",
                 DelaySign = true,
+                Aliases = "foo,bar",
                 Private = false,
                 ReferenceOutputAssembly = false,
                 IkvmIdentity = "identity",
@@ -70,6 +71,7 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
             task.GetMetadata(IkvmReferenceItemMetadata.Debug).Should().Be("true");
             task.GetMetadata(IkvmReferenceItemMetadata.KeyFile).Should().Be("key.snk");
             task.GetMetadata(IkvmReferenceItemMetadata.DelaySign).Should().Be("true");
+            task.GetMetadata(IkvmReferenceItemMetadata.Aliases).Should().Be("foo,bar");
             task.GetMetadata(IkvmReferenceItemMetadata.Private).Should().Be("false");
             task.GetMetadata(IkvmReferenceItemMetadata.ReferenceOutputAssembly).Should().Be("false");
             task.GetMetadata(IkvmReferenceItemMetadata.IkvmIdentity).Should().Be("identity");

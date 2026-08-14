@@ -32,6 +32,7 @@
             <Version></Version>
             <Optional></Optional>
             <Scope></Scope>
+            <Aliases></Aliases>
         </MavenReference>
     </ItemDefinitionGroup>
 

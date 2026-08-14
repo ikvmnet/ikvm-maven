@@ -25,6 +25,7 @@ namespace IKVM.Maven.Sdk.Tasks
         public static readonly string Debug = "Debug";
         public static readonly string KeyFile = "KeyFile";
         public static readonly string DelaySign = "DelaySign";
+        public static readonly string Aliases = "Aliases";
         public static readonly string Private = "Private";
         public static readonly string ReferenceOutputAssembly = "ReferenceOutputAssembly";
 
@@ -58,6 +59,7 @@ namespace IKVM.Maven.Sdk.Tasks
             task.SetMetadata(IkvmReferenceItemMetadata.Debug, item.Debug ? "true" : "false");
             task.SetMetadata(IkvmReferenceItemMetadata.KeyFile, item.KeyFile);
             task.SetMetadata(IkvmReferenceItemMetadata.DelaySign, item.DelaySign ? "true" : "false");
+            task.SetMetadata(IkvmReferenceItemMetadata.Aliases, item.Aliases);
             task.SetMetadata(IkvmReferenceItemMetadata.Private, item.Private ? "true" : "false");
             task.SetMetadata(IkvmReferenceItemMetadata.ReferenceOutputAssembly, item.ReferenceOutputAssembly ? "true" : "false");
             task.SetMetadata(IkvmReferenceItemMetadata.IkvmIdentity, item.IkvmIdentity);
