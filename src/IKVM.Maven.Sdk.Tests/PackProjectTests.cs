@@ -81,7 +81,7 @@ namespace IKVM.Maven.Sdk.Tests
                 .Save(Path.Combine(@"PackProject", "nuget.config"));
 
             var manager = new AnalyzerManager();
-            var analyzer = manager.GetProject(Path.Combine(@"PackProject", "Lib", "PackProjectLib.csproj"));
+            var analyzer = manager.GetProject(Path.GetFullPath(Path.Combine(@"PackProject", "Lib", "PackProjectLib.csproj")));
             analyzer.AddBuildLogger(new MSBuildTestLogger(context));
             analyzer.AddBinaryLogger(Path.Combine(WorkRoot, "msbuild.binlog"));
             analyzer.SetGlobalProperty("ImportDirectoryBuildProps", "false");
@@ -102,6 +102,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.Restore = true;
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Restore");
+            ProjectTests.DisableBuildServerReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
@@ -148,6 +149,7 @@ namespace IKVM.Maven.Sdk.Tests
             options.TargetsToBuild.Clear();
             options.TargetsToBuild.Add("Clean");
             options.TargetsToBuild.Add("Pack");
+            ProjectTests.DisableBuildServerReuse(options);
             analyzer.Build(options).OverallSuccess.Should().Be(true);
         }
 
