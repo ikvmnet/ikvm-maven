@@ -8,7 +8,6 @@
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Description>Java SE 8 Virtual Machine for .NET (Maven SDK)</Description>
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
-        <DevelopmentDependency>true</DevelopmentDependency>
     </PropertyGroup>
 
     <PropertyGroup>
