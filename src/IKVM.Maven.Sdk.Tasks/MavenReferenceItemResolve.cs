@@ -662,6 +662,27 @@ namespace IKVM.Maven.Sdk.Tasks
                 foreach (var ikvmReference in CollectIkvmReferenceItemReferences(output, node, new HashSet<DependencyNode>()))
                     if (ikvmItem != ikvmReference && ikvmItem.References.Contains(ikvmReference) == false)
                         ikvmItem.References.Add(ikvmReference);
+
+            // record the direct dependencies another version of which won a conflict, for tools explaining the graph
+            if (ikvmItem != null)
+                foreach (DependencyNode child in (IEnumerable)node.getChildren())
+                    if (scopes.Contains(child.getDependency().getScope()) && GetEffectiveNode(child) is var winner && winner != child)
+                        if (child.getArtifact() is Artifact omitted && winner.getArtifact() is Artifact chosen && omitted.getExtension() == "jar" && omitted.getVersion() != chosen.getVersion())
+                            if (FormatCoordinates(omitted) is var coordinates && ikvmItem.MavenOmitted.Contains(coordinates) == false)
+                                ikvmItem.MavenOmitted.Add(coordinates);
+        }
+
+        /// <summary>
+        /// Formats the coordinates of an artifact as <c>groupId:artifactId[:classifier]:version</c>.
+        /// </summary>
+        /// <param name="artifact"></param>
+        /// <returns></returns>
+        static string FormatCoordinates(Artifact artifact)
+        {
+            var classifier = artifact.getClassifier();
+            return string.IsNullOrEmpty(classifier)
+                ? $"{artifact.getGroupId()}:{artifact.getArtifactId()}:{artifact.getVersion()}"
+                : $"{artifact.getGroupId()}:{artifact.getArtifactId()}:{classifier}:{artifact.getVersion()}";
         }
 
         /// <summary>

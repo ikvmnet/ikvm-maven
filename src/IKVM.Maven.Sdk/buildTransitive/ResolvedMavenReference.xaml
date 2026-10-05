@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule Name="ResolvedMavenReference" DisplayName="Maven Reference" Description="Resolved Maven Reference Properties" PageTemplate="generic" xmlns="http://schemas.microsoft.com/build/2009/properties">
+    <Rule.DataSource>
+        <DataSource HasConfigurationCondition="False" ItemType="MavenReference" MSBuildTarget="ResolveMavenReferencesDesignTime" Persistence="ResolvedReference" SourceOfDefaultValue="AfterContext" SourceType="TargetResults" />
+    </Rule.DataSource>
+
+    <Rule.Categories>
+        <Category Name="Maven" DisplayName="Maven" />
+        <Category Name="Dependencies" DisplayName="Dependencies" />
+        <Category Name="Reference" DisplayName="Reference" />
+        <Category Name="Assembly" DisplayName="Assembly" />
+        <Category Name="Resolved" DisplayName="Resolved" />
+    </Rule.Categories>
+
+    <StringProperty Name="MavenGroupId" DisplayName="Group ID" Category="Maven" ReadOnly="True" Description="Group ID of the resolved artifact." />
+
+    <StringProperty Name="MavenArtifactId" DisplayName="Artifact ID" Category="Maven" ReadOnly="True" Description="Artifact ID of the resolved artifact." />
+
+    <StringProperty Name="MavenClassifier" DisplayName="Classifier" Category="Maven" ReadOnly="True" Description="Classifier of the resolved artifact." />
+
+    <StringProperty Name="MavenVersion" DisplayName="Version" Category="Maven" ReadOnly="True" Description="Version Maven resolved for the artifact." />
+
+    <EnumProperty Name="Scope" DisplayName="Scope" Category="Maven" Description="Maven scope of the dependency. Defaults to compile.">
+        <EnumProperty.DataSource>
+            <DataSource HasConfigurationCondition="False" ItemType="MavenReference" Persistence="ProjectFile" SourceOfDefaultValue="AfterContext" />
+        </EnumProperty.DataSource>
+        <EnumValue Name="" DisplayName="(compile)" />
+        <EnumValue Name="compile" DisplayName="compile" />
+        <EnumValue Name="provided" DisplayName="provided" />
+        <EnumValue Name="runtime" DisplayName="runtime" />
+        <EnumValue Name="test" DisplayName="test" />
+        <EnumValue Name="system" DisplayName="system" />
+    </EnumProperty>
+
+    <BoolProperty Name="Optional" DisplayName="Optional" Category="Maven" Description="Whether the dependency is optional, and so not passed on to projects that depend on this one.">
+        <BoolProperty.DataSource>
+            <DataSource HasConfigurationCondition="False" ItemType="MavenReference" Persistence="ProjectFile" SourceOfDefaultValue="AfterContext" />
+        </BoolProperty.DataSource>
+    </BoolProperty>
+
+    <StringListProperty Name="Exclusions" DisplayName="Exclusions" Category="Dependencies" Separator=";" Description="Transitive dependencies to leave out, each as 'groupId:artifactId[:classifier[:extension]]'.">
+        <StringListProperty.DataSource>
+            <DataSource HasConfigurationCondition="False" ItemType="MavenReference" Persistence="ProjectFile" SourceOfDefaultValue="AfterContext" />
+        </StringListProperty.DataSource>
+    </StringListProperty>
+
+    <StringListProperty Name="Dependencies" DisplayName="Dependency Overrides" Category="Dependencies" Separator=";" Description="Transitive dependencies to replace, each as a path of 'groupId:artifactId' segments separated by '/', ending in the coordinates to use.">
+        <StringListProperty.DataSource>
+            <DataSource HasConfigurationCondition="False" ItemType="MavenReference" Persistence="ProjectFile" SourceOfDefaultValue="AfterContext" />
+        </StringListProperty.DataSource>
+    </StringListProperty>
+
+    <StringProperty Name="Aliases" DisplayName="Aliases" Category="Reference" Description="Extern aliases for the generated assemblies, separated by commas.">
+        <StringProperty.DataSource>
+            <DataSource HasConfigurationCondition="False" ItemType="MavenReference" Persistence="ProjectFile" SourceOfDefaultValue="AfterContext" />
+        </StringProperty.DataSource>
+    </StringProperty>
+
+    <StringProperty Name="AssemblyName" DisplayName="Assembly Name" Category="Assembly" ReadOnly="True" Description="Name of the generated assembly, when one was specified." />
+
+    <StringProperty Name="FallbackAssemblyName" DisplayName="Fallback Assembly Name" Category="Assembly" ReadOnly="True" Description="Assembly name used when none can be derived from the JAR." />
+
+    <StringProperty Name="FallbackAssemblyVersion" DisplayName="Fallback Assembly Version" Category="Assembly" ReadOnly="True" Description="Assembly version used when none can be derived from the JAR." />
+
+    <StringListProperty Name="Compile" DisplayName="Classes" Category="Resolved" ReadOnly="True" Description="JAR files compiled into the assembly, in the local Maven repository." />
+
+    <StringListProperty Name="References" DisplayName="Depends On" Category="Resolved" ReadOnly="True" Description="Resolved artifacts this one depends on." />
+
+    <StringListProperty Name="MavenOmitted" DisplayName="Omitted for Conflicts" Category="Resolved" ReadOnly="True" Description="Dependencies of this artifact left out because another version of them was chosen." />
+
+    <BoolProperty Name="ReferenceOutputAssembly" DisplayName="Referenced" Category="Resolved" ReadOnly="True" Description="Whether the generated assembly is referenced by the project, as it is for compile and provided scopes." />
+
+    <BoolProperty Name="Private" DisplayName="Copy Local" Category="Resolved" ReadOnly="True" Description="Whether the generated assembly is copied to the output, as it is for compile and runtime scopes." />
+</Rule>

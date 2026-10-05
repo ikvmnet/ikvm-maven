@@ -127,6 +127,30 @@
         </GetIkvmReferenceItemsDependsOn>
     </PropertyGroup>
 
+    <!-- Property pages for MavenReference items in Visual Studio -->
+    <ItemGroup>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)MavenReference.xaml">
+            <Context>Project;BrowseObject</Context>
+        </PropertyPageSchema>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ResolvedMavenReference.xaml">
+            <Context>ProjectSubscriptionService;BrowseObject</Context>
+        </PropertyPageSchema>
+        <PropertyPageSchema Include="$(MSBuildThisFileDirectory)ResolvedMavenArtifact.xaml">
+            <Context>BrowseObject</Context>
+        </PropertyPageSchema>
+    </ItemGroup>
+
+    <!--
+    Resolves the MavenReference items for Visual Studio: one item per artifact in the resolved graph, with its Maven
+    coordinates and the artifacts it References. Resolution problems are reported as warnings, so that they do not fail
+    the design-time build.
+    -->
+    <Target Name="ResolveMavenReferencesDesignTime" DependsOnTargets="GetMavenReferenceItems" Returns="@(_MavenReferenceDesignTimeItem)">
+        <MavenReferenceItemResolve CacheFile="$(MavenCacheFile)" Repositories="@(MavenRepositories)" IncludeTestScope="$(MavenIncludeTestScope)" KeyFile="$(IkvmKeyFile)" Debug="$(DebugSymbols)" ClassLoader="$(MavenClassLoader)" References="@(MavenReferenceItem)" ContinueOnError="true" Condition=" '@(MavenReferenceItem)' != '' ">
+            <Output TaskParameter="ResolvedReferences" ItemName="_MavenReferenceDesignTimeItem"/>
+        </MavenReferenceItemResolve>
+    </Target>
+
     <!-- Gets the MavenReferenceItems that will be emitted to the generated package. -->
     <Target Name="GetMavenReferenceItemsForProjectModel" DependsOnTargets="GetMavenReferenceItems" Condition=" '@(MavenReferenceItem)' != '' ">
         <ItemGroup>

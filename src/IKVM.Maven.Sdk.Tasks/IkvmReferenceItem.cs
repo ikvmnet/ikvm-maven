@@ -119,6 +119,12 @@ namespace IKVM.Maven.Sdk.Tasks
         /// </summary>
         public string MavenVersion { get; set; }
 
+        /// <summary>
+        /// Direct dependencies of the artifact left out because another version of them won a conflict, each as
+        /// <c>groupId:artifactId[:classifier]:version</c> of the version left out. The winner is among the references.
+        /// </summary>
+        public List<string> MavenOmitted { get; set; } = new List<string>();
+
         /// <inheritdoc />
         public override string ToString() => ItemSpec;
 

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Rule Name="MavenReference" DisplayName="Maven Reference" Description="Maven Reference Properties" PageTemplate="generic" xmlns="http://schemas.microsoft.com/build/2009/properties">
+    <Rule.DataSource>
+        <DataSource HasConfigurationCondition="False" ItemType="MavenReference" Persistence="ProjectFile" SourceOfDefaultValue="AfterContext" />
+    </Rule.DataSource>
+
+    <Rule.Categories>
+        <Category Name="Maven" DisplayName="Maven" />
+        <Category Name="Dependencies" DisplayName="Dependencies" />
+        <Category Name="Reference" DisplayName="Reference" />
+    </Rule.Categories>
+
+    <StringProperty Name="GroupId" DisplayName="Group ID" Category="Maven" Description="Group ID of the artifact. Defaults to the first part of the Include value, when that is in the form 'groupId:artifactId[:version]'." />
+
+    <StringProperty Name="ArtifactId" DisplayName="Artifact ID" Category="Maven" Description="Artifact ID of the artifact. Defaults to the second part of the Include value." />
+
+    <StringProperty Name="Version" DisplayName="Version" Category="Maven" Description="Version of the artifact, or a version range. Defaults to the third part of the Include value." />
+
+    <StringProperty Name="Classifier" DisplayName="Classifier" Category="Maven" Description="Classifier of the artifact, such as 'jdk8'." />
+
+    <EnumProperty Name="Scope" DisplayName="Scope" Category="Maven" Description="Maven scope of the dependency. Defaults to compile.">
+        <EnumValue Name="" DisplayName="(compile)" />
+        <EnumValue Name="compile" DisplayName="compile" />
+        <EnumValue Name="provided" DisplayName="provided" />
+        <EnumValue Name="runtime" DisplayName="runtime" />
+        <EnumValue Name="test" DisplayName="test" />
+        <EnumValue Name="system" DisplayName="system" />
+    </EnumProperty>
+
+    <BoolProperty Name="Optional" DisplayName="Optional" Category="Maven" Description="Whether the dependency is optional, and so not passed on to projects that depend on this one." />
+
+    <StringListProperty Name="Exclusions" DisplayName="Exclusions" Category="Dependencies" Separator=";" Description="Transitive dependencies to leave out, each as 'groupId:artifactId[:classifier[:extension]]'." />
+
+    <StringListProperty Name="Dependencies" DisplayName="Dependency Overrides" Category="Dependencies" Separator=";" Description="Transitive dependencies to replace, each as a path of 'groupId:artifactId' segments separated by '/', ending in the coordinates to use." />
+
+    <StringProperty Name="Aliases" DisplayName="Aliases" Category="Reference" Description="Extern aliases for the generated assemblies, separated by commas." />
+</Rule>

@@ -24,6 +24,11 @@
     <UsingTask TaskName="MavenReferenceItemInstall" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" Condition="Exists('$(IkvmMavenSdkTaskAssembly)')" />
     <UsingTask TaskName="MavenWriteProjectObjectModelFile" AssemblyFile="$(IkvmMavenSdkTaskAssembly)" TaskFactory="$(IkvmMavenSdkTaskFactory)" Condition="Exists('$(IkvmMavenSdkTaskAssembly)')" />
 
+    <!-- Lets Visual Studio offer MavenReference UI in any project using the Maven SDK -->
+    <ItemGroup>
+        <ProjectCapability Include="MavenReferences" />
+    </ItemGroup>
+
     <ItemDefinitionGroup>
         <MavenReference>
             <GroupId></GroupId>
