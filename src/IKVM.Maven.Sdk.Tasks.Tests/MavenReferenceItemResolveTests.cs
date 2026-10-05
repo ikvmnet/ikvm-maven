@@ -346,6 +346,34 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
+        public void ExclusionWithoutClassifierOrExtensionShouldExcludeTransitiveDependency()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            var i1 = new TaskItem("org.junit.platform:junit-platform-launcher:1.9.1");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.junit.platform");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "junit-platform-launcher");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "1.9.1");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            i1.SetMetadata(MavenReferenceItemMetadata.Exclusions, "org.junit.platform:junit-platform-engine");
+
+            t.References = new[] { i1 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().Contain(i => i.ItemSpec == "maven$org.junit.platform:junit-platform-launcher:1.9.1");
+            t.ResolvedReferences.Should().NotContain(i => i.ItemSpec == "maven$org.junit.platform:junit-platform-engine:1.9.1");
+        }
+
+        [TestMethod]
         public void ShouldIncludeUnifiedVersions()
         {
             var cacheFile = Path.GetTempFileName();
