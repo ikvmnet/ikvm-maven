@@ -28,6 +28,8 @@
 
     <StringListProperty Name="References" DisplayName="Depends On" Category="Resolved" ReadOnly="True" Description="Resolved artifacts this one depends on." />
 
+    <StringListProperty Name="MavenOmitted" DisplayName="Omitted for Conflicts" Category="Resolved" ReadOnly="True" Description="Dependencies of this artifact left out because another version of them was chosen." />
+
     <BoolProperty Name="ReferenceOutputAssembly" DisplayName="Referenced" Category="Resolved" ReadOnly="True" Description="Whether the generated assembly is referenced by the project, as it is for compile and provided scopes." />
 
     <BoolProperty Name="Private" DisplayName="Copy Local" Category="Resolved" ReadOnly="True" Description="Whether the generated assembly is copied to the output, as it is for compile and runtime scopes." />

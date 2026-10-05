@@ -34,6 +34,7 @@ namespace IKVM.Maven.Sdk.Tasks
         public static readonly string MavenArtifactId = "MavenArtifactId";
         public static readonly string MavenClassifier = "MavenClassifier";
         public static readonly string MavenVersion = "MavenVersion";
+        public static readonly string MavenOmitted = "MavenOmitted";
 
         /// <summary>
         /// Writes the metadata to the item.
@@ -67,6 +68,7 @@ namespace IKVM.Maven.Sdk.Tasks
             task.SetMetadata(IkvmReferenceItemMetadata.MavenArtifactId, item.MavenArtifactId);
             task.SetMetadata(IkvmReferenceItemMetadata.MavenClassifier, item.MavenClassifier);
             task.SetMetadata(IkvmReferenceItemMetadata.MavenVersion, item.MavenVersion);
+            task.SetMetadata(IkvmReferenceItemMetadata.MavenOmitted, string.Join(IkvmReferenceItemMetadata.PropertySeperatorString, item.MavenOmitted));
         }
 
     }

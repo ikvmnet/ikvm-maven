@@ -308,6 +308,44 @@ namespace IKVM.Maven.Sdk.Tasks.Tests
         }
 
         [TestMethod]
+        public void ShouldRecordDependenciesOmittedForConflicts()
+        {
+            var engine = new Mock<IBuildEngine>();
+            var errors = new List<BuildErrorEventArgs>();
+            engine.Setup(x => x.LogErrorEvent(It.IsAny<BuildErrorEventArgs>())).Callback((BuildErrorEventArgs e) => { errors.Add(e); TestContext.WriteLine("ERROR: " + e.Message); });
+            engine.Setup(x => x.LogWarningEvent(It.IsAny<BuildWarningEventArgs>())).Callback((BuildWarningEventArgs e) => TestContext.WriteLine("WARNING: " + e.Message));
+            engine.Setup(x => x.LogMessageEvent(It.IsAny<BuildMessageEventArgs>())).Callback((BuildMessageEventArgs e) => TestContext.WriteLine(e.Message));
+            var t = new MavenReferenceItemResolve();
+            t.BuildEngine = engine.Object;
+            t.Repositories = new[] { GetCentralRepositoryItem() };
+
+            // slf4j-simple wants slf4j-api 2.0.13, but the version referenced directly is nearer, and wins
+            var i1 = new TaskItem("org.slf4j:slf4j-simple:2.0.13");
+            i1.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.slf4j");
+            i1.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "slf4j-simple");
+            i1.SetMetadata(MavenReferenceItemMetadata.Version, "2.0.13");
+            i1.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+            var i2 = new TaskItem("org.slf4j:slf4j-api:1.7.36");
+            i2.SetMetadata(MavenReferenceItemMetadata.GroupId, "org.slf4j");
+            i2.SetMetadata(MavenReferenceItemMetadata.ArtifactId, "slf4j-api");
+            i2.SetMetadata(MavenReferenceItemMetadata.Version, "1.7.36");
+            i2.SetMetadata(MavenReferenceItemMetadata.Scope, "compile");
+
+            t.References = new[] { i1, i2 };
+
+            t.Execute().Should().BeTrue();
+            errors.Should().BeEmpty();
+
+            t.ResolvedReferences.Should().NotContain(i => i.ItemSpec == "maven$org.slf4j:slf4j-api:2.0.13");
+            var simple = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.slf4j:slf4j-simple:2.0.13");
+            simple.GetMetadata("MavenOmitted").Split(';').Should().Contain("org.slf4j:slf4j-api:2.0.13");
+            simple.GetMetadata("References").Split(';').Should().Contain("maven$org.slf4j:slf4j-api:1.7.36");
+
+            var api = t.ResolvedReferences.First(i => i.ItemSpec == "maven$org.slf4j:slf4j-api:1.7.36");
+            api.GetMetadata("MavenOmitted").Should().BeEmpty();
+        }
+
+        [TestMethod]
         public void ShouldIncludeUnifiedVersions()
         {
             var cacheFile = Path.GetTempFileName();
