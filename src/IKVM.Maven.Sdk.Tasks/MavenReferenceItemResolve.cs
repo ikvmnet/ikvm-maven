@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -411,7 +411,8 @@ namespace IKVM.Maven.Sdk.Tasks
             var dependencies = new List<Dependency>(items.Count);
             for (int i = 0; i < items.Count; i++)
             {
-                var exclusions = Arrays.asList(items[i].Exclusions.Select(j => new Exclusion(j.GroupId, j.ArtifactId, j.Classifier, j.Extension)).ToArray());
+                // a classifier or extension left out matches any, as in a POM; the resolver only treats "*" so
+                var exclusions = Arrays.asList(items[i].Exclusions.Select(j => new Exclusion(j.GroupId, j.ArtifactId, string.IsNullOrEmpty(j.Classifier) ? "*" : j.Classifier, string.IsNullOrEmpty(j.Extension) ? "*" : j.Extension)).ToArray());
                 dependencies.Add(new Dependency(new DefaultArtifact(items[i].GroupId, items[i].ArtifactId, items[i].Classifier, "jar", items[i].Version), items[i].Scope, items[i].Optional ? java.lang.Boolean.TRUE : java.lang.Boolean.FALSE, exclusions));
             }
 
